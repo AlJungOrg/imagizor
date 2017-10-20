@@ -14,12 +14,14 @@ declare GREEN_BEG="\\033[01;33m\e[32m"
 declare BLUE_BEG="\\033[01;33m\e[34m"
 declare TUERK_BEG="\\033[01;33m\e[34m"
 declare COL_END="\\033[;0m"
+declare Underline="\\033[4m"
 
 declare ARG_OPTION=$1
 
 set -u
 
 download() {             #Download the Software and unpack them, if required 
+    Head_trace "download process"
     Info_trace "Download the Software"
     if ! wget $LINK; then
         error_trace "Maybe the URL is not available or the URL ist passed off "
@@ -33,6 +35,7 @@ download() {             #Download the Software and unpack them, if required
 }
 
 unpack() {               #Unpack the Software
+    Head_trace "Unpack process"
     Info_trace "Unpack the Software"
     if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
         unpack_text
@@ -66,10 +69,12 @@ help_for_less_Parameter () {     #Longer help text
 }
 
 Find_Out_SD_Card () {     #Checked if the SD-Card exists
+    Head_trace "Find out the SD-Card"
     Info_trace "Checked if the SD-Card exists"
     if ! [ -e /dev/mmcblk0 ]; then 
         error_trace "SD-Card is not available"
         Help_trace "Please put a SD-Card in"
+        Help_trace "At least $FILSIZE are needed"
     fi
     while true; do 
         sleep 1
@@ -82,17 +87,13 @@ Find_Out_SD_Card () {     #Checked if the SD-Card exists
 }
 
 Checked_SD-Card_and_FileSize () {      #Checked the Sd-Card Size and the Filesize
+    Head_trace "Checking Size"
     Info_trace "Checked the Size of the SD-Card and the Image-File"
     if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ]; then
         error_trace "SD-Card has less memory space"
         Help_trace "Please put a new SD-Card in"
-        Help_trace "Or provide mor memory Space"
-    elif [ $FILESIZE_WHOLE -lt 2147485696 ]; then
-        echo -e "At least 2GB are needed"
-    elif [ $FILESIZE_WHOLE -gt 2147485696 ]; then
-        echo -e "At least 4GB are needed"
-    elif [ $FILESIZE_WHOLE -gt 4294967296 ]; then
-        echo -e "At least 8GB are needed"
+        Help_trace "Or provide more memory Space"
+        Help_trace "At least $FILSIZE are needed"
     fi
     while true; do
         sleep 1
@@ -105,6 +106,7 @@ Checked_SD-Card_and_FileSize () {      #Checked the Sd-Card Size and the Filesiz
 }
 
 CopySD () {             #Copy the File on the SD-Card
+    Head_trace "Copy process"
     Info_trace "Copy the File on the SD-Card"
     declare BLOCKS=8000000
     sudo dd if=$FILENAME of=$SDCard_DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE))
@@ -112,6 +114,7 @@ CopySD () {             #Copy the File on the SD-Card
 }
 
 Copy_back() {           #Copy the File from the SD-Card back into an File
+    Head_trace "Verifying"
     Info_trace "Copy the File from the SD-Card back into an File"
     declare -r BLOCKS_BACK=1000000
     sudo dd if=$SDCard_DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
@@ -121,15 +124,9 @@ Copy_back() {           #Copy the File from the SD-Card back into an File
 }
 
 Filesize () {                       #Checked the Filesize
+    Head_trace "Size checking"
     Info_trace "Checked the Filesize of the Image-File"
     SIZE_trace "Filesize of the Image-File: $FILESIZE" 
-}
-
-Filesize_returned () {    #Checked the Filesize of the back written File
-    declare FILESIZE_BACK_WHOLE=$(stat -c %s verify.img)
-    declare FILESIZE_BACK=$(du -h verify.img | awk '{print $1}') 
-    Info_trace "Checked the Filesize of the back written File"
-    SIZE_trace "Filesize of the returned File: $FILESIZE_BACK"
 }
 
 Hashwerte_Vergleichen() {   #Compares the hash values from the downloaded File and the returned File
@@ -138,8 +135,10 @@ Hashwerte_Vergleichen() {   #Compares the hash values from the downloaded File a
     declare MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
     if [ $MD5SUM == $MD5SUM_BACK ]; then 
         Correct_trace "The hash values are right"
+        Correct_trace "Successfully Verifying "
         else 
         error_trace "The hash values are not right, please try it again"
+        error_trace "Unsuccessfully verifying"
     fi
 }
 
@@ -166,6 +165,12 @@ Correct_trace() {       #marked Green
 SIZE_trace() {          #marked Blue
     echo -e "${BLUE_BEG}$1${COL_END}"
 }
+
+Head_trace() {          #create a underline and the text is purple
+    echo -e ______________________________________________________________________
+    echo -e "\n${Underline}${PUR_BEG}$1${COL_END}\n"
+    echo -e ----------------------------------------------------------------------
+}  
 
 if [ $# -lt 2 ]; then   #in the case they are less then 2 Parameter are given, then spend a text
     help_for_less_Parameter
@@ -220,8 +225,6 @@ Filesize
 CopySD  
 
 Copy_back
-
-Filesize_returned
 
 Hashwerte_Vergleichen
 
