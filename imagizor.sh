@@ -6,10 +6,10 @@ set +u
 set -e
 #set -x
 
-#echo -e "$0 Paramter: $*"
+#echo -e "$0 Parameter: $*"
 
-declare ROT_BEG="\\033[01;33m\e[31m"
-declare MAG_BEG="\\033[01;33m\e[35m"
+declare RED_BEG="\\033[01;33m\e[31m"
+declare PUR_BEG="\\033[01;33m\e[35m"
 declare GREEN_BEG="\\033[01;33m\e[32m"
 declare BLUE_BEG="\\033[01;33m\e[34m"
 declare TUERK_BEG="\\033[01;33m\e[34m"
@@ -19,183 +19,183 @@ declare ARG_OPTION=$1
 
 set -u
 
-runterladen() {             #lädt die Software herunter und entpackt sie, falls nötig
-    Info_trace "Lade gerade die Software herunter"
+download() {             #Download the Software and unpack them, if required 
+    Info_trace "Download the Software"
     if ! wget $LINK; then
-        error_trace "Eventuell ist die URL nicht verfügbar oder abgelaufen"
+        error_trace "Maybe the URL is not available or the URL ist passed off "
         help
         exit
     fi
-    Info_trace "Versuche die Heruntergeladene Datei zu entpacken"
+    Info_trace "Try to unpack the downloaded Software"
     if ! gunzip  $LINK >/dev/null 2>/dev/null; then
-        entpacken_text
+        unpack_text
     fi
 }
 
-entpacken() {               #entpackt die Software
-    Info_trace "Entpacke die Datei"
+unpack() {               #Unpack the Software
+    Info_trace "Unpack the Software"
     if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
-        entpacken_text
+        unpack_text
         exit
     fi
 }
 
-entpacken_text() {      #gibt ein text zum entpacken aus
-    echo -e "Entpacken ist nicht notwendig"
+unpack_text() {      #Text for the unpack part
+    echo -e "Unpack is not required"
 }
 
-help() {                    #gibt ein Hilfetext aus
-    echo -e "Ungültiges Kommando"
-    echo -e "Aufruf: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, Datei zum entpacken]"
-    echo -e "Beispiel: ./image_to_device.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+help() {                    #Is a help text
+    echo -e "invalid command"
+    echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack]"
+    echo -e "Example: ./image_to_device.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
     exit 
 }
 
-Parameter_show() {          #Überprüft ob mehr als 2 Paramter angegeben worden sind
+Parameter_show() {          #Checked if more then 2 Parameter are given
     if [ $# -lt 2 ]; then   
-        help_for_less_Paramter
+        help_for_less_Parameter
     fi
 }
 
-help_for_less_Paramter () {     #Gibt ein längeren Hilfetext aus
-    echo -e "Aufruf: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, Datei zum entpacken]"
-    echo -e "./image_to_device.sh                    -g      --gunzip                            Datei zum entpacken"
+help_for_less_Parameter () {     #Longer help text
+    echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack]"
+    echo -e "./image_to_device.sh                    -g      --gunzip                            File to unpack"
     echo -e "./image_to_device.sh                    -d      --download                          Downloadlink"
-    echo -e "Beispiel: ./image_to_device.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+    echo -e "Example: ./image_to_device.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
     exit
 }
 
-SD_karte_ermitteln () {     #Überprüft ob die SD-Karte vorhanden ist
-    Info_trace "Überprüfe ob die SD-Karte vorhanden ist"
+Find_Out_SD_Card () {     #Checked if the SD-Card exists
+    Info_trace "Checked if the SD-Card exists"
     if ! [ -e /dev/mmcblk0 ]; then 
-        error_trace "SD-Karte nicht erkannt"
-        Help_trace "Biite stecken sie eine SD-Karte ein"
+        error_trace "SD-Card is not available"
+        Help_trace "Please put a SD-Card in"
     fi
     while true; do 
         sleep 1
-        declare SIZE=$(lsblk $SDKARTE_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
+        declare SIZE=$(lsblk $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
     if [ -e /dev/mmcblk0 ]; then
-        SIZE_trace "Die SD-Karte ist $SIZE groß"
+        SIZE_trace "The SD-Card is $SIZE big"
         break
     fi
     done
 }
 
-Ueberpruefe_SD-Karte_und_DateiGroesse () {      #Überprüft die Größe der Datei und der SD-Karte miteinander
-    Info_trace "Überprüfe die Größe der SD-Karte und der Image-Datei miteinander"
-    if [ $SIZE_GANZ -lt $FILESIZE_GANZ ]; then
-        error_trace "SD-Karte hat zu wenig Speicherplatz"
-        Help_trace "Neue SD-Karte einlegen"
-        Help_trace "Oder Speicherplatz beschaffen"
-    elif [ $FILESIZE_GANZ -lt 2147485696 ]; then
-        echo -e "Es werden mindestens 2 GB benötigt"
-    elif [ $FILESIZE_GANZ -gt 2147485696 ]; then
-        echo -e "Es werden mindestens 4 GB benötigt"
-    elif [ $FILESIZE_GANZ -gt 4294967296 ]; then
-        echo -e "Es werden mindestens 8 GB benötigt"
+Checked_SD-Card_and_FileSize () {      #Checked the Sd-Card Size and the Filesize
+    Info_trace "Checked the Size of the SD-Card and the Image-File"
+    if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ]; then
+        error_trace "SD-Card has less memory space"
+        Help_trace "Please put a new SD-Card in"
+        Help_trace "Or provide mor memory Space"
+    elif [ $FILESIZE_WHOLE -lt 2147485696 ]; then
+        echo -e "At least 2GB are needed"
+    elif [ $FILESIZE_WHOLE -gt 2147485696 ]; then
+        echo -e "At least 4GB are needed"
+    elif [ $FILESIZE_WHOLE -gt 4294967296 ]; then
+        echo -e "At least 8GB are needed"
     fi
     while true; do
         sleep 1
-    declare SIZE_GANZ=$(lsblk -b $SDKARTE_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
-    if [ $SIZE_GANZ -gt $FILESIZE_GANZ ] >/dev/null 2>/dev/null; then
-        Correct_trace "SD-Karte ist größer als die Datei"
+    declare SIZE_WHOLE=$(lsblk -b $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
+    if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
+        Correct_trace "SD-Card is bigger then the Image-File "
         break
     fi
     done 
 }
 
-KopierenSD () {             #Kopiert die Software auf die SD-Karte
-    Info_trace "Kopiere die Image-Datei auf die SD-Karte"
+CopySD () {             #Copy the File on the SD-Card
+    Info_trace "Copy the File on the SD-Card"
     declare BLOCKS=8000000
-    sudo dd if=$FILENAME of=$SDKARTE_DEVICE bs=$BLOCKS count=$((FILESIZE_GANZ))
+    sudo dd if=$FILENAME of=$SDCard_DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE))
     sync
 }
 
-Kopieren_back() {           #Kopiert die Software von der SD-Karte zurück in eine Datei
-    Info_trace "Lese die Software von der SD-Karte in eine Datei zurück"
+Copy_back() {           #Copy the File from the SD-Card back into an File
+    Info_trace "Copy the File from the SD-Card back into an File"
     declare -r BLOCKS_BACK=1000000
-    sudo dd if=$SDKARTE_DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_GANZ))
+    sudo dd if=$SDCard_DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
     sync
-    Info_trace "Verkürze die zurückgeschriebenen Datei in die Größe der Originalen Datei"
+    Info_trace "Shortening the returned File in the Size from the original File"
     sudo truncate -r $FILENAME verify.img
 }
 
-Dateigroesse () {                       #Überprüft die Dateigröße
-    Info_trace "Überprüfe die Dateigröße der Image-Datei"
-    SIZE_trace "Dateigröße der Image-Datei: $FILESIZE" 
+Filesize () {                       #Checked the Filesize
+    Info_trace "Checked the Filesize of the Image-File"
+    SIZE_trace "Filesize of the Image-File: $FILESIZE" 
 }
 
-Dateigroesse_zurueckgeschrieben () {    #Überprüft die Dateigröße der zurückgeschriebenen Datei
-    declare FILESIZE_BACK_GANZ=$(stat -c %s verify.img)
+Filesize_returned () {    #Checked the Filesize of the back written File
+    declare FILESIZE_BACK_WHOLE=$(stat -c %s verify.img)
     declare FILESIZE_BACK=$(du -h verify.img | awk '{print $1}') 
-    Info_trace "Überprüfe die Größe der zurückgeschriebenen Datei"
-    SIZE_trace "Dateigröße der zurückgeschriebenen Datei: $FILESIZE_BACK"
+    Info_trace "Checked the Filesize of the back written File"
+    SIZE_trace "Filesize of the returned File: $FILESIZE_BACK"
 }
 
-Hashwerte_Vergleichen() {   #Vergleicht die Hashwerte von der Heruntergeladenen Datei und der zurückgeschriebenen Datei mit einander
-    Info_trace "Vergleiche die Hashwerte der zurückgeschriebenen und der Originalen Datei miteinander"
+Hashwerte_Vergleichen() {   #Compares the hash values from the downloaded File and the returned File
+    Info_trace "Compare the hash values from the downloaded File and the returned File"
     declare MD5SUM=$(md5sum $FILENAME | cut -d" " -f1)
     declare MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
     if [ $MD5SUM == $MD5SUM_BACK ]; then 
-        Correct_trace "Die Hashwerte sind gleich"
+        Correct_trace "The hash values are right"
         else 
-        error_trace "Die Hashwerte sind nicht gleich, bitte versuchen sie es erneut"
+        error_trace "The hash values are not right, please try it again"
     fi
 }
-declare SIZE_GANZ=
-Zurueckgeschriebene_Datei_loeschen() {  #Die Zurueckgeschriebene Datei löschen
+
+delete_returned_file() {  #Delete the returned File
     rm -rf verify.img
 }
 
-Info_trace() {          #Markiert Lila
-    echo -e "${MAG_BEG}$1${COL_END}"
+Info_trace() {          #marked purple
+    echo -e "${PUR_BEG}$1${COL_END}"
 }
 
-Help_trace() {          #Markiert Rot
-    echo -e "${ROT_BEG}$1${COL_END}"
+Help_trace() {          #marked RED
+    echo -e "${RED_BEG}$1${COL_END}"
 }
 
-error_trace() {         #Markiert Rot und fügt ein ERROR am Anfanh hinzu
-    echo -e "\n${ROT_BEG}ERROR: $1${COL_END}"
+error_trace() {         #marked RED and added an ERROR at the begining
+    echo -e "\n${RED_BEG}ERROR: $1${COL_END}"
 }
 
-Correct_trace() {       #Markiert Grün
+Correct_trace() {       #marked Green
     echo -e "${GREEN_BEG}$1${COL_END}"
 }
 
-SIZE_trace() {          #Markiert Blau
+SIZE_trace() {          #marked Blue
     echo -e "${BLUE_BEG}$1${COL_END}"
 }
 
-if [ $# -lt 2 ]; then   #Gibt es ein Fehler im Script, wird ein Hilfetext ausgegeben
-    help_for_less_Paramter
+if [ $# -lt 2 ]; then   #in the case they are less then 2 Parameter are given, then spend a text
+    help_for_less_Parameter
     exit
 fi
 
 declare LINK=$2 
 declare FILENAME="$(basename $2)"
 
-trap Zurueckgeschriebene_Datei_loeschen exit
-trap Zurueckgeschriebene_Datei_loeschen term 
+trap delete_returned_file exit
+trap delete_returned_file term 
 
 case $ARG_OPTION in  
     "-d") 
-        runterladen
+        download
         ;;
 
     "--download")
-        runterladen
+        download
         ;;
 
     "-g")
-        entpacken
+        unpack
         ;;
 
     "--gunzip")
-        entpacken
+        unpack
         ;;
     "--help") 
-        help_for_less_Paramter
+        help_for_less_Parameter
         ;;
     "*")
         help
@@ -203,30 +203,30 @@ case $ARG_OPTION in
         ;;
 esac
 
-declare FILESIZE_GANZ=$(stat -c %s $FILENAME)
+declare FILESIZE_WHOLE=$(stat -c %s $FILENAME)
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}') 
-declare SDKARTE_DEVICE=/dev/mmcblk0
+declare SDCard_DEVICE=/dev/mmcblk0
 declare SIZE=""
-declare SIZE_GANZ=""
+declare SIZE_WHOLE=""
 
-SD_karte_ermitteln
+Find_Out_SD_Card
 
-declare SIZE_GANZ=$(lsblk -b $SDKARTE_DEVICE | grep "mmcblk0 " | awk '{print $4}' )
+declare SIZE_WHOLE=$(lsblk -b $SDCard_DEVICE | grep "mmcblk0 " | awk '{print $4}' )
 
-Ueberpruefe_SD-Karte_und_DateiGroesse
+Checked_SD-Card_and_FileSize
 
-Dateigroesse
+Filesize
 
-KopierenSD  
+CopySD  
 
-Kopieren_back
+Copy_back
 
-Dateigroesse_zurueckgeschrieben
+Filesize_returned
 
 Hashwerte_Vergleichen
 
-Info_trace "Die zurückgeschriebene Datei löschen"
+Info_trace "Delete the returned File"
 
-Zurueckgeschriebene_Datei_loeschen
+delete_returned_file
 
-Correct_trace "Sie können die SD-Karte entfernen"
+Correct_trace "You can remove the Sd-Card"
