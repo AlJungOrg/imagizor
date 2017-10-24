@@ -74,7 +74,7 @@ Find_Out_SD_Card () {     #Checked if the SD-Card exists
     if ! [ -e /dev/mmcblk0 ]; then 
         error_trace "SD-Card is not available"
         Help_trace "Please put a SD-Card in"
-        Help_trace "At least $FILSIZE are needed"
+        Help_trace "At least $FILESIZE are needed"
     fi
     while true; do 
         sleep 1
