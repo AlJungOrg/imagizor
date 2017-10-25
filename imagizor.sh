@@ -20,6 +20,59 @@ declare ARG_OPTION=$1
 
 set -u
 
+needed_tools() {        #Validate if the needed tool are on the shell
+set +e
+    Head_trace "Validate if the needed tool are on the shell"
+    
+    wget 2>/dev/null
+    if [ $? -gt 2 ]; then
+        error_trace "Wget isn't install on your shell"
+        error_trace "Please install wget"
+        exit
+    else
+        Correct_trace "Wget is on your shell"
+    fi
+    
+    gunzip 2>/dev/null
+
+    if [ $? -gt 2 ]; then
+        error_trace "gunzip isn't install on your shell"
+        error_trace "Please install gunzip"
+        exit
+    else
+         Correct_trace "gunzip is on your shell"
+    fi
+    
+    dd d 2>/dev/null
+    if [ $? -gt 2 ]; then
+        error_trace "dd isn't install on your shell"
+        error_trace "Please install dd"
+        exit
+    else
+    Correct_trace "dd is on your shell"
+    fi
+    
+    truncate d 2>/dev/null
+    if [ $? -gt 2 ]; then
+        error_trace "truncate isn't install on your shell"
+        error_trace "Please install truncate"
+        exit
+    else
+        Correct_trace "truncate is on your shell"
+    fi
+    
+    md5sum d 2>/dev/null
+    if [ $? -gt 2 ]; then
+        error_trace "md5sum isn't install on your shell"
+        error_trace "Please install m5sum"
+        exit
+    else
+        Correct_trace "md5sum is on your shell"
+    fi
+        Correct_trace "All tools are on the shell"
+set -e
+}
+
 download() {             #Download the Software and unpack them, if required 
     Head_trace "download process"
     Info_trace "Download the Software"
@@ -71,7 +124,7 @@ help_for_less_Parameter () {     #Longer help text
 Find_Out_SD_Card () {     #Checked if the SD-Card exists
     Head_trace "Find out the SD-Card"
     Info_trace "Checked if the SD-Card exists"
-    if ! [ -e /dev/mmcblk0 ]; then 
+    if ! [ -b /dev/mmcblk0 ]; then 
         error_trace "SD-Card is not available"
         Help_trace "Please put a SD-Card in"
         Help_trace "At least $FILESIZE are needed"
@@ -79,7 +132,7 @@ Find_Out_SD_Card () {     #Checked if the SD-Card exists
     while true; do 
         sleep 1
         declare SIZE=$(lsblk $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
-    if [ -e /dev/mmcblk0 ]; then
+    if [ -b /dev/mmcblk0 ]; then
         SIZE_trace "The SD-Card is $SIZE big"
         break
     fi
@@ -229,16 +282,13 @@ Head_trace() {          #create a underline and the text is purple
     echo -e ----------------------------------------------------------------------
 }  
 
-if [ $# -lt 2 ]; then   #in the case they are less then 2 Parameter are given, then spend a text
-    help_for_less_Parameter
-    exit
-fi
-
 declare LINK=$2 
 declare FILENAME="$(basename $2)"
 
 trap delete_returned_file exit
 trap delete_returned_file term 
+
+needed_tools
 
 case $ARG_OPTION in  
     "-d") 
@@ -256,9 +306,11 @@ case $ARG_OPTION in
     "--gunzip")
         unpack
         ;;
+        
     "--help") 
         help_for_less_Parameter
         ;;
+        
     "*")
         help
         exit
@@ -294,6 +346,7 @@ case "$answer" in
          
         Correct_trace "You can remove the USB-Stick"
         ;;
+        
     SD-Card|Sd-Card|sd-Card|sd-card|SD|Sd|sd|S|s)
         Find_Out_SD_Card
 
@@ -313,4 +366,5 @@ case "$answer" in
 
         Correct_trace "You can remove the Sd-Card"
         ;;
+        
 esac
