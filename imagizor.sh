@@ -4,7 +4,7 @@ export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
    
 set +u
 set -e
-#set -x
+set -x
 
 #echo -e "$0 Parameter: $*"
 
@@ -19,6 +19,14 @@ declare Underline="\\033[4m"
 declare ARG_OPTION=$1
 
 set -u
+
+declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
+
+if [ Mac_support = Mac ]; then
+    echo "OK"
+else    
+    echo "Not Ok"
+fi
 
 needed_tools() {        #Validate if the needed tool are on the shell
 set +e
@@ -72,7 +80,7 @@ set +e
         Correct_trace "All tools are on the shell"
 set -e
 }
-
+    
 download() {             #Download the Software and unpack them, if required 
     Head_trace "download process"
     Info_trace "Download the Software"
