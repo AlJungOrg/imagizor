@@ -4,7 +4,7 @@ export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
    
 set +u
 set -e
-#set -x
+set -x
 
 #echo -e "$0 Parameter: $*"
 
@@ -29,7 +29,7 @@ download() {             #Download the Software and unpack them, if required
         exit
     fi
     Info_trace "Try to unpack the downloaded Software"
-    if ! gunzip  $LINK >/dev/null 2>/dev/null; then
+    if ! gunzip  $FILENAME >/dev/null 2>/dev/null; then
         unpack_text
     fi
 }
