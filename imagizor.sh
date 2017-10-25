@@ -282,6 +282,11 @@ Head_trace() {          #create a underline and the text is purple
     echo -e ----------------------------------------------------------------------
 }  
 
+if [ $# -lt 2 ]; then   #in the case they are less then 2 Parameter are given, then spend a text
+   help_for_less_Parameter
+   exit
+fi
+
 declare LINK=$2 
 declare FILENAME="$(basename $2)"
 
