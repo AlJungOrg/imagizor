@@ -22,7 +22,7 @@ set -u
 
 declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
-if [ Mac_support = Mac ]; then
+if [ $Mac_support = Mac ]; then
     echo "OK"
 else    
     echo "Not Ok"
