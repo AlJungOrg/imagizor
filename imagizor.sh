@@ -92,7 +92,7 @@ needed_truncate_OS() {
 download() {             #Download the Software and unpack them, if required 
     Head_trace "download process"
     Info_trace "Download the Software"
-    if ! wget $LINK; then
+    if ! wget -c $LINK; then
         error_trace "Maybe the URL is not available or the URL ist passed off "
         help
         exit
@@ -497,7 +497,6 @@ case $ARG_OPTION in
         ;;
 esac
 
-declare FILESIZE_WHOLE=$(stat -l $FILENAME | awk '{print $5}')
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}') 
 declare SDCard_DEVICE=/dev/mmcblk0
 declare USB_DEVICE=/dev/sdb
@@ -506,7 +505,7 @@ declare SIZE_WHOLE=""
 declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
 if [ $Mac_support = Mac ] 2>/dev/null; then
-    
+    declare FILESIZE_WHOLE=$(stat -l $FILENAME | awk '{print $5}')
     read_p_text
     
 case "$answer" in
