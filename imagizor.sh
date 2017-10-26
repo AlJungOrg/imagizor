@@ -22,15 +22,14 @@ set -u
 
 needed_tools() {        #Validate if the needed tool are on the shell
 set +e
-    Head_trace "Validate if the needed tool are on the shell"
     
     wget 2>/dev/null
     if [ $? -gt 2 ]; then
         error_trace "Wget isn't install on your shell"
         error_trace "Please install wget"
         exit
-    else
-        Correct_trace "Wget is on your shell"
+    else !
+        
     fi
     
     gunzip 2>/dev/null
@@ -39,8 +38,8 @@ set +e
         error_trace "gunzip isn't install on your shell"
         error_trace "Please install gunzip"
         exit
-    else
-         Correct_trace "gunzip is on your shell"
+    else !
+        
     fi
     
     dd d 2>/dev/null
@@ -48,8 +47,8 @@ set +e
         error_trace "dd isn't install on your shell"
         error_trace "Please install dd"
         exit
-    else
-    Correct_trace "dd is on your shell"
+    else !
+        
     fi
     
     md5sum d 2>/dev/null
@@ -57,10 +56,9 @@ set +e
         error_trace "md5sum isn't install on your shell"
         error_trace "Please install m5sum"
         exit
-    else
-        Correct_trace "md5sum is on your shell"
+    else !
+        
     fi
-        Correct_trace "All tools are on the shell"
     set -e
 }
 
@@ -71,8 +69,8 @@ needed_truncate() {
         error_trace "truncate isn't install on your shell"
         error_trace "Please install truncate"
         exit
-    else
-        Correct_trace "truncate is on your shell"
+    else !
+        
     fi
     set -e
 }
@@ -80,7 +78,7 @@ needed_truncate() {
 needed_truncate_OS() {
     set +e
     if [ -e /usr/local/bin/truncate ]; then
-        Correct_trace "truncate is on your shell"
+        echo
     else
         error_trace "truncate isn't install on your shell"
         error_trace "Please install truncate"
@@ -269,7 +267,7 @@ CopyUSB_text() {
 CopyUSB () {             #Copy the File on the USB-Stick
     CopyUSB_text
     declare BLOCKS=8000000
-    sudo dd if=$FILENAME of=$USB_DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE))
+    sudo dd if=$FILENAME of=$USB_DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE)) | pv  
     sync
 }
 
@@ -281,7 +279,7 @@ Copy_back_beg() {
 Copy_back() {           #Copy the File from the SD-Card back into an File
     Copy_back_beg
     declare -r BLOCKS_BACK=1000000
-    sudo dd if=$SDCard_DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
+    sudo dd if=$SDCard_DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) 
     sync
     Info_trace "Shortening the returned File in the Size from the original File"
     sudo truncate -r $FILENAME verify.img
@@ -446,7 +444,8 @@ Copy_back_USB_OS() {           #Copy the File from the USB-Stick back into an Fi
 }
 
 read_p_text(){
-    read -p "Do you want to copy on the SD-Card or on the USB-Stick?:" answer
+    echo -e "Do you want to copy on the SD-Card or on the USB-Stick?"
+    read -p "SD-Card,USB-Stick [S,U]:" answer
 }
 
 if [ $# -lt 2 ]; then   #in the case they are less then 2 Parameter are given, then spend a text
