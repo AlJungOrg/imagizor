@@ -79,7 +79,7 @@ needed_truncate() {
 
 needed_truncate_OS() {
     set +e
-    if [ -d /usr/local/bin/truncate ]; then
+    if [ -e /usr/local/bin/truncate ]; then
         Correct_trace "truncate is on your shell"
     else
         error_trace "truncate isn't install on your shell"
