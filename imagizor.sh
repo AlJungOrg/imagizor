@@ -28,8 +28,8 @@ set +e
         error_trace "Wget isn't install on your shell"
         error_trace "Please install wget"
         exit
-    else !
-        
+    else 
+        echo
     fi
     
     gunzip 2>/dev/null
@@ -38,8 +38,8 @@ set +e
         error_trace "gunzip isn't install on your shell"
         error_trace "Please install gunzip"
         exit
-    else !
-        
+    else 
+        echo
     fi
     
     dd d 2>/dev/null
@@ -47,8 +47,8 @@ set +e
         error_trace "dd isn't install on your shell"
         error_trace "Please install dd"
         exit
-    else !
-        
+    else 
+        echo
     fi
     
     md5sum d 2>/dev/null
@@ -56,8 +56,8 @@ set +e
         error_trace "md5sum isn't install on your shell"
         error_trace "Please install m5sum"
         exit
-    else !
-        
+    else 
+        echo
     fi
     set -e
 }
@@ -315,9 +315,9 @@ read_p_text(){
 
 variable_USB() {
     if [ $Mac_support = Mac ] 2>/dev/null; then
-        declare -g DEVICE=/dev/disk2
-        declare -g SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
-        declare -g FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
+        declare  DEVICE=/dev/disk2
+        declare  SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
     else
         declare -g DEVICE=/dev/sdb
         declare -g SIZE=$(lsblk $USB_DEVICE 2>/dev/null | grep "sdb " | awk '{print $4}' )
@@ -327,9 +327,9 @@ variable_USB() {
 
 variable_SD() {
     if [ $Mac_support = Mac ] 2>/dev/null; then
-        declare -g DEVICE=/dev/disk3
-        declare -g SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
-        declare -g FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
+        declare  DEVICE=/dev/disk3
+        declare  SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
     else
         declare -g DEVICE=/dev/mmcblk0
         declare -g SIZE=$(lsblk $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
@@ -397,8 +397,12 @@ declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 case "$answer" in
     USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
         
+        declare  DEVICE=/dev/disk2
+        declare  SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
+        
         variable_USB
-    
+        
         Find_USB_stick_out
         
         Checked_USB_Stick_and_FileSize
@@ -419,6 +423,10 @@ case "$answer" in
         ;;
         
     SD-Card|Sd-Card|sd-Card|sd-card|SD|Sd|sd|S|s)
+        
+        declare  DEVICE=/dev/disk3
+        declare  SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         
         variable_SD
         
