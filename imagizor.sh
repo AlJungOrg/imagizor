@@ -52,15 +52,6 @@ set +e
     Correct_trace "dd is on your shell"
     fi
     
-    truncate d 2>/dev/null
-    if [ $? -gt 2 ]; then
-        error_trace "truncate isn't install on your shell"
-        error_trace "Please install truncate"
-        exit
-    else
-        Correct_trace "truncate is on your shell"
-    fi
-    
     md5sum d 2>/dev/null
     if [ $? -gt 2 ]; then
         error_trace "md5sum isn't install on your shell"
@@ -70,7 +61,32 @@ set +e
         Correct_trace "md5sum is on your shell"
     fi
         Correct_trace "All tools are on the shell"
-set -e
+    set -e
+}
+
+needed_truncate() {
+    set +e
+    truncate d 2>/dev/null
+    if [ $? -gt 2 ]; then
+        error_trace "truncate isn't install on your shell"
+        error_trace "Please install truncate"
+        exit
+    else
+        Correct_trace "truncate is on your shell"
+    fi
+    set -e
+}
+
+needed_truncate_OS() {
+    set +e
+    if ! [ -d /usr/local/bin/truncate ]; then
+        error_trace "truncate isn't install on your shell"
+        error_trace "Please install truncate"
+        exit
+    else
+        Correct_trace "truncate is on your shell"
+    fi
+    set -e
 }
     
 download() {             #Download the Software and unpack them, if required 
@@ -438,13 +454,21 @@ if [ $# -lt 2 ]; then   #in the case they are less then 2 Parameter are given, t
    exit
 fi
 
-declare LINK=$2 
-declare FILENAME="$(basename $2)"
-
 trap delete_returned_file exit
 trap delete_returned_file term 
 
-needed_tools
+declare LINK=$2 
+declare FILENAME="$(basename $2)"
+
+declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
+
+if [ $Mac_support = Mac ] 2>/dev/null; then
+    needed_tools
+    needed_truncate_OS
+else
+    needed_tools
+    needed_truncate
+fi
 
 case $ARG_OPTION in  
     "-d") 
@@ -473,7 +497,7 @@ case $ARG_OPTION in
         ;;
 esac
 
-declare FILESIZE_WHOLE=$(stat -c %s $FILENAME)
+declare FILESIZE_WHOLE=$(stat -l $FILENAME | awk '{print $5}')
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}') 
 declare SDCard_DEVICE=/dev/mmcblk0
 declare USB_DEVICE=/dev/sdb
@@ -529,6 +553,8 @@ case "$answer" in
 esac
 
 else
+
+    declare FILESIZE_WHOLE=$(stat -c %s $FILENAME)
 
     read_p_text
 
