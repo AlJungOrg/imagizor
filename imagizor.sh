@@ -4,29 +4,21 @@ export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
    
 set +u
 set -e
-set -x
+#set -x
 
 #echo -e "$0 Parameter: $*"
 
-declare RED_BEG="\\033[01;33m\e[31m"
-declare PUR_BEG="\\033[01;33m\e[35m"
-declare GREEN_BEG="\\033[01;33m\e[32m"
-declare BLUE_BEG="\\033[01;33m\e[34m"
-declare TUERK_BEG="\\033[01;33m\e[34m"
-declare COL_END="\\033[;0m"
+declare RED_BEG="\\033[31m"
+declare PUR_BEG="\\033[35m"
+declare GREEN_BEG="\\033[32m"
+declare BLUE_BEG="\\033[34m"
+declare TUERK_BEG="\\033[34m"
+declare COL_END="\\033[0m"
 declare Underline="\\033[4m"
 
 declare ARG_OPTION=$1
 
 set -u
-
-declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
-
-if [ $Mac_support = Mac ]; then
-    echo "OK"
-else    
-    echo "Not Ok"
-fi
 
 needed_tools() {        #Validate if the needed tool are on the shell
 set +e
@@ -129,13 +121,21 @@ help_for_less_Parameter () {     #Longer help text
     exit
 }
 
-Find_Out_SD_Card () {     #Checked if the SD-Card exists
+SD_Card_text_beg() {
     Head_trace "Find out the SD-Card"
     Info_trace "Checked if the SD-Card exists"
+}
+
+SD_Card_error() {
+    error_trace "SD-Card is not available"
+    Help_trace "Please put a SD-Card in"
+    Help_trace "At least $FILESIZE are needed"
+}
+
+Find_Out_SD_Card () {     #Checked if the SD-Card exists
+    SD_Card_text_beg
     if ! [ -b /dev/mmcblk0 ]; then 
-        error_trace "SD-Card is not available"
-        Help_trace "Please put a SD-Card in"
-        Help_trace "At least $FILESIZE are needed"
+        SD_Card_error
     fi
     while true; do 
         sleep 1
@@ -147,13 +147,21 @@ Find_Out_SD_Card () {     #Checked if the SD-Card exists
     done
 }
 
-Find_USB_stick_out () {  #Checked if the USb-Stick exists
+USB_Stick_text_beg() {
     Head_trace "Find out the USB-Stick"
     Info_trace "Checked if the USB-Stick exists"
+}
+
+USB_Stick_error() {
+    error_trace "USB-Stick is not available"
+    Help_trace "Please put a SD-Card in"
+    Help_trace "At least $FILESIZE are needed"
+}
+
+Find_USB_stick_out () {  #Checked if the USb-Stick exists
+    USB_Stick_text_beg
     if ! [ -b /dev/sdb ]; then 
-        error_trace "USB-Stick is not available"
-        Help_trace "Please put a SD-Card in"
-        Help_trace "At least $FILESIZE are needed"
+        USB_Stick_error
     fi
     while true; do 
         sleep 1
@@ -165,15 +173,23 @@ Find_USB_stick_out () {  #Checked if the USb-Stick exists
     done
 }
 
-Checked_SD-Card_and_FileSize () {      #Checked the Sd-Card Size and the Filesize
+Checked_SD_beg() {
     Head_trace "Checking Size"
     Info_trace "Checked the Size of the SD-Card and the Image-File"
+}
+
+Checked_SD_error() {
+    error_trace "SD-Card has less memory space"
+    Help_trace "Please put a new SD-Card in"
+    Help_trace "Or provide more memory Space"
+    Help_trace "At least $FILSIZE are needed"
+}
+
+Checked_SD-Card_and_FileSize () {      #Checked the Sd-Card Size and the Filesize
+    Checked_SD_beg
     declare SIZE_WHOLE=$(lsblk -b $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
     if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
-        error_trace "SD-Card has less memory space"
-        Help_trace "Please put a new SD-Card in"
-        Help_trace "Or provide more memory Space"
-        Help_trace "At least $FILSIZE are needed"
+        Checked_SD_error
     fi
     while true; do
         sleep 1
@@ -185,45 +201,69 @@ Checked_SD-Card_and_FileSize () {      #Checked the Sd-Card Size and the Filesiz
     done 
 }
 
-Checked_USB_Stick_and_FileSize () {      #Checked the USB-Stick Size and the Filesize
+Checked_USB_Beg() {
     Head_trace "Checking Size"
     Info_trace "Checked the Size of the USB-Stick and the Image-File"
+}
+
+Checked_USB_error() {
+    error_trace "USb-Stick has less memory space"
+    Help_trace "Please put a new USB-Stick in"
+    Help_trace "Or provide more memory Space"
+    Help_trace "At least $FILSIZE are needed"
+}
+
+Checked_USB_Correct() {
+    Correct_trace "USB-Stick is bigger then the Image-File "
+}
+
+Checked_USB_Stick_and_FileSize () {      #Checked the USB-Stick Size and the Filesize
+    Checked_USB_Beg
     declare SIZE_WHOLE=$(lsblk -b $USB_DEVICE 2>/dev/null | grep "sdb " | awk '{print $4}' )
     if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
-        error_trace "USb-Stick has less memory space"
-        Help_trace "Please put a new USB-Stick in"
-        Help_trace "Or provide more memory Space"
-        Help_trace "At least $FILSIZE are needed"
+        Checked_USB_error
     fi
     while true; do
         sleep 1
     declare SIZE_WHOLE=$(lsblk -b $USB_DEVICE 2>/dev/null | grep "sdb " | awk '{print $4}' )
     if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
-        Correct_trace "USB-Stick is bigger then the Image-File "
+        Checked_USB_Correct
         break
     fi
     done 
 }
 
-CopySD () {             #Copy the File on the SD-Card
+CopySD_text() {
     Head_trace "Copy process"
     Info_trace "Copy the File on the SD-Card"
+}
+
+CopySD () {             #Copy the File on the SD-Card
+    CopySD_text
     declare BLOCKS=8000000
     sudo dd if=$FILENAME of=$SDCard_DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE))
     sync
 }
 
-CopyUSB () {             #Copy the File on the USB-Stick
+CopyUSB_text() {
     Head_trace "Copy process"
-    Info_trace "Copy the File on the SD-Card"
+    Info_trace "Copy the File on the USB-Stick"
+}
+
+CopyUSB () {             #Copy the File on the USB-Stick
+    CopyUSB_text
     declare BLOCKS=8000000
     sudo dd if=$FILENAME of=$USB_DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE))
     sync
 }
 
-Copy_back() {           #Copy the File from the SD-Card back into an File
+Copy_back_beg() {
     Head_trace "Verifying"
     Info_trace "Copy the File from the SD-Card back into an File"
+}
+
+Copy_back() {           #Copy the File from the SD-Card back into an File
+    Copy_back_beg
     declare -r BLOCKS_BACK=1000000
     sudo dd if=$SDCard_DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
     sync
@@ -231,9 +271,13 @@ Copy_back() {           #Copy the File from the SD-Card back into an File
     sudo truncate -r $FILENAME verify.img
 }
 
-Copy_back_USB() {           #Copy the File from the USB-Stick back into an File
+Copy_back_USB_beg() {
     Head_trace "Verifying"
     Info_trace "Copy the File from the USB-Stick back into an File"
+}
+
+Copy_back_USB() {           #Copy the File from the USB-Stick back into an File
+    Copy_back_USB_beg
     declare -r BLOCKS_BACK=1000000
     sudo dd if=$USB_DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
     sync
@@ -290,6 +334,105 @@ Head_trace() {          #create a underline and the text is purple
     echo -e ----------------------------------------------------------------------
 }  
 
+Find_Out_SD_Card_OS() {    #Checked if the SD-Card exists
+     SD_Card_text_beg
+    if ! [ -b /dev/disk3 ]; then 
+        SD_Card_error
+    fi
+    while true; do 
+        sleep 1
+        declare SIZE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $3}' )
+    if [ -b /dev/disk3 ]; then
+        SIZE_trace "The SD-Card is $SIZE GB big"
+        break
+    fi
+    done
+}
+
+Find_USB_stick_out_OS () {  #Checked if the USb-Stick exists
+    USB_Stick_text_beg
+    if ! [ -b /dev/disk2 ]; then 
+        USB_Stick_error
+    fi
+    while true; do 
+        sleep 1
+        declare SIZE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $3}' )
+    if [ -b /dev/disk2 ]; then
+        SIZE_trace "The USB-Stick is $SIZE GB big"
+        break
+    fi
+    done
+}
+
+Checked_USB_Stick_and_FileSize_OS () {      #Checked the USB-Stick Size and the Filesize
+    Checked_USB_Beg
+    declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+    if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
+        Checked_USB_error
+    fi
+    while true; do
+        sleep 1
+    declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+    if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
+        Checked_USB_Correct
+        break
+    fi
+    done 
+}
+
+Checked_SD-Card_and_FileSize_OS () {      #Checked the Sd-Card Size and the Filesize
+    Checked_SD_beg
+    declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+    if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
+        Checked_SD_error
+    fi
+    while true; do
+        sleep 1
+    declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+    if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
+        Correct_trace "SD-Card is bigger then the Image-File "
+        break
+    fi
+    done 
+}
+
+CopySD_OS () {             #Copy the File on the SD-Card
+    CopySD_text
+    declare BLOCKS=8000000
+    sudo dd if=$FILENAME of=/dev/disk3 bs=$BLOCKS count=$((FILESIZE_WHOLE))
+    sync
+}
+
+CopyUSB_OS () {             #Copy the File on the USB-Stick
+    CopyUSB_text
+    declare BLOCKS=8000000
+    sudo dd if=$FILENAME of=/dev/disk2 bs=$BLOCKS count=$((FILESIZE_WHOLE))
+    sync
+}
+
+Copy_back_OS() {           #Copy the File from the SD-Card back into an File
+    Copy_back_beg
+    declare -r BLOCKS_BACK=1000000
+    sudo dd if=/dev/disk3 of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
+    sync
+    Info_trace "Shortening the returned File in the Size from the original File"
+    sudo truncate -r $FILENAME verify.img
+}
+
+Copy_back_USB_OS() {           #Copy the File from the USB-Stick back into an File
+    Head_trace "Verifying"
+    Info_trace "Copy the File from the USB-Stick back into an File"
+    declare -r BLOCKS_BACK=1000000
+    sudo dd if=/dev/disk2 of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
+    sync
+    Info_trace "Shortening the returned File in the Size from the original File"
+    sudo truncate -r $FILENAME verify.img
+}
+
+read_p_text(){
+    read -p "Do you want to copy on the SD-Card or on the USB-Stick?:" answer
+}
+
 if [ $# -lt 2 ]; then   #in the case they are less then 2 Parameter are given, then spend a text
    help_for_less_Parameter
    exit
@@ -336,8 +479,58 @@ declare SDCard_DEVICE=/dev/mmcblk0
 declare USB_DEVICE=/dev/sdb
 declare SIZE=""
 declare SIZE_WHOLE=""
+declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
-read -p "Do you want to copy on the SD-Card or on the USB-Stick?:" answer
+if [ $Mac_support = Mac ] 2>/dev/null; then
+    
+    read_p_text
+    
+case "$answer" in
+    USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
+        Find_USB_stick_out_OS
+        
+        Checked_USB_Stick_and_FileSize_OS
+        
+        Filesize
+        
+        CopyUSB_OS
+        
+        Copy_back_USB_OS
+        
+        Compare_hash_values
+        
+        Info_trace "Delete the returned File"
+        
+        delete_returned_file
+         
+        Correct_trace "You can remove the USB-Stick"
+        ;;
+        
+    SD-Card|Sd-Card|sd-Card|sd-card|SD|Sd|sd|S|s)
+        Find_Out_SD_Card_OS
+
+        Checked_SD-Card_and_FileSize_OS
+
+        Filesize
+
+        CopySD_OS  
+
+        Copy_back_OS
+
+        Compare_hash_values
+
+        Info_trace "Delete the returned File"
+
+        delete_returned_file
+
+        Correct_trace "You can remove the Sd-Card"
+        ;;
+        
+esac
+
+else
+
+    read_p_text
 
 case "$answer" in
     USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
@@ -381,3 +574,5 @@ case "$answer" in
         ;;
         
 esac
+
+fi
