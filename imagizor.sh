@@ -69,8 +69,8 @@ needed_truncate() {
         error_trace "truncate isn't install on your shell"
         error_trace "Please install truncate"
         exit
-    else !
-        
+    else 
+        echo
     fi
     set -e
 }
@@ -146,8 +146,11 @@ Find_Out_SD_Card () {     #Checked if the SD-Card exists
     fi
     while true; do 
         sleep 1
-        declare SIZE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $3}' )
-        declare SIZE=$(lsblk $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
+        if [ $Mac_support = Mac ] 2>/dev/null; then
+            declare SIZE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $3}' )
+        else
+            declare SIZE=$(lsblk $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
+        fi
     if [ -b $DEVICE ]; then
         SIZE_trace "The SD-Card is $SIZE big"
         break
@@ -166,8 +169,12 @@ Find_USB_stick_out () {  #Checked if the USb-Stick exists
     fi
     while true; do 
         sleep 1
-        declare SIZE=$(lsblk $USB_DEVICE 2>/dev/null | grep "sdb " | awk '{print $4}' )
-        declare SIZE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $3}' )
+        if [ $Mac_support = Mac ] 2>/dev/null; then
+            declare SIZE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $3}' )
+        else
+            declare SIZE=$(lsblk $USB_DEVICE 2>/dev/null | grep "sdb " | awk '{print $4}' )
+        fi
+        
     if [ -b $DEVICE ]; then
         SIZE_trace "The USB-Stick is $SIZE big"
         break
@@ -227,7 +234,7 @@ CopySD () {             #Copy the File on the SD-Card
     Head_trace "Copy process"
     Info_trace "Copy the File on the SD-Card"
     declare BLOCKS=8000000
-    sudo dd if=$FILENAME of=$DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE))
+    sudo dd if=$FILENAME of=$DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE)) status=progress
     sync
 }
 
@@ -235,7 +242,7 @@ CopyUSB () {             #Copy the File on the USB-Stick
     Head_trace "Copy process"
     Info_trace "Copy the File on the USB-Stick"
     declare BLOCKS=8000000
-    sudo dd if=$FILENAME of=$DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE))   
+    sudo dd if=$FILENAME of=$DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE)) status=progress
     sync
 }
 
@@ -243,7 +250,7 @@ Copy_back() {           #Copy the File from the SD-Card back into an File
     Head_trace "Verifying"
     Info_trace "Copy the File from the SD-Card back into an File"
     declare -r BLOCKS_BACK=1000000
-    sudo dd if=$DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) 
+    sudo dd if=$DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) status=progress
     sync
     Info_trace "Shortening the returned File in the Size from the original File"
     sudo truncate -r $FILENAME verify.img
@@ -253,7 +260,7 @@ Copy_back_USB() {           #Copy the File from the USB-Stick back into an File
     Head_trace "Verifying"
     Info_trace "Copy the File from the USB-Stick back into an File"
     declare -r BLOCKS_BACK=1000000
-    sudo dd if=$DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE))
+    sudo dd if=$DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) status=progress
     sync
     Info_trace "Shortening the returned File in the Size from the original File"
     sudo truncate -r $FILENAME verify.img
