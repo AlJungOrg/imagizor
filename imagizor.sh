@@ -218,7 +218,7 @@ Checked_USB_Stick_and_FileSize () {      #Checked the USB-Stick Size and the Fil
     while true; do
         sleep 1
     if [ $Mac_support = Mac ] 2>/dev/null; then
-        declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
     else
         declare SIZE_WHOLE=$(lsblk -b $USB_DEVICE 2>/dev/null | grep "sdb " | awk '{print $4}' )
     fi
@@ -323,7 +323,7 @@ read_p_text(){
 variable_USB() {
     if [ $Mac_support = Mac ] 2>/dev/null; then
         declare  DEVICE=/dev/disk2
-        declare  SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare  SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
     else
         declare -g DEVICE=/dev/sdb
@@ -334,7 +334,7 @@ variable_USB() {
 
 variable_SD() {
     if [ $Mac_support = Mac ] 2>/dev/null; then
-        declare  DEVICE=/dev/disk3
+        declare  DEVICE=/dev/disk2
         declare  SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
     else
