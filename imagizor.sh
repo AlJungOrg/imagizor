@@ -255,24 +255,12 @@ read_p_text(){
     read -p "SD-Card,USB-Stick [S,U]:" answer
 }
 
-variable_USB() {
+variable() {
     if [ $Mac_support = Mac ] 2>/dev/null; then
         declare  DEVICE=""
     else
-        declare -g DEVICE=/dev/sdb
-        declare -g SIZE=$(lsblk $USB_DEVICE 2>/dev/null | grep "sdb " | awk '{print $4}' )
-        declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null )
-        declare -g STATUS="status=progress"
-    fi
-}
-
-variable_SD() {
-    if [ $Mac_support = Mac ] 2>/dev/null; then
-        declare  DEVICE=""
-     
-    else
-        declare -g DEVICE=/dev/mmcblk0
-        declare -g SIZE=$(lsblk $SDCard_DEVICE 2>/dev/null | grep "mmcblk0 " | awk '{print $4}' )
+        declare -g DEVICE=$DEVICE_LINUX
+        declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep $DEVICE_GREP | awk '{print $4}' )
         declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null )
         declare -g STATUS="status=progress"
     fi
@@ -332,12 +320,14 @@ declare USB_DEVICE=/dev/sdb
 declare SIZE=""
 declare SIZE_WHOLE=""
 declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
+declare DEVICE_LINUX=/dev/sdb
 
     read_p_text
 
 case "$answer" in
     USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
-        
+    
+        declare DEVICE_LINUX=/dev/sdb 2>/dev/null
         declare DEVICE=/dev/disk3
         declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
@@ -345,7 +335,7 @@ case "$answer" in
         declare DEVICE_GREP="sdb "
         declare STATUS=""
         
-        variable_USB
+        variable
         
         detect_device
         
@@ -368,14 +358,15 @@ case "$answer" in
         
     SD-Card|Sd-Card|sd-Card|sd-card|SD|Sd|sd|S|s)
         
-        declare  DEVICE=/dev/disk2
-        declare  SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
-        declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
+        declare DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
+        declare DEVICE=/dev/disk2
+        declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="SD-Card"
         declare DEVICE_GREP="mmcblk0 "
         declare STATUS=""
         
-        variable_SD
+        variable
         
         detect_device
 
