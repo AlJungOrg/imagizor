@@ -194,7 +194,7 @@ Copy () {             #Copy the File on the DEVICE
 Copy_back() {           #Copy the File from the SD-Card or USB-STick back into an File
     Head_trace "Verifying"
     Info_trace "Copy the File from the $DEVICE_TEXT back into an File"
-    declare -r BLOCKS_BACK=1000000
+    declare BLOCKS_BACK=1000000
     sudo dd if=$DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
     sync
     Info_trace "Shortening the returned File in the Size from the original File"
@@ -338,7 +338,7 @@ declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 case "$answer" in
     USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
         
-        declare DEVICE=/dev/disk2
+        declare DEVICE=/dev/disk3
         declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="USB-Stick"
@@ -368,12 +368,12 @@ case "$answer" in
         
     SD-Card|Sd-Card|sd-Card|sd-card|SD|Sd|sd|S|s)
         
-        declare  DEVICE=/dev/disk3
+        declare  DEVICE=/dev/disk2
         declare  SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare  FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="SD-Card"
         declare DEVICE_GREP="mmcblk0 "
-        declare Status=""
+        declare STATUS=""
         
         variable_SD
         
