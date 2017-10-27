@@ -88,17 +88,66 @@ needed_truncate_OS() {
 }
     
 download() {             #Download the Software and unpack them, if required 
-    Head_trace "download process"
+    Head_trace "download process and verifikation"
     Info_trace "Download the Software"
     if ! wget -c $LINK; then
         error_trace "Maybe the URL is not available or the URL ist passed off "
         help
         exit
     fi
+    download_verifikation
     Info_trace "Try to unpack the downloaded Software"
     if ! gunzip  $FILENAME >/dev/null 2>/dev/null; then
         unpack_text
     fi
+}
+
+download_verifikation() {
+    echo -e "Please enter a check value methodik"
+    read -p "mdsum, sha256, I dont have a checkvalue [m,s,a]:" check
+    
+case $check in
+    m|md|M|MD|md5sum|MD5SUM)
+        read -p "Now enter the Check value number:" value 
+        declare MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
+        
+        if [ $MD_FILE == $value ]; then
+            Correct_trace "Hash values are the same"
+            Correct_trace "Verifikation successfull"
+        else 
+            error_trace "Hash values are not the same"
+            Help_trace "Ples try it again"
+            Help_trace "Verifikation Unsuccessfully"
+            exit
+        fi
+        
+        ;;
+        
+    s|S|Sha|sha|SHA|sha256|SHA256|256)
+        read -p "Now enter the Check value number:" value 
+        if [ $Mac_support = Mac ] 2>/dev/null; then
+            declare SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1 )
+        else
+            declare SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1 )
+        fi
+    
+        if [ $SH_FILE == $value ]; then
+            Correct_trace "Hash values are the same"
+            Correct_trace "Verifikation successfull"
+        else 
+            error_trace "Hash values are not the same"
+            Help_trace "Ples try it again"
+            Help_trace "Verifikation Unsuccessfully"
+            exit
+        fi
+            
+        ;;
+        
+    a|A)
+    
+        ;;
+        
+esac
 }
 
 unpack() {               #Unpack the Software
@@ -322,8 +371,8 @@ declare SIZE_WHOLE=""
 declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 declare DEVICE_LINUX=/dev/sdb
 
-    read_p_text
-
+    read_p_text 
+    
 case "$answer" in
     USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
     
