@@ -125,6 +125,7 @@ case $check in
         
     s|S|Sha|sha|SHA|sha256|SHA256|256)
         read -p "Now enter the Check value number:" value 
+        declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
         if [ $Mac_support = Mac ] 2>/dev/null; then
             declare SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1 )
         else
@@ -198,7 +199,7 @@ detect_device () {  #Checked if the USb-Stick or SD-Card available
         if [ $Mac_support = Mac ] 2>/dev/null; then
             declare SIZE=$(diskutil info $DEVICE 2>/dev/null | grep 'Disk Size' | awk '{print $3}' )
         else
-            declare SIZE=$(lsblk $DEVICE 2>/dev/null | grep $DEVICE_GREP | awk '{print $4}' )
+            declare SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP"  | awk '{print $4}' )
         fi
         
     if [ -b $DEVICE ]; then
@@ -222,7 +223,7 @@ Checked_Device_and_FileSize () {      #Checked the Sd-Card Size and the Filesize
     if [ $Mac_support = Mac ] 2>/dev/null; then
         declare SIZE_WHOLE=$(diskutil info $DEVICE 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
     else
-        declare SIZE_WHOLE=$(lsblk -b $DEVICE 2>/dev/null | grep $DEVICE_GREP | awk '{print $4}' )
+        declare SIZE_WHOLE=$(lsblk -b $DEVICE  | grep "$DEVICE_GREP"  | awk '{print $4}' )
     fi
     
     if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
@@ -299,7 +300,7 @@ Head_trace() {          #create a underline and the text is purple
     echo -e ----------------------------------------------------------------------
 }  
 
-read_p_text(){
+read_p_text() {
     echo -e "Do you want to copy on the SD-Card or on the USB-Stick?"
     read -p "SD-Card,USB-Stick [S,U]:" answer
 }
@@ -309,7 +310,7 @@ variable() {
         declare  DEVICE=""
     else
         declare -g DEVICE=$DEVICE_LINUX
-        declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep $DEVICE_GREP | awk '{print $4}' )
+        declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP"  | awk '{print $4}' )
         declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null )
         declare -g STATUS="status=progress"
     fi
@@ -381,7 +382,7 @@ case "$answer" in
         declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="USB-Stick"
-        declare DEVICE_GREP="sdb "
+        declare DEVICE_GREP="sdb  " 
         declare STATUS=""
         
         variable
@@ -412,10 +413,17 @@ case "$answer" in
         declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="SD-Card"
-        declare DEVICE_GREP="mmcblk0 "
+        declare DEVICE_GREP="mmcblk0  "
         declare STATUS=""
         
         variable
+        
+        if [ -e /dev/sdd ]; then
+            declare DEVICE=/dev/sdd 
+            declare DEVICE_GREP="sdd  "
+        else
+            declare DEVICE=$DEVICE_LINUX
+        fi
         
         detect_device
 
