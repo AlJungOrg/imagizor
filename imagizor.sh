@@ -237,16 +237,14 @@ Copy () {             #Copy the File on the DEVICE
     Head_trace "Copy process"
     Info_trace "Copy the File on the $DEVICE_TEXT"
     declare BLOCKS=8000000
-    sudo dd if=$FILENAME of=$DEVICE bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
-    sync
+    sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
 }
 
 Copy_back() {           #Copy the File from the SD-Card or USB-STick back into an File
     Head_trace "Verifying"
     Info_trace "Copy the File from the $DEVICE_TEXT back into an File"
     declare BLOCKS_BACK=1000000
-    sudo dd if=$DEVICE of=verify.img bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
-    sync
+    sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
     Info_trace "Shortening the returned File in the Size from the original File"
     sudo truncate -r $FILENAME verify.img
 }
@@ -313,6 +311,7 @@ variable() {
         declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP"  | awk '{print $4}' )
         declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null )
         declare -g STATUS="status=progress"
+        declare -g DD_CONV="conv=fdatasync"
     fi
 }
 
