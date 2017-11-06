@@ -120,7 +120,6 @@ case $check in
             Help_trace "Verifikation Unsuccessfully"
             exit
         fi
-        
         ;;
         
     s|S|Sha|sha|SHA|sha256|SHA256|256)
@@ -244,7 +243,7 @@ Copy_back() {           #Copy the File from the SD-Card or USB-STick back into a
     Head_trace "Verifying"
     Info_trace "Copy the File from the $DEVICE_TEXT back into an File"
     declare BLOCKS_BACK=1000000
-    sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
+    sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS 
     Info_trace "Shortening the returned File in the Size from the original File"
     sudo truncate -r $FILENAME verify.img
 }
@@ -381,7 +380,7 @@ case "$answer" in
         declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="USB-Stick"
-        declare DEVICE_GREP="sdb  " 
+        declare DEVICE_GREP="sdb " 
         declare STATUS=""
         
         variable
@@ -407,22 +406,20 @@ case "$answer" in
         
     SD-Card|Sd-Card|sd-Card|sd-card|SD|Sd|sd|S|s)
         
-        declare DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
+        if [ -e /dev/sde ]; then
+            declare DEVICE_LINUX=/dev/sde 2>/dev/null
+            declare DEVICE_GREP="sde "
+        else
+            declare DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
+            declare DEVICE_GREP="mmcblk0 "
+        fi
         declare DEVICE=/dev/disk2
         declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="SD-Card"
-        declare DEVICE_GREP="mmcblk0  "
         declare STATUS=""
         
         variable
-        
-        if [ -e /dev/sdd ]; then
-            declare DEVICE=/dev/sdd 
-            declare DEVICE_GREP="sdd  "
-        else
-            declare DEVICE=$DEVICE_LINUX
-        fi
         
         detect_device
 
