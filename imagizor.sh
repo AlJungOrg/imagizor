@@ -363,21 +363,25 @@ case $ARG_OPTION in
 esac
 
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}') 
-declare SDCard_DEVICE=/dev/mmcblk0
-declare USB_DEVICE=/dev/sdb
 declare SIZE=""
 declare SIZE_WHOLE=""
 declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
-declare DEVICE_LINUX=/dev/sdb
+declare DD_CONV=""
 
     read_p_text 
+    
+if [ $Mac_support = Mac ] 2>/dev/null; then
+    Head_trace "Only use one SD-Card or USB-Stick for your device!"
+else
+    declare DEVICE=""
+fi
     
 case "$answer" in
     USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
     
         declare DEVICE_LINUX=/dev/sdb 2>/dev/null
-        declare DEVICE=/dev/disk3
-        declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        declare DEVICE=/dev/disk2 
+        declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="USB-Stick"
         declare DEVICE_GREP="sdb " 
@@ -413,11 +417,18 @@ case "$answer" in
             declare DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
             declare DEVICE_GREP="mmcblk0 "
         fi
-        declare DEVICE=/dev/disk2
-        declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        
         declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
         declare DEVICE_TEXT="SD-Card"
         declare STATUS=""
+        
+        if [ -e /dev/disk2 ]; then
+            declare DEVICE=/dev/disk2
+            declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        else 
+            declare DEVICE=/dev/disk3
+            declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11 )
+        fi
         
         variable
         
