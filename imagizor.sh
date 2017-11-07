@@ -146,6 +146,10 @@ case $check in
     a|A)
     
         ;;
+    *) 
+        error_trace "Wrong Answer"
+        Help_trace "Try it again"
+        ;;
         
 esac
 }
@@ -236,14 +240,20 @@ Copy () {             #Copy the File on the DEVICE
     Head_trace "Copy process"
     Info_trace "Copy the File on the $DEVICE_TEXT"
     declare BLOCKS=8000000
+    set +e
     sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
+    Not_available_device
+    set -e
 }
 
 Copy_back() {           #Copy the File from the SD-Card or USB-STick back into an File
     Head_trace "Verifying"
     Info_trace "Copy the File from the $DEVICE_TEXT back into an File"
     declare BLOCKS_BACK=1000000
-    sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS 
+    set +e
+    sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
+    Not_available_device
+    set -e
     Info_trace "Shortening the returned File in the Size from the original File"
     sudo truncate -r $FILENAME verify.img
 }
@@ -264,6 +274,14 @@ Compare_hash_values() {   #Compares the hash values from the downloaded File and
         else 
         error_trace "The hash values are not right, please try it again"
         error_trace "Unsuccessfully verifying"
+    fi
+}
+
+Not_available_device() {
+     if ! [ -e $DEVICE ]; then
+        error_trace "$DEVICE_TEXT is not available"
+        Help_trace "Please try it again"
+        exit
     fi
 }
 
@@ -368,13 +386,13 @@ declare SIZE_WHOLE=""
 declare Mac_support=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 declare DD_CONV=""
 
-    read_p_text 
-    
 if [ $Mac_support = Mac ] 2>/dev/null; then
     Head_trace "Only use one SD-Card or USB-Stick for your device!"
 else
     declare DEVICE=""
 fi
+
+    read_p_text 
     
 case "$answer" in
     USB|USB-Stick|Usb-Stick|usb-stick|Usb|usb|u|U)
@@ -438,10 +456,10 @@ case "$answer" in
 
         Filesize
 
-        Copy  
-
+        Copy
+        
         Copy_back
-
+        
         Compare_hash_values
 
         Info_trace "Delete the returned File"
@@ -450,5 +468,8 @@ case "$answer" in
 
         Correct_trace "You can remove the Sd-Card"
         ;;
-        
+    *)
+        error_trace "Wrong answer"
+        Help_trace "Please try it again"
+        ;;
 esac
