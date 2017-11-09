@@ -14,7 +14,7 @@ declare GREEN_BEG="\\033[32m"
 declare BLUE_BEG="\\033[34m"
 declare TUERK_BEG="\\033[34m"
 declare COL_END="\\033[0m"
-declare Underline="\\033[4m"
+declare UNDERLINE="\\033[4m"
 
 declare ARG_OPTION=$1
 
@@ -311,7 +311,7 @@ size_trace() { #marked Blue
 
 head_trace() { #create a underline and the text is purple
 	echo -e ______________________________________________________________________
-	echo -e "\n${Underline}${PUR_BEG}$1${COL_END}\n"
+	echo -e "\n${UNDERLINE}${PUR_BEG}$1${COL_END}\n"
 	echo -e ----------------------------------------------------------------------
 }
 
