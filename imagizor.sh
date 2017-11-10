@@ -14,77 +14,19 @@ declare GREEN_BEG="\\033[32m"
 declare BLUE_BEG="\\033[34m"
 declare TUERK_BEG="\\033[34m"
 declare COL_END="\\033[0m"
-declare Underline="\\033[4m"
+declare UNDERLINE="\\033[4m"
 
 declare ARG_OPTION=$1
 
 set -u
 
 needed_tools() { #Validate if the needed tool are on the shell
-	set +e
+	
+	tools=(wget gunzip dd md5sum truncate)
 
-	wget 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "Wget isn't install on your shell"
-		error_trace "Please install wget"
-		exit
-	else
-		echo
-	fi
-
-	gunzip 2>/dev/null
-
-	if [ $? -gt 2 ]; then
-		error_trace "gunzip isn't install on your shell"
-		error_trace "Please install gunzip"
-		exit
-	else
-		echo
-	fi
-
-	dd d 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "dd isn't install on your shell"
-		error_trace "Please install dd"
-		exit
-	else
-		echo
-	fi
-
-	md5sum d 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "md5sum isn't install on your shell"
-		error_trace "Please install m5sum"
-		exit
-	else
-		echo
-	fi
-	set -e
-}
-
-needed_truncate() {
-	set +e
-	truncate d 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "truncate isn't install on your shell"
-		error_trace "Please install truncate"
-		exit
-	else
-		echo
-	fi
-	set -e
-}
-
-needed_truncate_OS() {
-	set +e
-	if [ -e /usr/local/bin/truncate ]; then
-		echo
-	else
-		error_trace "truncate isn't install on your shell"
-		error_trace "Please install truncate"
-		exit
-	fi
-	set -e
+	if ! which ${tools[*]} 2&>/dev/null; then
+        echo ""
+    fi
 }
 
 download() { #Download the Software and unpack them, if required
@@ -104,14 +46,14 @@ download() { #Download the Software and unpack them, if required
 
 download_verifikation() {
 	echo -e "Please enter a check value methodik"
-	read -p "mdsum, sha256, I dont have a checkvalue [m,s,a]:" check
+	read -p "mdsum, sha256, I dont have a checkvalue [m,s,a]:" CHECK
 
-	case $check in
+	case $CHECK in
 	m | md | M | MD | md5sum | MD5SUM)
-		read -p "Now enter the Check value number:" value
+		read -p "Now enter the Check value number:" VALUE
 		declare MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
 
-		if [ $MD_FILE == $value ]; then
+		if [ $MD_FILE == $VALUE ]; then
 			correct_trace "Hash values are the same"
 			correct_trace "Verifikation successfull"
 		else
@@ -123,7 +65,7 @@ download_verifikation() {
 		;;
 
 	s | S | Sha | sha | SHA | sha256 | SHA256 | 256)
-		read -p "Now enter the Check value number:" value
+		read -p "Now enter the Check value number:" VALUE
 		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 			declare SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1)
@@ -131,7 +73,7 @@ download_verifikation() {
 			declare SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
 		fi
 
-		if [ $SH_FILE == $value ]; then
+		if [ $SH_FILE == $VALUE ]; then
 			correct_trace "Hash values are the same"
 			correct_trace "Verifikation successfull"
 		else
@@ -311,13 +253,13 @@ size_trace() { #marked Blue
 
 head_trace() { #create a underline and the text is purple
 	echo -e ______________________________________________________________________
-	echo -e "\n${Underline}${PUR_BEG}$1${COL_END}\n"
+	echo -e "\n${UNDERLINE}${PUR_BEG}$1${COL_END}\n"
 	echo -e ----------------------------------------------------------------------
 }
 
 read_p_text() {
 	echo -e "Do you want to copy on the SD-Card or on the USB-Stick?"
-	read -p "SD-Card,USB-Stick [S,U]:" answer
+	read -p "SD-Card,USB-Stick [S,U]:" ANSWER
 }
 
 variable() {
@@ -345,13 +287,7 @@ declare FILENAME="$(basename $2)"
 
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
-if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-	needed_tools
-	needed_truncate_OS
-else
-	needed_tools
-	needed_truncate
-fi
+needed_tools
 
 case $ARG_OPTION in
 "-d")
@@ -394,7 +330,7 @@ fi
 
 read_p_text
 
-case "$answer" in
+case "$ANSWER" in
 USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
 
 	declare DEVICE_LINUX=/dev/sdb 2>/dev/null
