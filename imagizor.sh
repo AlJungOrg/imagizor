@@ -21,13 +21,19 @@ declare ARG_OPTION=$1
 set -u
 
 needed_tools() { #Validate if the needed tool are on the shell
-	
-	tools=(wget gunzip dg md5sum truncate)
 
-	if ! which ${tools[*]} 2&>/dev/null; then
-        echo "is not available"
-    fi
+	declare -ra TOOLS=(wget gunzip dd md5sum truncate) 
+
+	for X in ${TOOLS[*]}; do
+		if ! which $X >/dev/null 2>/dev/null; then
+			error_trace "$X is not on your device" 
+			help_trace "Please install $X"
+			exit
+		fi
+	done
+
 }
+
 
 download() { #Download the Software and unpack them, if required
 	head_trace "download process and verifikation"
