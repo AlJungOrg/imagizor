@@ -8,83 +8,25 @@ set -e
 
 #echo -e "$0 Parameter: $*"
 
-declare RED_BEG="\\033[31m"
-declare PUR_BEG="\\033[35m"
-declare GREEN_BEG="\\033[32m"
-declare BLUE_BEG="\\033[34m"
-declare TUERK_BEG="\\033[34m"
-declare COL_END="\\033[0m"
-declare UNDERLINE="\\033[4m"
+declare -r RED_BEG="\\033[31m"
+declare -r PUR_BEG="\\033[35m"
+declare -r GREEN_BEG="\\033[32m"
+declare -r BLUE_BEG="\\033[34m"
+declare -r TUERK_BEG="\\033[34m"
+declare -r COL_END="\\033[0m"
+declare -r UNDERLINE="\\033[4m"
 
 declare ARG_OPTION=$1
 
 set -u
 
 needed_tools() { #Validate if the needed tool are on the shell
-	set +e
+	
+	tools=(wget gunzip dg md5sum truncate)
 
-	wget 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "Wget isn't install on your shell"
-		error_trace "Please install wget"
-		exit
-	else
-		echo
-	fi
-
-	gunzip 2>/dev/null
-
-	if [ $? -gt 2 ]; then
-		error_trace "gunzip isn't install on your shell"
-		error_trace "Please install gunzip"
-		exit
-	else
-		echo
-	fi
-
-	dd d 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "dd isn't install on your shell"
-		error_trace "Please install dd"
-		exit
-	else
-		echo
-	fi
-
-	md5sum d 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "md5sum isn't install on your shell"
-		error_trace "Please install m5sum"
-		exit
-	else
-		echo
-	fi
-	set -e
-}
-
-needed_truncate() {
-	set +e
-	truncate d 2>/dev/null
-	if [ $? -gt 2 ]; then
-		error_trace "truncate isn't install on your shell"
-		error_trace "Please install truncate"
-		exit
-	else
-		echo
-	fi
-	set -e
-}
-
-needed_truncate_OS() {
-	set +e
-	if [ -e /usr/local/bin/truncate ]; then
-		echo
-	else
-		error_trace "truncate isn't install on your shell"
-		error_trace "Please install truncate"
-		exit
-	fi
-	set -e
+	if ! which ${tools[*]} 2&>/dev/null; then
+        echo "is not available"
+    fi
 }
 
 download() { #Download the Software and unpack them, if required
@@ -104,14 +46,14 @@ download() { #Download the Software and unpack them, if required
 
 download_verifikation() {
 	echo -e "Please enter a check value methodik"
-	read -p "mdsum, sha256, I dont have a checkvalue [m,s,a]:" check
+	read -p "mdsum, sha256, I dont have a checkvalue [m,s,a]:" CHECK
 
-	case $check in
+	case $CHECK in
 	m | md | M | MD | md5sum | MD5SUM)
-		read -p "Now enter the Check value number:" value
-		declare MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
+		read -p "Now enter the Check value number:" VALUE
+		declare -r MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
 
-		if [ $MD_FILE == $value ]; then
+		if [ $MD_FILE == $VALUE ]; then
 			correct_trace "Hash values are the same"
 			correct_trace "Verifikation successfull"
 		else
@@ -123,15 +65,15 @@ download_verifikation() {
 		;;
 
 	s | S | Sha | sha | SHA | sha256 | SHA256 | 256)
-		read -p "Now enter the Check value number:" value
+		read -p "Now enter the Check value number:" VALUE
 		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-			declare SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1)
+			declare -r SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1)
 		else
-			declare SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
+			declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
 		fi
 
-		if [ $SH_FILE == $value ]; then
+		if [ $SH_FILE == $VALUE ]; then
 			correct_trace "Hash values are the same"
 			correct_trace "Verifikation successfull"
 		else
@@ -149,6 +91,7 @@ download_verifikation() {
 
 		error_trace "Wrong Answer"
 		help_trace "Try it again"
+		exit
 		;;
 
 	esac
@@ -239,7 +182,7 @@ checked_fevice_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare BLOCKS=8000000
+	declare -r BLOCKS=8000000
 	set +e
 	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
 	not_available_device
@@ -249,7 +192,7 @@ copy() { #copy the File on the DEVICE
 copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
 	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
-	declare BLOCKS_BACK=1000000
+	declare -r BLOCKS_BACK=1000000
 	set +e
 	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
 	not_available_device
@@ -266,8 +209,8 @@ filesize() { #Checked the Filesize
 
 compare_hash_values() { #Compares the hash values from the downloaded File and the returned File
 	info_trace "Compare the hash values from the downloaded File and the returned File"
-	declare MD5SUM=$(md5sum $FILENAME | cut -d" " -f1)
-	declare MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
+	declare -r MD5SUM=$(md5sum $FILENAME | cut -d" " -f1)
+	declare -r MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
 	if [ $MD5SUM == $MD5SUM_BACK ]; then
 		correct_trace "The hash values are right"
 		correct_trace "Successfully Verifying "
@@ -317,7 +260,7 @@ head_trace() { #create a underline and the text is purple
 
 read_p_text() {
 	echo -e "Do you want to copy on the SD-Card or on the USB-Stick?"
-	read -p "SD-Card,USB-Stick [S,U]:" answer
+	read -p "SD-Card,USB-Stick [S,U]:" ANSWER
 }
 
 variable() {
@@ -340,18 +283,12 @@ fi
 trap delete_returned_file exit
 trap delete_returned_file term
 
-declare LINK=$2
-declare FILENAME="$(basename $2)"
+declare -r LINK=$2
+declare -r FILENAME="$(basename $2)"
 
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
-if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-	needed_tools
-	needed_truncate_OS
-else
-	needed_tools
-	needed_truncate
-fi
+needed_tools
 
 case $ARG_OPTION in
 "-d")
@@ -394,15 +331,15 @@ fi
 
 read_p_text
 
-case "$answer" in
+case "$ANSWER" in
 USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
 
-	declare DEVICE_LINUX=/dev/sdb 2>/dev/null
+	declare -r DEVICE_LINUX=/dev/sdb 2>/dev/null
 	declare DEVICE=/dev/disk2
 	declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
 	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
-	declare DEVICE_TEXT="USB-Stick"
-	declare DEVICE_GREP="sdb "
+	declare -r DEVICE_TEXT="USB-Stick"
+	declare -r DEVICE_GREP="sdb "
 	declare STATUS=""
 
 	variable
@@ -429,15 +366,15 @@ USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
 SD-Card | Sd-Card | sd-Card | sd-card | SD | Sd | sd | S | s)
 
 	if [ -e /dev/sde ]; then
-		declare DEVICE_LINUX=/dev/sde 2>/dev/null
+		declare -r DEVICE_LINUX=/dev/sde 2>/dev/null
 		declare DEVICE_GREP="sde "
 	else
-		declare DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
-		declare DEVICE_GREP="mmcblk0 "
+		declare -r DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
+		declare -r DEVICE_GREP="mmcblk0 "
 	fi
 
 	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
-	declare DEVICE_TEXT="SD-Card"
+	declare -r DEVICE_TEXT="SD-Card"
 	declare STATUS=""
 
 	if [ -e /dev/disk2 ]; then
@@ -471,5 +408,6 @@ SD-Card | Sd-Card | sd-Card | sd-card | SD | Sd | sd | S | s)
 *)
 	error_trace "Wrong answer"
 	help_trace "Please try it again"
+	exit
 	;;
 esac
