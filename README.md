@@ -6,4 +6,4 @@ But the Script is in a !!Beta!! version, maybe it is not the revolutionary Image
 
 You need a Formatter tool to get the maximum performance, for linux i use the shfmt foramtter you can download it here:https://github.com/mvdan/sh/releases/download/v2.0.0/shfmt_v2.0.0_linux_amd64
 
-Now you can use the Script with the formatter to get the maximum power. 
+Now you can use the Script with the formatter to get the maximum power and when you have great ideas for the script, then you can work on it yourself
