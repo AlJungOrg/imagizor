@@ -20,6 +20,16 @@ declare ARG_OPTION=$1
 
 set -u
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Checked if the needed tools are on the console
+    #
+    # PARAMETER 1:  Checked if the needed tools are on the console
+    # RETURN:       -
+    # USAGE:        needed_tools
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 needed_tools() { #Validate if the needed tool are on the shell
 
 	declare -ra TOOLS=(wget gunzip dd md5sum truncate) 
@@ -34,7 +44,17 @@ needed_tools() { #Validate if the needed tool are on the shell
 
 }
 
-
+#>>==========================================================================>>
+    # DESCRIPTION:  Download the Image File from the Internet
+    #
+    # PARAMETER 1:  Download the Image File from the Internet
+    # PARAMETER 2:  If the Image file a .gz file, the script try to unpack the file
+    # RETURN:       -
+    # USAGE:        download
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 download() { #Download the Software and unpack them, if required
 	head_trace "download process and verifikation"
 	info_trace "Download the Software"
@@ -50,6 +70,18 @@ download() { #Download the Software and unpack them, if required
 	fi
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Checked the checkvalue from the Image-file and the real checkvalue with each other
+    #
+    # PARAMETER 1:  Checked the checkvalue from the Image-file and the real checkvalue with each other
+    # PARAMETER 2:  Are the checkvalues the same, the script continues working
+    # PARAMETER 3:  Are the checkvalues different, the script stop
+    # RETURN:       -
+    # USAGE:        download_verifikation
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 download_verifikation() {
 	echo -e "Please enter a check value methodik"
 	read -p "mdsum, sha256, I dont have a checkvalue [m,s,a]:" CHECK
@@ -103,6 +135,16 @@ download_verifikation() {
 	esac
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  unpack a .gz image-file
+    #
+    # PARAMETER 1:  unpack a .gz image-file
+    # RETURN:       -
+    # USAGE:        unpack
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 unpack() { #Unpack the Software
 	head_trace "Unpack process"
 	info_trace "Unpack the Software"
@@ -112,10 +154,30 @@ unpack() { #Unpack the Software
 	fi
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Is the text for the unpack or download function
+    #
+    # PARAMETER 1:  Is the text for the unpack or download function
+    # RETURN:       -
+    # USAGE:        unpack, download
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 unpack_text() { #Text for the unpack part
 	echo -e "Unpack is not required"
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Help text for a invalid command
+    #
+    # PARAMETER 1:  Show a help text for a invalid command
+    # RETURN:       -
+    # USAGE:        help
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 help() { #Is a help text
 	echo -e "invalid command"
 	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack]"
@@ -123,12 +185,32 @@ help() { #Is a help text
 	exit
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  When less then 2 parameter are given, the script show a help text
+    #
+    # PARAMETER 1:  When less then 2 parameter are given, the script show a help text
+    # RETURN:       -
+    # USAGE:        parameter_show
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 parameter_show() { #Checked if more then 2 Parameter are given
 	if [ $# -lt 2 ]; then
 		help_for_less_Parameter
 	fi
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Help text for the parameter_show function
+    #
+    # PARAMETER 1:  Help text for the parameter_show function
+    # RETURN:       -
+    # USAGE:        parameter_show
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
 	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack]"
 	echo -e "./image_to_device.sh                    -g      --gunzip                            File to unpack"
@@ -137,6 +219,17 @@ help_for_less_Parameter() { #Longer help text
 	exit
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Checked if the USB-Stick or the SD-Card is available
+    #
+    # PARAMETER 1:  Checked if the USB-Stick or the SD-Card is available
+    # PARAMETER 2:  Is the device not available, the script searched until the device is available
+    # RETURN:       -
+    # USAGE:        detect_device
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 detect_device() { #Checked if the USb-Stick or SD-Card available
 	head_trace "Find out the $DEVICE_TEXT"
 	info_trace "Checked if the $DEVICE_TEXT exists"
@@ -161,7 +254,18 @@ detect_device() { #Checked if the USb-Stick or SD-Card available
 	done
 }
 
-checked_fevice_and_filesize() { #Checked the Sd-Card Size and the filesize
+#>>==========================================================================>>
+    # DESCRIPTION:  Checked if the Size of the Device is bigger then the Size of the Image file 
+    #
+    # PARAMETER 1:  Checked if the Size of the Device is bigger then the Size of the Image file
+    # PARAMETER 2:  Is the Size of the Device smaller, trhe Script wait until more memory on the Device is 
+    # RETURN:       -
+    # USAGE:        checked_device_and_filesize
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
+checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 	head_trace "Checking Size"
 	info_trace "Checked the Size of the $DEVICE_TEXT and the Image-File"
 	if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
@@ -185,6 +289,16 @@ checked_fevice_and_filesize() { #Checked the Sd-Card Size and the filesize
 	done
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Copy the Image-file on a USB-Stick or SD-Card
+    #
+    # PARAMETER 1:  Copy the Image-file on a USB-Stick or SD-Card
+    # RETURN:       -
+    # USAGE:        copy 
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
@@ -195,6 +309,17 @@ copy() { #copy the File on the DEVICE
 	set -e
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Copy the File from a USB-Stick or SD-Card to a File
+    #
+    # PARAMETER 1:  Copy the File from a USB-Stick or SD-Card to a File
+    # PARAMETER 2:  Shorten the Returned Filesize to the original Size
+    # RETURN:       -
+    # USAGE:        copy_back
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
 	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
@@ -207,12 +332,34 @@ copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	sudo truncate -r $FILENAME verify.img
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Checked the Size of the Image-file
+    #
+    # PARAMETER 1:  Checked the Size of the Image-file
+    # RETURN:       -
+    # USAGE:        filesize
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 filesize() { #Checked the Filesize
 	head_trace "Size checking"
 	info_trace "Checked the Filesize of the Image-File"
 	size_trace "Filesize of the Image-File: $FILESIZE"
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Compare the hash values from the downloaded File and the returned File
+    #
+    # PARAMETER 1:  Compare the hash values from the downloaded File and the returned File
+    # PARAMETER 2:  Are the hash values the same the verifying is Successfully
+    # PARAMETER 3:  Are the hash values not the same the verifying is Unsuccessfully
+    # RETURN:       -
+    # USAGE:        compare_hash_values
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 compare_hash_values() { #Compares the hash values from the downloaded File and the returned File
 	info_trace "Compare the hash values from the downloaded File and the returned File"
 	declare -r MD5SUM=$(md5sum $FILENAME | cut -d" " -f1)
@@ -226,6 +373,16 @@ compare_hash_values() { #Compares the hash values from the downloaded File and t
 	fi
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Checked if the Device during the copy process present
+    #
+    # PARAMETER 1:  Checked if the Device during the copy process present
+    # RETURN:       -
+    # USAGE:        copy, copy_back
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 not_available_device() {
 	if ! [ -e $DEVICE ]; then
 		error_trace "$DEVICE_TEXT is not available"
@@ -234,30 +391,100 @@ not_available_device() {
 	fi
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Delete the returned file
+    #
+    # PARAMETER 1:  Delete the returned file
+    # RETURN:       -
+    # USAGE:        delete_returned_file
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 delete_returned_file() { #Delete the returned File
 	rm -rf verify.img
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Marked the echo text purple
+    #
+    # PARAMETER 1:  Marked the echo text purple
+    # RETURN:       -
+    # USAGE:        info_trace "Text"
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 info_trace() { #marked purple
 	echo -e "${PUR_BEG}$1${COL_END}"
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Marked the echo text red
+    #
+    # PARAMETER 1:  Marked the echo text red
+    # RETURN:       -
+    # USAGE:        help_trace "Text"
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 help_trace() { #marked RED
 	echo -e "${RED_BEG}$1${COL_END}"
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Marked the echo text red and added an ERROR at the begining
+    #
+    # PARAMETER 1:  Marked the echo text red and added an ERROR at the begining
+    # RETURN:       -
+    # USAGE:        error_trace "Text"
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 error_trace() { #marked RED and added an ERROR at the begining
 	echo -e "\n${RED_BEG}ERROR: $1${COL_END}"
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Marked the echo text green
+    #
+    # PARAMETER 1:  Marked the echo text green
+    # RETURN:       -
+    # USAGE:        correct_trace "Text"
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 correct_trace() { #marked Green
 	echo -e "${GREEN_BEG}$1${COL_END}"
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Marked the echo text blue
+    #
+    # PARAMETER 1:  Marked the echo text blue
+    # RETURN:       -
+    # USAGE:        size_trace "Text"
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 size_trace() { #marked Blue
 	echo -e "${BLUE_BEG}$1${COL_END}"
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Marked the echo text purple and create a undeline
+    #
+    # PARAMETER 1:  Marked the echo text purple and create a undeline
+    # RETURN:       -
+    # USAGE:        head_trace "Text"
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 head_trace() { #create a underline and the text is purple
 	echo -e ______________________________________________________________________
 	echo -e "\n${UNDERLINE}${PUR_BEG}$1${COL_END}\n"
@@ -269,6 +496,16 @@ read_p_text() {
 	read -p "SD-Card,USB-Stick [S,U]:" ANSWER
 }
 
+#>>==========================================================================>>
+    # DESCRIPTION:  Declare important variables for the script
+    #
+    # PARAMETER 1:  Declare variables fo the Script
+    # RETURN:       -
+    # USAGE:        variable
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
 variable() {
 	if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 		declare DEVICE=""
@@ -352,7 +589,7 @@ USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
 
 	detect_device
 
-	checked_fevice_and_filesize
+	checked_device_and_filesize
 
 	filesize
 
@@ -395,7 +632,7 @@ SD-Card | Sd-Card | sd-Card | sd-card | SD | Sd | sd | S | s)
 
 	detect_device
 
-	checked_fevice_and_filesize
+	checked_device_and_filesize
 
 	filesize
 
