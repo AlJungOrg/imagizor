@@ -9,4 +9,6 @@ You need a Formatter tool to get the maximum performance, for linux i use the sh
 Now you can use the Script with the formatter to get the maximum power and when you have great ideas for the script, then you can work on it yourself
 
 But now the question how does the script work and how it looks in action?
-For these question have i prepare a example
+For these question, i have prepare a example, that show you 
+
+![distribution overview](docs/sources/images/distro.png)
