@@ -11,4 +11,4 @@ Now you can use the Script with the formatter to get the maximum power and when 
 But now the question how does the script work and how it looks in action?
 For these question, i have prepare a example, that show you 
 
-![distribution overview](docs/sources/images/distro.png)
+![distribution overview](images/distro.png)
