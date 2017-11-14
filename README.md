@@ -17,7 +17,7 @@ With ./imagizor.sh you call out the Script, -d is the first parameter he downloa
 
 Now the magic begins.
 
-The script started to Download the Link (Download file is the Image file), now you can pick a device (SD-Card or USB-Stick), the image file will copy to the device. 
+The script started to Download the File from the Link (Download file is the Image file), now you can pick a device (SD-Card or USB-Stick), the image file will copy to the device. 
 
 The device muss have more memory then the Image file to guarantee this the script checked the filesize and the size of the device with each other.
 
