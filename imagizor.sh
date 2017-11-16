@@ -71,9 +71,10 @@ download() { #Download the Software and unpack them, if required
 }
 
 #>>==========================================================================>>
-    # DESCRIPTION:  
+    # DESCRIPTION:  Copy doesen't gone with all function
     #
-    # PARAMETER 1:  
+    # PARAMETER 1:  Doesn't exist the file, the script breaks off
+    # PARAMETER 1:  When the file is adirectory, the script breaks off
     # RETURN:       -
     # USAGE:        copy_specification
     #
