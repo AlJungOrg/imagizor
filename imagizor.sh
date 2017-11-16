@@ -71,6 +71,61 @@ download() { #Download the Software and unpack them, if required
 }
 
 #>>==========================================================================>>
+    # DESCRIPTION:  
+    #
+    # PARAMETER 1:  
+    # RETURN:       -
+    # USAGE:        copy_specification
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
+copy_specification() {
+    if ! [ -e $FILENAME ]; then
+        error_trace "File doesn't exist"
+        exit
+    fi
+    
+    if [ -d $FILENAME ]; then
+        error_trace "You cant copy a directory"
+        exit
+    fi
+}
+
+#>>==========================================================================>>
+    # DESCRIPTION:  unpack a .gz image-file
+    #
+    # PARAMETER 1:  unpack a .gz image-file
+    # RETURN:       -
+    # USAGE:        unpack
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
+unpack() { #Unpack the Software
+	head_trace "Unpack process"
+	info_trace "Unpack the Software"
+	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
+		unpack_text
+		exit
+	fi
+}
+
+#>>==========================================================================>>
+    # DESCRIPTION:  Is the text for the unpack or download function
+    #
+    # PARAMETER 1:  Is the text for the unpack or download function
+    # RETURN:       -
+    # USAGE:        unpack, download
+    #
+    # AUTHOR:       TT
+    # REVIEWER(S):  -
+    #<<==========================================================================<<
+unpack_text() { #Text for the unpack part
+	echo -e "Unpack is not required"
+}
+
+#>>==========================================================================>>
     # DESCRIPTION:  Checked the checkvalue from the Image-file and the real checkvalue with each other
     #
     # PARAMETER 1:  Checked the checkvalue from the Image-file and the real checkvalue with each other
@@ -370,6 +425,7 @@ compare_hash_values() { #Compares the hash values from the downloaded File and t
 	else
 		error_trace "The hash values are not right, please try it again"
 		error_trace "Unsuccessfully verifying"
+		exit
 	fi
 }
 
@@ -549,6 +605,13 @@ case $ARG_OPTION in
 "--gunzip")
 	unpack
 	;;
+"-c")
+    copy_specification
+    ;;
+    
+"-copy")
+    copy_specification
+    ;;
 
 "--help")
 	help_for_less_Parameter
