@@ -152,8 +152,10 @@ download_verifikation() {
 			correct_trace "Verifikation successfull"
 		else
 			error_trace "Hash values are not the same"
-			help_trace "Ples try it again"
+			help_trace "Faulty image file"
+			help_trace "Please start a new Download"
 			help_trace "Verifikation Unsuccessfully"
+			rm $FILENAME
 			exit
 		fi
 		;;
@@ -172,8 +174,10 @@ download_verifikation() {
 			correct_trace "Verifikation successfull"
 		else
 			error_trace "Hash values are not the same"
-			help_trace "Ples try it again"
+			help_trace "Faulty image file"
+			help_trace "Please start a new Download"
 			help_trace "Verifikation Unsuccessfully"
+			rm $FILENAME
 			exit
 		fi
 
