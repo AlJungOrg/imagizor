@@ -140,12 +140,13 @@ unpack_text() { #Text for the unpack part
 #<<==========================================================================<<
 download_verifikation() {
 	echo -e "Please enter a check value methodik"
-	read -p "mdsum, sha256, I dont have a checkvalue [m,s,a]:" CHECK
+	read -p "mdsum, sha256, I dont have a check value [m,s,a]:" CHECK
 
 	case $CHECK in
 	m | md | M | MD | md5sum | MD5SUM)
-		read -p "Now enter the Check value number:" VALUE
+		read -p "Now enter the check value number:" VALUE
 		declare -r MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
+		info_trace "Compare the check value"
 
 		if [ $MD_FILE == $VALUE ]; then
 			correct_trace "Hash values are the same"
@@ -163,6 +164,8 @@ download_verifikation() {
 	s | S | Sha | sha | SHA | sha256 | SHA256 | 256)
 		read -p "Now enter the Check value number:" VALUE
 		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
+		info_trace "Compare the check value"
+		
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 			declare -r SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1)
 		else
