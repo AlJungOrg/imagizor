@@ -245,6 +245,7 @@ help() { #Is a help text
 	echo -e "invalid command"
 	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -c, --copy ] [Downloadlink, File to unpack, File to copy ]"
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e "Check value for sha256: 47c0da3e35cce827e2e0715aba82616430f46b78"
 	exit
 }
 
@@ -280,6 +281,7 @@ help_for_less_Parameter() { #Longer help text
 	echo -e "./image_to_device.sh                    -d      --download                          Downloadlink"
 	echo -e "./image_to_device.sh                    -c      --copy                              File to copy"
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e "Check value for sha256: 47c0da3e35cce827e2e0715aba82616430f46b78"
 	exit
 }
 
