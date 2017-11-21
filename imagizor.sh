@@ -71,6 +71,104 @@ download() { #Download the Software and unpack them, if required
 }
 
 #>>==========================================================================>>
+# DESCRIPTION:  Checked the checkvalue from the Image-file and the real checkvalue with each other
+#
+# PARAMETER 1:  Checked the checkvalue from the Image-file and the real checkvalue with each other
+# PARAMETER 2:  Are the checkvalues the same, the script continues working
+# PARAMETER 3:  Are the checkvalues different, the script stop
+# RETURN:       -
+# USAGE:        download_verifikation
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
+download_verifikation() {
+
+	if [ $CHECKVALUE ]; then
+		download_verifikation_p_text
+	else
+		echo -e "Please enter a check value methodik"
+		read -p "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
+	fi
+
+	case $CHECK in
+	m | md | M | MD | md5sum | MD5SUM)
+		download_checksum_p_text
+		declare -r MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
+		info_trace "Compare the check value from the Image-file and the real checkvalue with each other"
+
+		if [ $MD_FILE == $VALUE ]; then
+			download_verifikation_text
+		else
+			download_verifikation_text2
+		fi
+		;;
+
+	s | S | Sha | sha | SHA | sha256 | SHA256 | 256)
+		download_checksum_p_text
+		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
+		info_trace "Compare the check value from the Image-file and the real checkvalue with each other"
+
+		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
+			declare -r SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1)
+		else
+			declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
+		fi
+
+		if [ $SH_FILE == $VALUE ]; then
+			download_verifikation_text
+		else
+			download_verifikation_text2
+		fi
+
+		;;
+
+	a | A) ;;
+
+	*)
+
+		error_trace "Wrong Answer"
+		help_trace "Try it again"
+		exit
+		;;
+
+	esac
+}
+
+download_verifikation_p_text() {
+	if [ $CHECKVALUESUM = 32 ]; then
+		declare -g CHECK=m
+	elif [ $CHECKVALUESUM = 64 ]; then
+		declare -g CHECK=s
+	else
+		echo -e "Please enter a check value methodik"
+		read -p "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
+	fi
+}
+
+download_checksum_p_text() {
+	if [ $CHECKVALUESUM ]; then
+		echo
+	else
+		read -p "Now enter the Check value number:" VALUE
+	fi
+}
+
+download_verifikation_text() {
+	correct_trace "Hash values are the same"
+	correct_trace "Verifikation successfull"
+}
+
+download_verifikation_text2() {
+	error_trace "Hash values are not the same"
+	help_trace "Faulty image file"
+	help_trace "Please start a new Download"
+	help_trace "Verifikation Unsuccessfully"
+	rm $FILENAME
+	exit
+}
+
+#>>==========================================================================>>
 # DESCRIPTION:  Copy doesen't gone with all function
 #
 # PARAMETER 1:  Doesn't exist the file, the script breaks off
@@ -91,111 +189,6 @@ copy_specification() {
 		error_trace "You cant copy a directory"
 		exit
 	fi
-}
-
-#>>==========================================================================>>
-# DESCRIPTION:  unpack a .gz image-file
-#
-# PARAMETER 1:  unpack a .gz image-file
-# RETURN:       -
-# USAGE:        unpack
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-unpack() { #Unpack the Software
-	head_trace "Unpack process"
-	info_trace "Unpack the Software"
-	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
-		unpack_text
-		exit
-	fi
-}
-
-#>>==========================================================================>>
-# DESCRIPTION:  Is the text for the unpack or download function
-#
-# PARAMETER 1:  Is the text for the unpack or download function
-# RETURN:       -
-# USAGE:        unpack, download
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-unpack_text() { #Text for the unpack part
-	echo -e "Unpack is not required"
-}
-
-#>>==========================================================================>>
-# DESCRIPTION:  Checked the checkvalue from the Image-file and the real checkvalue with each other
-#
-# PARAMETER 1:  Checked the checkvalue from the Image-file and the real checkvalue with each other
-# PARAMETER 2:  Are the checkvalues the same, the script continues working
-# PARAMETER 3:  Are the checkvalues different, the script stop
-# RETURN:       -
-# USAGE:        download_verifikation
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-download_verifikation() {
-	echo -e "Please enter a check value methodik"
-	read -p "mdsum, sha256, I dont have a check value [m,s,a]:" CHECK
-
-	case $CHECK in
-	m | md | M | MD | md5sum | MD5SUM)
-		read -p "Now enter the check value number:" VALUE
-		declare -r MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
-		info_trace "Compare the check value"
-
-		if [ $MD_FILE == $VALUE ]; then
-			correct_trace "Hash values are the same"
-			correct_trace "Verifikation successfull"
-		else
-			error_trace "Hash values are not the same"
-			help_trace "Faulty image file"
-			help_trace "Please start a new Download"
-			help_trace "Verifikation Unsuccessfully"
-			rm $FILENAME
-			exit
-		fi
-		;;
-
-	s | S | Sha | sha | SHA | sha256 | SHA256 | 256)
-		read -p "Now enter the Check value number:" VALUE
-		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
-		info_trace "Compare the check value"
-		
-		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-			declare -r SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1)
-		else
-			declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
-		fi
-
-		if [ $SH_FILE == $VALUE ]; then
-			correct_trace "Hash values are the same"
-			correct_trace "Verifikation successfull"
-		else
-			error_trace "Hash values are not the same"
-			help_trace "Faulty image file"
-			help_trace "Please start a new Download"
-			help_trace "Verifikation Unsuccessfully"
-			rm $FILENAME
-			exit
-		fi
-
-		;;
-
-	a | A) ;;
-
-	*)
-
-		error_trace "Wrong Answer"
-		help_trace "Try it again"
-		exit
-		;;
-
-	esac
 }
 
 #>>==========================================================================>>
@@ -594,7 +587,17 @@ trap delete_returned_file exit
 trap delete_returned_file term
 
 declare -r LINK=$2
-declare -r FILENAME="$(basename $2)"
+declare FILENAME="$(basename $2)"
+
+if [ $# -gt 2 ]; then
+    declare CHECKVALUE=$3
+    declare CHECKVALUESUM="$(expr length $3)"
+    declare VALUE=$3
+else
+    declare CHECKVALUE=""
+    declare CHECKVALUESUM=""
+    declare VALUE=""
+fi
 
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
@@ -646,7 +649,11 @@ else
 	declare DEVICE=""
 fi
 
-read_p_text
+if [ $# -gt 3 ]; then
+	declare ANSWER=$4
+else
+	read_p_text
+fi
 
 case "$ANSWER" in
 USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
