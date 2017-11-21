@@ -135,6 +135,16 @@ download_verifikation() {
 	esac
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Checked if a value is given
+#
+# PARAMETER 1:  Checked if a value is given
+# RETURN:       -
+# USAGE:        download_verifikation
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 download_verifikation_p_text() {
 	if [ $CHECKVALUESUM = 32 ]; then
 		declare -g CHECK=m
@@ -146,6 +156,16 @@ download_verifikation_p_text() {
 	fi
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Doesn't exist the variable, the script ask for the checkvalue
+#
+# PARAMETER 1:  Doesn't exist the variable, the script ask for the checkvalue
+# RETURN:       -
+# USAGE:        download_verifikation
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 download_checksum_p_text() {
 	if [ $CHECKVALUESUM ]; then
 		echo
@@ -154,11 +174,31 @@ download_checksum_p_text() {
 	fi
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Text for the download_verifikation function, if the hashvalues are rigth
+#
+# PARAMETER 1:  Text, if the hashvalues are correct by the download_verifikation function
+# RETURN:       -
+# USAGE:        download_verifikation
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 download_verifikation_text() {
 	correct_trace "Hash values are the same"
 	correct_trace "Verifikation successfull"
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Error Text for the download_verifikation function
+#
+# PARAMETER 1:  Text, if the hashvalues are correct by the download_verifikation function
+# RETURN:       -
+# USAGE:        download_verifikation
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 download_verifikation_text2() {
 	error_trace "Hash values are not the same"
 	help_trace "Faulty image file"
@@ -172,7 +212,7 @@ download_verifikation_text2() {
 # DESCRIPTION:  Copy doesen't gone with all function
 #
 # PARAMETER 1:  Doesn't exist the file, the script breaks off
-# PARAMETER 1:  When the file is adirectory, the script breaks off
+# PARAMETER 2:  When the file is adirectory, the script breaks off
 # RETURN:       -
 # USAGE:        copy_specification
 #
