@@ -136,9 +136,9 @@ download_verifikation() {
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Checked if a value is given
+# DESCRIPTION:  Checked if the value is given
 #
-# PARAMETER 1:  Checked if a value is given
+# PARAMETER 1:  Checked if the value is given
 # RETURN:       -
 # USAGE:        download_verifikation
 #
@@ -676,6 +676,14 @@ case $ARG_OPTION in
 	exit
 	;;
 esac
+
+if [ $ARG_OPTION = -g ]; then
+    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
+elif [ $ARG_OPTION = --gunzip ]; then
+    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
+else
+    declare FILENAME="$(basename $2)"
+fi
 
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}')
 declare SIZE=""
