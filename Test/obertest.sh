@@ -22,4 +22,10 @@ echo -e "start Test 2..."
 
 Test_successfull
 
+echo -e "start Test 3..."
+
+./test_g.sh
+
+Test_successfull
+
 echo -e "Tests completed"
