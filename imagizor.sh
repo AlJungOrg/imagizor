@@ -276,9 +276,9 @@ unpack_text() { #Text for the unpack part
 #<<==========================================================================<<
 help() { #Is a help text
 	echo -e "invalid command"
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -c, --copy ] [Downloadlink, File to unpack, File to copy ]"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -c, --copy ] [Downloadlink, File to unpack, File to copy ] [(optional) Device (SD-Card, USB-Stick] [(optional) hashvalue (md5sum, sha256sum)]"
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e "Check value for sha256: 47c0da3e35cce827e2e0715aba82616430f46b78"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	exit
 }
 
@@ -309,12 +309,12 @@ parameter_show() { #Checked if more then 2 Parameter are given
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack]"
-	echo -e "./image_to_device.sh                    -g      --gunzip                            File to unpack"
-	echo -e "./image_to_device.sh                    -d      --download                          Downloadlink"
-	echo -e "./image_to_device.sh                    -c      --copy                              File to copy"
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e "Check value for sha256: 47c0da3e35cce827e2e0715aba82616430f46b78"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)] {'optional'}[hashvalue(md5sum, sha256sum)]"
+	echo -e "./image_to_device.sh                    -g      --gunzip                            File to unpack        Device          hashvalue"
+	echo -e "./image_to_device.sh                    -d      --download                          Downloadlink          Device          hashvalue"
+	echo -e "./image_to_device.sh                    -c      --copy                              File to copy          Device          hashvalue"
+    echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	exit
 }
 
