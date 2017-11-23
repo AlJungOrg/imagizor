@@ -629,10 +629,10 @@ trap delete_returned_file term
 declare -r LINK=$2
 declare FILENAME="$(basename $2)"
 
-if [ $# -gt 2 ]; then
-    declare CHECKVALUE=$3
-    declare CHECKVALUESUM="$(expr length $3)"
-    declare VALUE=$3
+if [ $# -gt 3 ]; then
+    declare CHECKVALUE=$4
+    declare CHECKVALUESUM="$(expr length $4)"
+    declare VALUE=$4
 else
     declare CHECKVALUE=""
     declare CHECKVALUESUM=""
@@ -697,8 +697,8 @@ else
 	declare DEVICE=""
 fi
 
-if [ $# -gt 3 ]; then
-	declare ANSWER=$4
+if [ $# -gt 2 ]; then
+	declare ANSWER=$3
 else
 	read_p_text
 fi
