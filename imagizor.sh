@@ -229,6 +229,15 @@ copy_specification() {
 		error_trace "You cant copy a directory"
 		exit
 	fi
+	
+	if [[ "$FILENAME" =~ ".iso" ]]; then
+        echo
+    elif [[ "$FILENAME" =~ ".img" ]]; then
+        echo
+    else 
+        error_trace "You can only copy a image file"
+        help_trace "Image files ends withe .iso or .img"
+    fi
 }
 
 #>>==========================================================================>>
