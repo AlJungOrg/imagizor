@@ -232,9 +232,9 @@ copy_specification() {
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  unpack a .gz image-file
+# DESCRIPTION:  unpack a .gz or a .bz2 image-file
 #
-# PARAMETER 1:  unpack a .gz image-file
+# PARAMETER 1:  Check if the file ends with .gz or .bz2
 # RETURN:       -
 # USAGE:        unpack
 #
@@ -431,6 +431,7 @@ copy() { #copy the File on the DEVICE
 	info_trace "Copy the File on the $DEVICE_TEXT"
 	declare -r BLOCKS=100000
 	set +e
+	is_device_read_only
 	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
 	not_available_device
 	set -e
@@ -452,11 +453,21 @@ copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
 	declare -r BLOCKS_BACK=1000000
 	set +e
+	is_device_read_only
 	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
 	not_available_device
 	set -e
 	info_trace "Shortening the returned File in the Size from the original File"
 	sudo truncate -r $FILENAME verify.img
+}
+
+is_device_read_only() {
+    sudo dd if=/dev/null of=/dev/mmcblk0 2>/dev/null
+    if [ $? = 1 ]; then
+        error_trace "The Device is read-only"
+        help_trace "Please flip the switch over"
+        exit
+    fi
 }
 
 #>>==========================================================================>>
