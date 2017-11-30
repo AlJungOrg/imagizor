@@ -250,6 +250,15 @@ unpack() { #Unpack the Software
 	fi
 }
 
+unpack_bz() {
+    head_trace "Unpack process"
+	info_trace "Unpack the Software"
+    if ! bzip2 -d $FILENAME >/dev/null 2>/dev/null; then
+        unpack_text
+		exit
+    fi
+}
+
 #>>==========================================================================>>
 # DESCRIPTION:  Is the text for the unpack or download function
 #
@@ -276,7 +285,7 @@ unpack_text() { #Text for the unpack part
 #<<==========================================================================<<
 help() { #Is a help text
 	echo -e "invalid command"
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -c, --copy ] [Downloadlink, File to unpack, File to copy ] [(optional) Device (SD-Card, USB-Stick] [(optional) hashvalue (md5sum, sha256sum)]"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -b, --bzip, -c, --copy ] [Downloadlink, .gz File to unpack, .bz2 File to unpack, File to copy ] [(optional) Device (SD-Card, USB-Stick] [(optional) hashvalue (md5sum, sha256sum)]"
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	exit
@@ -310,7 +319,8 @@ parameter_show() { #Checked if more then 2 Parameter are given
 #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
 	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)] {'optional'}[hashvalue(md5sum, sha256sum)]"
-	echo -e "./image_to_device.sh                    -g      --gunzip                            File to unpack        Device          hashvalue"
+	echo -e "./image_to_device.sh                    -g      --gunzip                            .gz File to unpack        Device          hashvalue"
+	echo -e "./image_to_device.sh                    -b      --bzip                              .bz2 File to unpack          Device          hashvalue"
 	echo -e "./image_to_device.sh                    -d      --download                          Downloadlink          Device          hashvalue"
 	echo -e "./image_to_device.sh                    -c      --copy                              File to copy          Device          hashvalue"
     echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
@@ -401,7 +411,7 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare -r BLOCKS=8000000
+	declare -r BLOCKS=100000
 	set +e
 	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
 	not_available_device
@@ -659,6 +669,7 @@ case $ARG_OPTION in
 "--gunzip")
 	unpack
 	;;
+	
 "-c")
 	copy_specification
 	;;
@@ -666,7 +677,15 @@ case $ARG_OPTION in
 "--copy")
 	copy_specification
 	;;
-
+	
+"-b")
+    unpack_bz
+	;;
+	
+"--bzip")
+    unpack_bz
+    ;;
+    
 "--help")
 	help_for_less_Parameter
 	;;
@@ -681,6 +700,14 @@ if [ $ARG_OPTION = -g ]; then
     declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
 elif [ $ARG_OPTION = --gunzip ]; then
     declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
+else
+    declare FILENAME="$(basename $2)"
+fi
+
+if [ $ARG_OPTION = -b ]; then
+    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
+elif [ $ARG_OPTION = --bzip ]; then
+    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
 else
     declare FILENAME="$(basename $2)"
 fi
