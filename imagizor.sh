@@ -244,6 +244,18 @@ copy_specification() {
 unpack() { #Unpack the Software
 	head_trace "Unpack process"
 	info_trace "Unpack the Software"
+	if [[ "$FILENAME" =~ ".bz2" ]]; then
+        help_trace "The file ends with .bz2"
+        help_trace "Please use imagizor.sh -b $FILENAME"
+        exit
+    fi
+    
+    if ! [[ "$FILENAME" =~ ".gz" ]]; then
+        error_trace "The file doesn't end with .gz"
+        help_trace "You can only gunzip a .gz file"
+        exit
+    fi
+    
 	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
 		unpack_text
 		exit
@@ -253,6 +265,18 @@ unpack() { #Unpack the Software
 unpack_bz() {
     head_trace "Unpack process"
 	info_trace "Unpack the Software"
+	if [[ "$FILENAME" =~ ".gz" ]]; then
+        help_trace "The file ends with .gz"
+        help_trace "Please use imagizor.sh -g $FILENAME"
+        exit
+    fi
+    
+    if ! [[ "$FILENAME" =~ ".bz2" ]]; then
+        error_trace "The file doesn't end with .bz2"
+        help_trace "You can only gunzip a .bz2 file"
+        exit
+    fi
+    
     if ! bzip2 -d $FILENAME >/dev/null 2>/dev/null; then
         unpack_text
 		exit
@@ -700,11 +724,7 @@ if [ $ARG_OPTION = -g ]; then
     declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
 elif [ $ARG_OPTION = --gunzip ]; then
     declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-else
-    declare FILENAME="$(basename $2)"
-fi
-
-if [ $ARG_OPTION = -b ]; then
+elif [ $ARG_OPTION = -b ]; then
     declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
 elif [ $ARG_OPTION = --bzip ]; then
     declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
