@@ -244,43 +244,22 @@ copy_specification() {
 unpack() { #Unpack the Software
 	head_trace "Unpack process"
 	info_trace "Unpack the Software"
-	if [[ "$FILENAME" =~ ".bz2" ]]; then
-        help_trace "The file ends with .bz2"
-        help_trace "Please use imagizor.sh -b $FILENAME"
+	if [[ "$FILENAME" =~ $NOT_END ]]; then
+        help_trace "The file ends with $NOT_END"
+        help_trace "Please use $RUN $FILENAME"
         exit
     fi
     
-    if ! [[ "$FILENAME" =~ ".gz" ]]; then
-        error_trace "The file doesn't end with .gz"
-        help_trace "You can only gunzip a .gz file"
+    if ! [[ "$FILENAME" =~ $END ]]; then
+        error_trace "The file doesn't end with $END"
+        help_trace "You can only $OPTION a $END file"
         exit
     fi
     
-	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
+	if ! $COMMAND $FILENAME >/dev/null 2>/dev/null; then
 		unpack_text
 		exit
 	fi
-}
-
-unpack_bz() {
-    head_trace "Unpack process"
-	info_trace "Unpack the Software"
-	if [[ "$FILENAME" =~ ".gz" ]]; then
-        help_trace "The file ends with .gz"
-        help_trace "Please use imagizor.sh -g $FILENAME"
-        exit
-    fi
-    
-    if ! [[ "$FILENAME" =~ ".bz2" ]]; then
-        error_trace "The file doesn't end with .bz2"
-        help_trace "You can only gunzip a .bz2 file"
-        exit
-    fi
-    
-    if ! bzip2 -d $FILENAME >/dev/null 2>/dev/null; then
-        unpack_text
-		exit
-    fi
 }
 
 #>>==========================================================================>>
@@ -297,6 +276,21 @@ unpack_text() { #Text for the unpack part
 	echo -e "Unpack is not required"
 }
 
+unpack_variable_for_gz() {
+    declare -g END=.gz
+    declare -g NOT_END=.bz2
+    declare -g OPTION=gunzip
+    declare -g COMMAND=$OPTION
+    declare -g RUN="imagizor.sh -b"
+}
+
+unpack_variable_for_bz() {
+    declare -g COMMAND="bzip2 -d"
+    declare -g NOT_END=.gz
+    declare -g END=.bz2
+    declare -g OPTION=bzip
+    declare -g RUN="imagizor.sh -g"
+}
 #>>==========================================================================>>
 # DESCRIPTION:  Help text for a invalid command
 #
@@ -677,6 +671,17 @@ declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
 needed_tools
 
+if [ $ARG_OPTION = -g ]; then
+    unpack_variable_for_gz
+elif [ $ARG_OPTION = --gunzip ]; then
+    unpack_variable_for_gz
+elif [ $ARG_OPTION = -b ]; then
+    unpack_variable_for_bz
+elif [ $ARG_OPTION = --bzip ]; then
+    unpack_variable_for_bz
+fi
+
+
 case $ARG_OPTION in
 "-d")
 	download
@@ -703,11 +708,11 @@ case $ARG_OPTION in
 	;;
 	
 "-b")
-    unpack_bz
+    unpack
 	;;
 	
 "--bzip")
-    unpack_bz
+    unpack
     ;;
     
 "--help")
