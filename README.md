@@ -11,9 +11,9 @@ Now you can use the Script with the formatter to get the maximum power and when 
 But now the question how does the script work and how it looks in action?
 For these question, i have prepare a example, that show you how the script works.
 
-![distribution overview](images/Vorschau.png)
-
 # Use
+
+![distribution overview](images/Vorschau.png)
 
 Use ./imagizor.sh to run the Script. -d specifies the source to download the file.
 
