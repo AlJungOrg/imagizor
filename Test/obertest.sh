@@ -28,4 +28,10 @@ echo -e "start Test 3..."
 
 Test_successfull
 
+echo -e "start Test 4..."
+
+./test_b.sh
+
+Test_successfull
+
 echo -e "Tests completed"

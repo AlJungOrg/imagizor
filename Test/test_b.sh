@@ -2,7 +2,7 @@
 
 cd ..
 
-spawn ./imagizor.sh -g test.gz
+spawn ./imagizor.sh -b test2.bz2
 
 set timeout 5
 
