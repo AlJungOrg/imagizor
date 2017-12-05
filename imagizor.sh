@@ -481,15 +481,11 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare -r BLOCKS=14000
-	if [ $FILESIZE_WHOLE -lt $BLOCKS ]; then
-        COUNT=$((BLOCKS / FILESIZE_WHOLE))
-	else
-        COUNT=$((FILESIZE_WHOLE / BLOCKS))
-    fi
+	declare -r BLOCKS=4M
+
 	set +e
 	is_device_read_only
-	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$COUNT $STATUS
+	sudo dd if=$FILENAME oflag=direct of=$DEVICE $DD_CONV bs=$BLOCKS count=$COUNT $STATUS conv=fdatasync
 	not_available_device
 	set -e
 }
