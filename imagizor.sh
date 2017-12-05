@@ -461,10 +461,15 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare -r BLOCKS=10000
+	declare -r BLOCKS=14000
+	if [ $FILESIZE_WHOLE -lt $BLOCKS ]; then
+        COUNT=$((BLOCKS / FILESIZE_WHOLE))
+	else
+        COUNT=$((FILESIZE_WHOLE / BLOCKS))
+    fi
 	set +e
 	is_device_read_only
-	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
+	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$COUNT $STATUS
 	not_available_device
 	set -e
 }
@@ -484,9 +489,14 @@ copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
 	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
 	declare -r BLOCKS_BACK=1000
+	if [ $FILESIZE_WHOLE -lt $BLOCKS_BACK ]; then
+        COUNT=$((BLOCKS_BACK / FILESIZE_WHOLE))
+	else
+        COUNT=$((FILESIZE_WHOLE / BLOCKS_BACK))
+    fi
 	set +e
 	is_device_read_only
-	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
+	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$COUNT $STATUS
 	not_available_device
 	set -e
 	info_trace "Shortening the returned File in the Size from the original File"
