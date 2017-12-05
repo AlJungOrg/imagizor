@@ -335,9 +335,19 @@ unpack_variable_for_bz() {
 #<<==========================================================================<<
 help() { #Is a help text
 	echo -e "invalid command"
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -b, --bzip, -c, --copy ] [Downloadlink, .gz File to unpack, .bz2 File to unpack, File to copy ] [(optional) Device (SD-Card, USB-Stick] [(optional) hashvalue (md5sum, sha256sum)]"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -b, --bzip, -c, --copy ] [Downloadlink, .gz File to unpack, .bz2 File to unpack, File to copy ]" 
+	echo -e "[(optional) Device (SD-Card, USB-Stick] [(optional) hashvalue (md5sum, sha256sum)] [(For Authentication in download mode) 'USER', 'PASSWORD' ('' Are needed)]"
+	echo -e ""
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
+	echo -e "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
+	echo -e "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 'USER' 'PASSWORD'"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
+	echo -e "'USER' 'PASSWORD'"
 	exit
 }
 
@@ -368,13 +378,23 @@ parameter_show() { #Checked if more then 2 Parameter are given
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)] {'optional'}[hashvalue(md5sum, sha256sum)]"
-	echo -e "./image_to_device.sh                    -g      --gunzip                            .gz File to unpack        Device          hashvalue"
-	echo -e "./image_to_device.sh                    -b      --bzip                              .bz2 File to unpack          Device          hashvalue"
-	echo -e "./image_to_device.sh                    -d      --download                          Downloadlink          Device          hashvalue"
-	echo -e "./image_to_device.sh                    -c      --copy                              File to copy          Device          hashvalue"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)]" 
+	echo -e "{'optional'}[hashvalue(md5sum, sha256sum)] {'For Authentication in download mode'}['USER', 'PASSWORD' ('' Are needed)]"
+	echo -e "./image_to_device.sh                    -g      --gunzip                   .gz File to unpack       Device          hashvalue   'USER'  'PASSWORD'"
+	echo -e "./image_to_device.sh                    -b      --bzip                     .bz2 File to unpack      Device          hashvalue   'USER'  'PASSWORD'"
+	echo -e "./image_to_device.sh                    -d      --downloa                   Downloadlink            Device          hashvalue   'USER'  'PASSWORD'"
+	echo -e "./image_to_device.sh                    -c      --copy                      File to copy            Device          hashvalue   'USER'  'PASSWORD'"
+    echo -e ""
     echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
+	echo -e                          "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
+	echo -e                          "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 'USER' 'PASSWORD'"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
+	echo -e                         "'USER' 'PASSWORD'"
 	exit
 }
 
