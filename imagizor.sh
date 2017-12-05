@@ -58,8 +58,29 @@ needed_tools() { #Validate if the needed tool are on the shell
 download() { #Download the Software and unpack them, if required
 	head_trace "download process and verifikation"
 	info_trace "Download the Software"
-	if ! wget -c $LINK; then
-		error_trace "Maybe the URL is not available or the URL ist passed off "
+	
+	if ! [ $PASSWORD ]; then
+        echo -e "Do you need user data fo the download"
+        read -p "Yes, No [Y, N]:" DATA
+	fi
+	
+	case $DATA in
+        Y | y | Yes | yes | Ja | ja)
+            if [ $PASSWORD ]; then
+                echo -e ""
+            else
+                read -p "Please enter your username [ 'username' ]:" USER
+                read -r -p "Please enter your password [ 'password' ]:" PASSWORD
+            fi
+            ;;
+        N | n | No | no | Nein | nein)
+            declare USER=a
+            declare PASSWORD=a
+            ;;
+    esac
+	
+	if ! wget -c --auth-no-challenge --http-user=$USER --http-password="$PASSWORD" $LINK; then
+		error_trace "Maybe the URL is not available or the URL is passed off "
 		help
 		exit
 	fi
@@ -440,7 +461,7 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare -r BLOCKS=100000
+	declare -r BLOCKS=10000
 	set +e
 	is_device_read_only
 	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
@@ -462,7 +483,7 @@ copy() { #copy the File on the DEVICE
 copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
 	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
-	declare -r BLOCKS_BACK=1000000
+	declare -r BLOCKS_BACK=1000
 	set +e
 	is_device_read_only
 	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
@@ -664,7 +685,7 @@ variable() {
 		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP" | awk '{print $4}')
 		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
 		declare -g STATUS="status=progress"
-		declare -g DD_CONV="conv=fdatasync"
+		declare -g DD_CONV="conv=sync"
 	fi
 }
 
@@ -687,6 +708,21 @@ else
     declare CHECKVALUE=""
     declare CHECKVALUESUM=""
     declare VALUE=""
+fi
+
+if [ $# -gt 4 ]; then
+    declare USER=$4
+    declare PASSWORD=$5
+    declare -g DATA=Y
+else
+    declare USER=""
+    declare PASSWORD=""
+fi
+
+if [ $# -gt 5 ]; then
+    declare USER=$5
+    declare PASSWORD=$6
+    declare -g DATA=Y
 fi
 
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
