@@ -381,10 +381,10 @@ parameter_show() { #Checked if more then 2 Parameter are given
 help_for_less_Parameter() { #Longer help text
 	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)]" 
 	echo -e "{'optional'}[hashvalue(md5sum, sha256sum)] {'For Authentication in download mode'}['USER', 'PASSWORD' ('' Are needed)]"
-	echo -e "./image_to_device.sh                    -g      --gunzip                   .gz File to unpack       Device          hashvalue   'USER'  'PASSWORD'"
-	echo -e "./image_to_device.sh                    -b      --bzip                     .bz2 File to unpack      Device          hashvalue   'USER'  'PASSWORD'"
-	echo -e "./image_to_device.sh                    -d      --downloa                   Downloadlink            Device          hashvalue   'USER'  'PASSWORD'"
-	echo -e "./image_to_device.sh                    -c      --copy                      File to copy            Device          hashvalue   'USER'  'PASSWORD'"
+	echo -e "./image_to_device.sh                    -g      --gunzip                   .gz File to unpack       Device          hashvalue"
+	echo -e "./image_to_device.sh                    -b      --bzip                     .bz2 File to unpack      Device          hashvalue"
+	echo -e "./image_to_device.sh                    -d      --downloa                   Downloadlink            Device          hashvalue"
+	echo -e "./image_to_device.sh                    -c      --copy                      File to copy            Device          hashvalue"
     echo -e ""
     echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
@@ -772,37 +772,25 @@ fi
 
 
 case $ARG_OPTION in
-"-d")
-	download
-	;;
-
+"-d") ;&
 "--download")
 	download
 	;;
 
-"-g")
-	unpack
-	;;
-
+"-g") ;&
 "--gunzip")
 	unpack
 	;;
 	
-"-c")
-	copy_specification
-	;;
-
+"-c") ;&
 "--copy")
 	copy_specification
 	;;
 	
-"-b")
-    unpack
-	;;
-	
+"-b") ;&
 "--bzip")
     unpack
-    ;;
+	;;
     
 "--help")
 	help_for_less_Parameter
