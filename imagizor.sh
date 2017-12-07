@@ -259,7 +259,8 @@ copy_specification() {
         echo
     else 
         error_trace "You can only copy a image file"
-        help_trace "Image files ends withe .iso or .img"
+        help_trace "Image files ends with .iso or .img"
+        exit
     fi
 }
 
@@ -481,7 +482,7 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare -r BLOCKS=14000
+	declare -r BLOCKS=34000
 	if [ $FILESIZE_WHOLE -lt $BLOCKS ]; then
         COUNT=$((BLOCKS / FILESIZE_WHOLE))
 	else
@@ -489,7 +490,7 @@ copy() { #copy the File on the DEVICE
     fi
 	set +e
 	is_device_read_only
-	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$COUNT $STATUS
+	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS
 	not_available_device
 	set -e
 }
@@ -524,7 +525,7 @@ copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 }
 
 is_device_read_only() {
-    sudo dd if=/dev/null of=/dev/mmcblk0 2>/dev/null
+    sudo dd if=/dev/null of=$DEVICE 2>/dev/null
     if [ $? = 1 ]; then
         error_trace "The Device is read-only"
         help_trace "Please flip the switch over"
@@ -715,7 +716,7 @@ variable() {
 		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP" | awk '{print $4}')
 		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
 		declare -g STATUS="status=progress"
-		declare -g DD_CONV="conv=sync"
+		declare -g DD_CONV="conv=fsync"
 	fi
 }
 
@@ -844,14 +845,20 @@ else
 fi
 
 case "$ANSWER" in
-USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
+"")
 
-	declare -r DEVICE_LINUX=/dev/sdb 2>/dev/null
+    if [ -e /dev/sdd ]; then
+		declare -r DEVICE_LINUX=/dev/sdd 2>/dev/null
+		declare DEVICE_GREP="sdd "
+	else
+		declare -r DEVICE_LINUX=/dev/sdb 2>/dev/null
+		declare -r DEVICE_GREP="sdb "
+	fi
+
 	declare DEVICE=/dev/disk2
 	declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
 	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
 	declare -r DEVICE_TEXT="USB-Stick"
-	declare -r DEVICE_GREP="sdb "
 	declare STATUS=""
 
 	variable
@@ -877,9 +884,9 @@ USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
 
 SD-Card | Sd-Card | sd-Card | sd-card | SD | Sd | sd | S | s)
 
-	if [ -e /dev/sde ]; then
-		declare -r DEVICE_LINUX=/dev/sde 2>/dev/null
-		declare DEVICE_GREP="sde "
+	if [ -e /dev/sdd ]; then
+		declare -r DEVICE_LINUX=/dev/sdd 2>/dev/null
+		declare DEVICE_GREP="sdd "
 	else
 		declare -r DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
 		declare -r DEVICE_GREP="mmcblk0 "
