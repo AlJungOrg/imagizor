@@ -251,6 +251,13 @@ copy_specification() {
 		exit
 	fi
 	
+	if [[ "$FILENAME" =~ ".bz2" ]]; then
+        bzip2 -d $FILENAME
+    elif [[ "$FILENAME" =~ ".gz" ]]; then
+        gunzip $FILENAME
+        
+    fi
+	
 	if [[ "$FILENAME" =~ ".iso" ]]; then
         echo
     elif [[ "$FILENAME" =~ ".img" ]]; then
@@ -262,37 +269,6 @@ copy_specification() {
         help_trace "Image files ends with .iso or .img"
         exit
     fi
-}
-
-#>>==========================================================================>>
-# DESCRIPTION:  unpack a .gz or a .bz2 image-file
-#
-# PARAMETER 1:  Check if the file ends with .gz or .bz2
-# RETURN:       -
-# USAGE:        unpack
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-unpack() { #Unpack the Software
-	head_trace "Unpack process"
-	info_trace "Unpack the Software"
-	if [[ "$FILENAME" =~ $NOT_END ]]; then
-        help_trace "The file ends with $NOT_END"
-        help_trace "Please use $RUN $FILENAME"
-        exit
-    fi
-    
-    if ! [[ "$FILENAME" =~ $END ]]; then
-        error_trace "The file doesn't end with $END"
-        help_trace "You can only $OPTION a $END file"
-        exit
-    fi
-    
-	if ! $COMMAND $FILENAME >/dev/null 2>/dev/null; then
-		unpack_text
-		exit
-	fi
 }
 
 #>>==========================================================================>>
@@ -309,21 +285,6 @@ unpack_text() { #Text for the unpack part
 	echo -e "Unpack is not required"
 }
 
-unpack_variable_for_gz() {
-    declare -g END=.gz
-    declare -g NOT_END=.bz2
-    declare -g OPTION=gunzip
-    declare -g COMMAND=$OPTION
-    declare -g RUN="imagizor.sh -b"
-}
-
-unpack_variable_for_bz() {
-    declare -g COMMAND="bzip2 -d"
-    declare -g NOT_END=.gz
-    declare -g END=.bz2
-    declare -g OPTION=bzip
-    declare -g RUN="imagizor.sh -g"
-}
 #>>==========================================================================>>
 # DESCRIPTION:  Help text for a invalid command
 #
@@ -337,7 +298,7 @@ unpack_variable_for_bz() {
 help() { #Is a help text
 	echo -e "invalid command"
 	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -b, --bzip, -c, --copy ] [Downloadlink, .gz File to unpack, .bz2 File to unpack, File to copy ]" 
-	echo -e "[(optional) Device (SD-Card, USB-Stick] [(optional) hashvalue (md5sum, sha256sum)] [(For Authentication in download mode) 'USER', 'PASSWORD' ('' Are needed)]"
+	echo -e "[(optional) Device (SD-Card, USB-Stick] [(optional in download mode) hashvalue (md5sum, sha256sum)] [(For Authentication in download mode) 'USER', 'PASSWORD' ('' Are needed)]"
 	echo -e ""
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
@@ -380,7 +341,7 @@ parameter_show() { #Checked if more then 2 Parameter are given
 #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
 	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)]" 
-	echo -e "{'optional'}[hashvalue(md5sum, sha256sum)] {'For Authentication in download mode'}['USER', 'PASSWORD' ('' Are needed)]"
+	echo -e "{'optional in download mode'}[hashvalue(md5sum, sha256sum)] {'For Authentication in download mode'}['USER', 'PASSWORD' ('' Are needed)]"
 	echo -e "./image_to_device.sh                    -g      --gunzip                   .gz File to unpack       Device"
 	echo -e "./image_to_device.sh                    -b      --bzip                     .bz2 File to unpack      Device"
 	echo -e "./image_to_device.sh                    -d      --downloa                   Downloadlink            Device"
@@ -776,20 +737,10 @@ case $ARG_OPTION in
 "--download")
 	download
 	;;
-
-"-g") ;&
-"--gunzip")
-	unpack
-	;;
 	
 "-c") ;&
 "--copy")
 	copy_specification
-	;;
-	
-"-b") ;&
-"--bzip")
-    unpack
 	;;
     
 "--help")
@@ -800,20 +751,15 @@ case $ARG_OPTION in
 	help
 	exit
 	;;
+	
 esac
 
-if [ $ARG_OPTION = -g ]; then
-    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-elif [ $ARG_OPTION = --gunzip ]; then
-    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-elif [ $ARG_OPTION = -b ]; then
+if [[ "$FILENAME" =~ ".bz2" ]]; then
     declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-elif [ $ARG_OPTION = --bzip ]; then
-    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-else
-    declare FILENAME="$(basename $2)"
+elif [[ "$FILENAME" =~ ".gz" ]]; then
+    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
 fi
-
+	
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}')
 declare SIZE=""
 declare SIZE_WHOLE=""
