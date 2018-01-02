@@ -60,7 +60,7 @@ download() { #Download the Software and unpack them, if required
 	info_trace "Download the Software"
 	
 	if ! [ $PASSWORD ]; then
-        echo -e "Do you need user data fo the download"
+        echo -e "Do you need user data for the download"
         read -p "Yes, No [Y, N]:" DATA
 	fi
 	
@@ -104,6 +104,10 @@ download() { #Download the Software and unpack them, if required
 # REVIEWER(S):  -
 #<<==========================================================================<<
 download_verifikation() {
+
+Parameter=($@)
+
+echo 
 
 	if [ $CHECKVALUE ]; then
 		download_verifikation_p_text
@@ -450,6 +454,8 @@ copy() { #copy the File on the DEVICE
         COUNT=$((FILESIZE_WHOLE / BLOCKS))
     fi
 	set +e
+	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
+	for i in {0..10}; do echo -ne "$i"'\r'; sleep 1; done; echo 
 	is_device_read_only
 	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS
 	not_available_device
@@ -654,9 +660,13 @@ head_trace() { #create a underline and the text is purple
 	echo -e ----------------------------------------------------------------------
 }
 
+warning_trace(){
+    echo -e "\n${RED_BEG}WARNING: $1${COL_END}"
+}
+
 read_p_text() {
-	echo -e "Do you want to copy on the SD-Card or on the USB-Stick?"
-	read -p "SD-Card,USB-Stick [S,U]:" ANSWER
+	lsblk
+	read -p "Please choose your Device [ example: /dev/mmcblk0 ]:" ANSWER
 }
 
 #>>==========================================================================>>
@@ -673,7 +683,6 @@ variable() {
 	if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 		declare DEVICE=""
 	else
-		declare -g DEVICE=$DEVICE_LINUX
 		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP" | awk '{print $4}')
 		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
 		declare -g STATUS="status=progress"
@@ -692,31 +701,6 @@ trap delete_returned_file term
 declare -r LINK=$2
 declare FILENAME="$(basename $2)"
 
-if [ $# -gt 3 ]; then
-    declare CHECKVALUE=$4
-    declare CHECKVALUESUM="$(expr length $4)"
-    declare VALUE=$4
-else
-    declare CHECKVALUE=""
-    declare CHECKVALUESUM=""
-    declare VALUE=""
-fi
-
-if [ $# -gt 4 ]; then
-    declare USER=$4
-    declare PASSWORD=$5
-    declare -g DATA=Y
-else
-    declare USER=""
-    declare PASSWORD=""
-fi
-
-if [ $# -gt 5 ]; then
-    declare USER=$5
-    declare PASSWORD=$6
-    declare -g DATA=Y
-fi
-
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
 needed_tools
@@ -730,6 +714,46 @@ elif [ $ARG_OPTION = -b ]; then
 elif [ $ARG_OPTION = --bzip ]; then
     unpack_variable_for_bz
 fi
+
+Parameter=($@)
+
+for ((i = 0; i < ${#Parameter[@]}; i=i+2)); do
+case ${Parameter[$i]} in 
+    "-de");&
+    "--device")
+        declare -g ANSWER=${Parameter[$i + 1]}
+        ;;
+
+    "-ch");&
+    "--checkvalue")
+        declare -g CHECKVALUE=${Parameter[$i + 1]}
+        declare -g CHECKVALUESUM="$(expr length ${Parameter[$i + 1]})"
+        declare -g VALUE=${Parameter[$i + 1]} 
+        ;;
+        
+    "-u");&
+    "--user")
+        declare -g USER=${Parameter[$i + 1]}
+        declare -g DATA=Y
+        ;;
+        
+    "-p");&
+    "--password")
+        declare -g PASSWORD=${Parameter[$i + 1]}
+        declare -g DATA=Y
+        ;;
+        
+    *)
+        declare -g CHECKVALUE=""
+        declare -g CHECKVALUESUM=""
+        declare -g VALUE=""
+        declare -g USER=""
+        declare -g PASSWORD=""
+        declare -g ANSWER=""
+        ;;
+        
+    esac   
+done
 
 
 case $ARG_OPTION in
@@ -766,33 +790,15 @@ declare SIZE_WHOLE=""
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 declare DD_CONV=""
 
-if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-	head_trace "Only use one SD-Card or USB-Stick for your device!"
-else
-	declare DEVICE=""
+if ! [ $ANSWER ]; then
+    read_p_text
 fi
 
-if [ $# -gt 2 ]; then
-	declare ANSWER=$3
-else
-	read_p_text
-fi
-
-case "$ANSWER" in
-"")
-
-    if [ -e /dev/sdd ]; then
-		declare -r DEVICE_LINUX=/dev/sdd 2>/dev/null
-		declare DEVICE_GREP="sdd "
-	else
-		declare -r DEVICE_LINUX=/dev/sdb 2>/dev/null
-		declare -r DEVICE_GREP="sdb "
-	fi
-
-	declare DEVICE=/dev/disk2
+    declare DEVICE=$ANSWER 2>/dev/null
+    declare DEVICE_GREP=$(basename $DEVICE )
 	declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
 	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
-	declare -r DEVICE_TEXT="USB-Stick"
+	declare -r DEVICE_TEXT="Device"
 	declare STATUS=""
 
 	variable
@@ -813,54 +819,4 @@ case "$ANSWER" in
 
 	delete_returned_file
 
-	correct_trace "You can remove the USB-Stick"
-	;;
-
-SD-Card | Sd-Card | sd-Card | sd-card | SD | Sd | sd | S | s)
-
-	if [ -e /dev/sdd ]; then
-		declare -r DEVICE_LINUX=/dev/sdd 2>/dev/null
-		declare DEVICE_GREP="sdd "
-	else
-		declare -r DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
-		declare -r DEVICE_GREP="mmcblk0 "
-	fi
-
-	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
-	declare -r DEVICE_TEXT="SD-Card"
-	declare STATUS=""
-
-	if [ -e /dev/disk2 ]; then
-		declare DEVICE=/dev/disk2
-		declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
-	else
-		declare DEVICE=/dev/disk3
-		declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
-	fi
-
-	variable
-
-	detect_device
-
-	checked_device_and_filesize
-
-	filesize
-
-	copy
-
-	copy_back
-
-	compare_hash_values
-
-	info_trace "Delete the returned File"
-
-	delete_returned_file
-
-	correct_trace "You can remove the Sd-Card"
-	;;
-*)
-	error_trace "Wrong answer"
-	help_trace "Please try it again"
-	exit
-	;;
-esac
+	correct_trace "You can remove the Device"
