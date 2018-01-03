@@ -301,19 +301,21 @@ unpack_text() { #Text for the unpack part
 #<<==========================================================================<<
 help() { #Is a help text
 	echo -e "invalid command"
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -b, --bzip, -c, --copy ] [Downloadlink, .gz File to unpack, .bz2 File to unpack, File to copy ]" 
-	echo -e "[(optional) Device (SD-Card, USB-Stick] [(optional in download mode) hashvalue (md5sum, sha256sum)] [(For Authentication in download mode) 'USER', 'PASSWORD' ('' Are needed)]"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: /dev/mmcblk0)]" 
+	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
+	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
+	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
 	echo -e ""
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
-	echo -e "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0" 
+	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
-	echo -e "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 'USER' 'PASSWORD'"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0" 
+	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
 	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
-	echo -e "'USER' 'PASSWORD'"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0" 
+	echo -e " -u 'USER' -p 'PASSWORD'"
 	exit
 }
 
@@ -344,23 +346,23 @@ parameter_show() { #Checked if more then 2 Parameter are given
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)]" 
-	echo -e "{'optional in download mode'}[hashvalue(md5sum, sha256sum)] {'For Authentication in download mode'}['USER', 'PASSWORD' ('' Are needed)]"
-	echo -e "./image_to_device.sh                    -g      --gunzip                   .gz File to unpack       Device"
-	echo -e "./image_to_device.sh                    -b      --bzip                     .bz2 File to unpack      Device"
-	echo -e "./image_to_device.sh                    -d      --downloa                   Downloadlink            Device"
-	echo -e "./image_to_device.sh                    -c      --copy                      File to copy            Device"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: mmcblk0)]" 
+	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
+	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
+	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
+	echo -e "./image_to_device.sh      -d-     -download       Downloadlink        -de     Device      -ch     Checkvalue      -u      'USER'      -p      'PASSWORD'"
+	echo -e "./image_to_device.sh      -c-     -copy           File to copy        -de     Device      -ch     Checkvalue      -u      'USER'      -p      'PASSWORD'"
     echo -e ""
     echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
-	echo -e                          "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0" 
+	echo -e                          "-de 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
-	echo -e                          "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 'USER' 'PASSWORD'"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0" 
+	echo -e                          "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
 	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card" 
-	echo -e                         "'USER' 'PASSWORD'"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0" 
+	echo -e                         "-u 'USER' -p 'PASSWORD'"
 	exit
 }
 
@@ -389,7 +391,7 @@ detect_device() { #Checked if the USb-Stick or SD-Card available
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 			declare SIZE=$(diskutil info $DEVICE 2>/dev/null | grep 'Disk Size' | awk '{print $3}')
 		else
-			declare SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP" | awk '{print $4}')
+			declare SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
 		fi
 
 		if [ -b $DEVICE ]; then
@@ -424,7 +426,7 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 			declare SIZE_WHOLE=$(diskutil info $DEVICE 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
 		else
-			declare SIZE_WHOLE=$(lsblk -b $DEVICE | grep "$DEVICE_GREP" | awk '{print $4}')
+			declare SIZE_WHOLE=$(lsblk -b $DEVICE | grep "$DEVICE_GREP " | awk '{print $4}')
 		fi
 
 		if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
@@ -447,17 +449,12 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare -r BLOCKS=34000
-	if [ $FILESIZE_WHOLE -lt $BLOCKS ]; then
-        COUNT=$((BLOCKS / FILESIZE_WHOLE))
-	else
-        COUNT=$((FILESIZE_WHOLE / BLOCKS))
-    fi
+	declare -r BLOCKS=4M
 	set +e
 	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
-	for i in {0..10}; do echo -ne "$i"'\r'; sleep 1; done; echo 
+	for i in {0..10}; do echo -ne "$i"'\r'; sleep 1; done; echo
 	is_device_read_only
-	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS
+	sudo dd if=$FILENAME oflag=direct of=$DEVICE bs=$BLOCKS $STATUS conv=fdatasync
 	not_available_device
 	set -e
 }
@@ -476,15 +473,15 @@ copy() { #copy the File on the DEVICE
 copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
 	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
-	declare -r BLOCKS_BACK=1000
+	declare -r BLOCKS_BACK=4000000
 	if [ $FILESIZE_WHOLE -lt $BLOCKS_BACK ]; then
-        COUNT=$((BLOCKS_BACK / FILESIZE_WHOLE))
-	else
+        COUNT=1
+    else
         COUNT=$((FILESIZE_WHOLE / BLOCKS_BACK))
-    fi
+	fi
 	set +e
 	is_device_read_only
-	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$COUNT $STATUS
+	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$COUNT $STATUS conv=fdatasync 
 	not_available_device
 	set -e
 	info_trace "Shortening the returned File in the Size from the original File"
@@ -665,7 +662,7 @@ warning_trace(){
 }
 
 read_p_text() {
-	lsblk
+    lsblk
 	read -p "Please choose your Device [ example: /dev/mmcblk0 ]:" ANSWER
 }
 
@@ -683,7 +680,7 @@ variable() {
 	if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 		declare DEVICE=""
 	else
-		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP" | awk '{print $4}')
+		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
 		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
 		declare -g STATUS="status=progress"
 		declare -g DD_CONV="conv=fsync"
@@ -755,7 +752,6 @@ case ${Parameter[$i]} in
     esac   
 done
 
-
 case $ARG_OPTION in
 "-d") ;&
 "--download")
@@ -794,8 +790,20 @@ if ! [ $ANSWER ]; then
     read_p_text
 fi
 
+    set +e
+
+    lsblk $ANSWER >/dev/null 2>/dev/null
+    
+    if [ $? -gt 1 ]; then
+        error_trace "The Device is not available"
+        help_trace "Please try it again"
+        exit
+    fi
+
+    set -e
+    
     declare DEVICE=$ANSWER 2>/dev/null
-    declare DEVICE_GREP=$(basename $DEVICE )
+    declare DEVICE_GREP=$(basename $DEVICE ) 
 	declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
 	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
 	declare -r DEVICE_TEXT="Device"
