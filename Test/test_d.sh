@@ -6,13 +6,17 @@ spawn ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/o
 
 set timeout 5
 
+expect "Yes, No [Y, N]:"
+
+send "n\r"
+
 expect "mdsum, sha256, I dont have a checkvalue \[m,s,a\]:"
 
 send "a\r"
 
-expect "SD-Card,USB-Stick \[S,U\]:\r"
+expect "Please choose your Device \[ example: /dev/mmcblk0 \]:"
 
-send "s\r"
+send "/dev/mmcblk0\r"
 
 set timeout 25
 
