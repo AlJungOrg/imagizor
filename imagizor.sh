@@ -89,12 +89,12 @@ download() { #Download the Software and unpack them, if required
 	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
 		unpack_text
 	fi
-	
+
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-        declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-    elif [[ "$FILENAME" =~ ".gz" ]]; then
-        declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-    fi
+		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	elif [[ "$FILENAME" =~ ".gz" ]]; then
+		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	fi
 }
 
 #>>==========================================================================>>
@@ -462,7 +462,7 @@ copy() { #copy the File on the DEVICE
 		echo -ne "$i"'\r'
 		sleep 1
 	done
-    echo
+	echo
 	is_device_read_only
 	sudo dd if=$FILENAME oflag=direct of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS conv=fdatasync
 	not_available_device
@@ -713,11 +713,11 @@ declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 needed_tools
 
 if [ $ARG_OPTION = -d ]; then
-    declare FILENAME="$(basename $2)"
+	declare FILENAME="$(basename $2)"
 elif [ $ARG_OPTION = --download ]; then
-    declare FILENAME="$(basename $2)"
+	declare FILENAME="$(basename $2)"
 else
-    declare FILENAME=$2
+	declare FILENAME=$2
 fi
 
 Parameter=($@)
