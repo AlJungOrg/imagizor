@@ -459,10 +459,10 @@ copy() { #copy the File on the DEVICE
 	set +e
 	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
 	for i in {0..10}; do
-		echo -ne "$i"'\r'
+		echo -ne "$i /10"'\r' 
 		sleep 1
 	done
-	echo
+	echo 
 	is_device_read_only
 	sudo dd if=$FILENAME oflag=direct of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS conv=fdatasync
 	not_available_device
@@ -487,7 +487,7 @@ copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	if [ $FILESIZE_WHOLE -lt $BLOCKS_BACK ]; then
 		COUNT=1
 	else
-		COUNT=$((FILESIZE_WHOLE / BLOCKS_BACK))
+		COUNT=$((FILESIZE_WHOLE / BLOCKS_BACK + 2))
 	fi
 	set +e
 	is_device_read_only
