@@ -21,17 +21,3 @@ echo -e "start Test 2..."
 ./test_d.sh
 
 Test_successfull
-
-echo -e "start Test 3..."
-
-./test_g.sh
-
-Test_successfull
-
-echo -e "start Test 4..."
-
-./test_b.sh
-
-Test_successfull
-
-echo -e "Tests completed"

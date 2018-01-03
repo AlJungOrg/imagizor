@@ -58,27 +58,27 @@ needed_tools() { #Validate if the needed tool are on the shell
 download() { #Download the Software and unpack them, if required
 	head_trace "download process and verifikation"
 	info_trace "Download the Software"
-	
+
 	if ! [ $PASSWORD ]; then
-        echo -e "Do you need user data fo the download"
-        read -p "Yes, No [Y, N]:" DATA
+		echo -e "Do you need user data for the download"
+		read -p "Yes, No [Y, N]:" DATA
 	fi
-	
+
 	case $DATA in
-        Y | y | Yes | yes | Ja | ja)
-            if [ $PASSWORD ]; then
-                echo -e ""
-            else
-                read -p "Please enter your username [ 'username' ]:" USER
-                read -r -p "Please enter your password [ 'password' ]:" PASSWORD
-            fi
-            ;;
-        N | n | No | no | Nein | nein)
-            declare USER=a
-            declare PASSWORD=a
-            ;;
-    esac
-	
+	Y | y | Yes | yes | Ja | ja)
+		if [ $PASSWORD ]; then
+			echo -e ""
+		else
+			read -p "Please enter your username [ 'username' ]:" USER
+			read -r -p "Please enter your password [ 'password' ]:" PASSWORD
+		fi
+		;;
+	N | n | No | no | Nein | nein)
+		declare USER=a
+		declare PASSWORD=a
+		;;
+	esac
+
 	if ! wget -c --auth-no-challenge --http-user=$USER --http-password="$PASSWORD" $LINK; then
 		error_trace "Maybe the URL is not available or the URL is passed off "
 		help
@@ -88,6 +88,12 @@ download() { #Download the Software and unpack them, if required
 	info_trace "Try to unpack the downloaded Software"
 	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
 		unpack_text
+	fi
+
+	if [[ "$FILENAME" =~ ".bz2" ]]; then
+		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	elif [[ "$FILENAME" =~ ".gz" ]]; then
+		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	fi
 }
 
@@ -104,6 +110,10 @@ download() { #Download the Software and unpack them, if required
 # REVIEWER(S):  -
 #<<==========================================================================<<
 download_verifikation() {
+
+	Parameter=($@)
+
+	echo
 
 	if [ $CHECKVALUE ]; then
 		download_verifikation_p_text
@@ -250,46 +260,23 @@ copy_specification() {
 		error_trace "You cant copy a directory"
 		exit
 	fi
-	
-	if [[ "$FILENAME" =~ ".iso" ]]; then
-        echo
-    elif [[ "$FILENAME" =~ ".img" ]]; then
-        echo
-    elif [[ "$FILENAME" =~ ".sha256" ]]; then
-        echo
-    else 
-        error_trace "You can only copy a image file"
-        help_trace "Image files ends withe .iso or .img"
-    fi
-}
 
-#>>==========================================================================>>
-# DESCRIPTION:  unpack a .gz or a .bz2 image-file
-#
-# PARAMETER 1:  Check if the file ends with .gz or .bz2
-# RETURN:       -
-# USAGE:        unpack
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-unpack() { #Unpack the Software
-	head_trace "Unpack process"
-	info_trace "Unpack the Software"
-	if [[ "$FILENAME" =~ $NOT_END ]]; then
-        help_trace "The file ends with $NOT_END"
-        help_trace "Please use $RUN $FILENAME"
-        exit
-    fi
-    
-    if ! [[ "$FILENAME" =~ $END ]]; then
-        error_trace "The file doesn't end with $END"
-        help_trace "You can only $OPTION a $END file"
-        exit
-    fi
-    
-	if ! $COMMAND $FILENAME >/dev/null 2>/dev/null; then
-		unpack_text
+	if [[ "$FILENAME" =~ ".bz2" ]]; then
+		bzip2 -d $FILENAME
+	elif [[ "$FILENAME" =~ ".gz" ]]; then
+		gunzip $FILENAME
+
+	fi
+
+	if [[ "$FILENAME" =~ ".iso" ]]; then
+		echo
+	elif [[ "$FILENAME" =~ ".img" ]]; then
+		echo
+	elif [[ "$FILENAME" =~ ".sha256" ]]; then
+		echo
+	else
+		error_trace "You can only copy a image file"
+		help_trace "Image files ends with .iso or .img"
 		exit
 	fi
 }
@@ -308,21 +295,6 @@ unpack_text() { #Text for the unpack part
 	echo -e "Unpack is not required"
 }
 
-unpack_variable_for_gz() {
-    declare -g END=.gz
-    declare -g NOT_END=.bz2
-    declare -g OPTION=gunzip
-    declare -g COMMAND=$OPTION
-    declare -g RUN="imagizor.sh -b"
-}
-
-unpack_variable_for_bz() {
-    declare -g COMMAND="bzip2 -d"
-    declare -g NOT_END=.gz
-    declare -g END=.bz2
-    declare -g OPTION=bzip
-    declare -g RUN="imagizor.sh -g"
-}
 #>>==========================================================================>>
 # DESCRIPTION:  Help text for a invalid command
 #
@@ -335,9 +307,21 @@ unpack_variable_for_bz() {
 #<<==========================================================================<<
 help() { #Is a help text
 	echo -e "invalid command"
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip, -b, --bzip, -c, --copy ] [Downloadlink, .gz File to unpack, .bz2 File to unpack, File to copy ] [(optional) Device (SD-Card, USB-Stick] [(optional) hashvalue (md5sum, sha256sum)]"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: /dev/mmcblk0)]"
+	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
+	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
+	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
+	echo -e ""
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
+	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
+	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
+	echo -e " -u 'USER' -p 'PASSWORD'"
 	exit
 }
 
@@ -368,13 +352,23 @@ parameter_show() { #Checked if more then 2 Parameter are given
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
-	echo -e "Call: ./image_to_device.sh [-d, --download, -g, --gunzip] [Downloadlink, File to unpack] {'optional'}[Device (SD-Card, USB-Stick)] {'optional'}[hashvalue(md5sum, sha256sum)]"
-	echo -e "./image_to_device.sh                    -g      --gunzip                            .gz File to unpack        Device          hashvalue"
-	echo -e "./image_to_device.sh                    -b      --bzip                              .bz2 File to unpack          Device          hashvalue"
-	echo -e "./image_to_device.sh                    -d      --download                          Downloadlink          Device          hashvalue"
-	echo -e "./image_to_device.sh                    -c      --copy                              File to copy          Device          hashvalue"
-    echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 SD-Card 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: mmcblk0)]"
+	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
+	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
+	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
+	echo -e "./image_to_device.sh      -d-     -download       Downloadlink        -de     Device      -ch     Checkvalue      -u      'USER'      -p      'PASSWORD'"
+	echo -e "./image_to_device.sh      -c-     -copy           File to copy        -de     Device      -ch     Checkvalue      -u      'USER'      -p      'PASSWORD'"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
+	echo -e "-de 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
+	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
+	echo -e "-u 'USER' -p 'PASSWORD'"
 	exit
 }
 
@@ -403,7 +397,7 @@ detect_device() { #Checked if the USb-Stick or SD-Card available
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 			declare SIZE=$(diskutil info $DEVICE 2>/dev/null | grep 'Disk Size' | awk '{print $3}')
 		else
-			declare SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP" | awk '{print $4}')
+			declare SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
 		fi
 
 		if [ -b $DEVICE ]; then
@@ -438,7 +432,7 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 			declare SIZE_WHOLE=$(diskutil info $DEVICE 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
 		else
-			declare SIZE_WHOLE=$(lsblk -b $DEVICE | grep "$DEVICE_GREP" | awk '{print $4}')
+			declare SIZE_WHOLE=$(lsblk -b $DEVICE | grep "$DEVICE_GREP " | awk '{print $4}')
 		fi
 
 		if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
@@ -461,10 +455,16 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 copy() { #copy the File on the DEVICE
 	head_trace "Copy process"
 	info_trace "Copy the File on the $DEVICE_TEXT"
-	declare -r BLOCKS=10000
+	declare -r BLOCKS=4M
 	set +e
+	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
+	for i in {0..10}; do
+		echo -ne "$i /10"'\r' 
+		sleep 1
+	done
+	echo 
 	is_device_read_only
-	sudo dd if=$FILENAME of=$DEVICE $DD_CONV bs=$BLOCKS count=$((FILESIZE_WHOLE)) $STATUS
+	sudo dd if=$FILENAME oflag=direct of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS conv=fdatasync
 	not_available_device
 	set -e
 }
@@ -483,10 +483,15 @@ copy() { #copy the File on the DEVICE
 copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
 	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
-	declare -r BLOCKS_BACK=1000
+	declare -r BLOCKS_BACK=4000000
+	if [ $FILESIZE_WHOLE -lt $BLOCKS_BACK ]; then
+		COUNT=1
+	else
+		COUNT=$((FILESIZE_WHOLE / BLOCKS_BACK + 2))
+	fi
 	set +e
 	is_device_read_only
-	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$((FILESIZE_WHOLE)) $STATUS
+	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$COUNT $STATUS conv=fdatasync
 	not_available_device
 	set -e
 	info_trace "Shortening the returned File in the Size from the original File"
@@ -494,12 +499,12 @@ copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 }
 
 is_device_read_only() {
-    sudo dd if=/dev/null of=/dev/mmcblk0 2>/dev/null
-    if [ $? = 1 ]; then
-        error_trace "The Device is read-only"
-        help_trace "Please flip the switch over"
-        exit
-    fi
+	sudo dd if=/dev/null of=$DEVICE 2>/dev/null
+	if [ $? = 1 ]; then
+		error_trace "The Device is read-only"
+		help_trace "Please flip the switch over"
+		exit
+	fi
 }
 
 #>>==========================================================================>>
@@ -662,9 +667,13 @@ head_trace() { #create a underline and the text is purple
 	echo -e ----------------------------------------------------------------------
 }
 
+warning_trace() {
+	echo -e "\n${RED_BEG}WARNING: $1${COL_END}"
+}
+
 read_p_text() {
-	echo -e "Do you want to copy on the SD-Card or on the USB-Stick?"
-	read -p "SD-Card,USB-Stick [S,U]:" ANSWER
+	lsblk
+	read -p "Please choose your Device [ example: /dev/mmcblk0 ]:" ANSWER
 }
 
 #>>==========================================================================>>
@@ -681,11 +690,10 @@ variable() {
 	if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 		declare DEVICE=""
 	else
-		declare -g DEVICE=$DEVICE_LINUX
-		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP" | awk '{print $4}')
+		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
 		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
 		declare -g STATUS="status=progress"
-		declare -g DD_CONV="conv=sync"
+		declare -g DD_CONV="conv=fsync"
 	fi
 }
 
@@ -700,79 +708,69 @@ trap delete_returned_file term
 declare -r LINK=$2
 declare FILENAME="$(basename $2)"
 
-if [ $# -gt 3 ]; then
-    declare CHECKVALUE=$4
-    declare CHECKVALUESUM="$(expr length $4)"
-    declare VALUE=$4
-else
-    declare CHECKVALUE=""
-    declare CHECKVALUESUM=""
-    declare VALUE=""
-fi
-
-if [ $# -gt 4 ]; then
-    declare USER=$4
-    declare PASSWORD=$5
-    declare -g DATA=Y
-else
-    declare USER=""
-    declare PASSWORD=""
-fi
-
-if [ $# -gt 5 ]; then
-    declare USER=$5
-    declare PASSWORD=$6
-    declare -g DATA=Y
-fi
-
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
 needed_tools
 
-if [ $ARG_OPTION = -g ]; then
-    unpack_variable_for_gz
-elif [ $ARG_OPTION = --gunzip ]; then
-    unpack_variable_for_gz
-elif [ $ARG_OPTION = -b ]; then
-    unpack_variable_for_bz
-elif [ $ARG_OPTION = --bzip ]; then
-    unpack_variable_for_bz
+if [ $ARG_OPTION = -d ]; then
+	declare FILENAME="$(basename $2)"
+elif [ $ARG_OPTION = --download ]; then
+	declare FILENAME="$(basename $2)"
+else
+	declare FILENAME=$2
 fi
 
+Parameter=($@)
+
+for ((i = 0; i < ${#Parameter[@]}; i = i + 2)); do
+	case ${Parameter[$i]} in
+	"-de") ;&
+	"--device")
+		declare -g ANSWER=${Parameter[$i + 1]}
+		;;
+
+	"-ch") ;&
+	"--checkvalue")
+		declare -g CHECKVALUE=${Parameter[$i + 1]}
+		declare -g CHECKVALUESUM="$(expr length ${Parameter[$i + 1]})"
+		declare -g VALUE=${Parameter[$i + 1]}
+		;;
+
+	"-u") ;&
+	"--user")
+		declare -g USER=${Parameter[$i + 1]}
+		declare -g DATA=Y
+		;;
+
+	"-p") ;&
+	"--password")
+		declare -g PASSWORD=${Parameter[$i + 1]}
+		declare -g DATA=Y
+		;;
+
+	*)
+		declare -g CHECKVALUE=""
+		declare -g CHECKVALUESUM=""
+		declare -g VALUE=""
+		declare -g USER=""
+		declare -g PASSWORD=""
+		declare -g ANSWER=""
+		;;
+
+	esac
+done
 
 case $ARG_OPTION in
-"-d")
-	download
-	;;
-
+"-d") ;&
 "--download")
 	download
 	;;
 
-"-g")
-	unpack
-	;;
-
-"--gunzip")
-	unpack
-	;;
-	
-"-c")
-	copy_specification
-	;;
-
+"-c") ;&
 "--copy")
 	copy_specification
 	;;
-	
-"-b")
-    unpack
-	;;
-	
-"--bzip")
-    unpack
-    ;;
-    
+
 "--help")
 	help_for_less_Parameter
 	;;
@@ -781,18 +779,13 @@ case $ARG_OPTION in
 	help
 	exit
 	;;
+
 esac
 
-if [ $ARG_OPTION = -g ]; then
-    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-elif [ $ARG_OPTION = --gunzip ]; then
-    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-elif [ $ARG_OPTION = -b ]; then
-    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-elif [ $ARG_OPTION = --bzip ]; then
-    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
-else
-    declare FILENAME="$(basename $2)"
+if [[ "$FILENAME" =~ ".bz2" ]]; then
+	declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+elif [[ "$FILENAME" =~ ".gz" ]]; then
+	declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 fi
 
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}')
@@ -801,95 +794,45 @@ declare SIZE_WHOLE=""
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 declare DD_CONV=""
 
-if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-	head_trace "Only use one SD-Card or USB-Stick for your device!"
-else
-	declare DEVICE=""
-fi
-
-if [ $# -gt 2 ]; then
-	declare ANSWER=$3
-else
+if ! [ $ANSWER ]; then
 	read_p_text
 fi
 
-case "$ANSWER" in
-USB | USB-Stick | Usb-Stick | usb-stick | Usb | usb | u | U)
+set +e
 
-	declare -r DEVICE_LINUX=/dev/sdb 2>/dev/null
-	declare DEVICE=/dev/disk2
-	declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
-	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
-	declare -r DEVICE_TEXT="USB-Stick"
-	declare -r DEVICE_GREP="sdb "
-	declare STATUS=""
+lsblk $ANSWER >/dev/null 2>/dev/null
 
-	variable
-
-	detect_device
-
-	checked_device_and_filesize
-
-	filesize
-
-	copy
-
-	copy_back
-
-	compare_hash_values
-
-	info_trace "Delete the returned File"
-
-	delete_returned_file
-
-	correct_trace "You can remove the USB-Stick"
-	;;
-
-SD-Card | Sd-Card | sd-Card | sd-card | SD | Sd | sd | S | s)
-
-	if [ -e /dev/sde ]; then
-		declare -r DEVICE_LINUX=/dev/sde 2>/dev/null
-		declare DEVICE_GREP="sde "
-	else
-		declare -r DEVICE_LINUX=/dev/mmcblk0 2>/dev/null
-		declare -r DEVICE_GREP="mmcblk0 "
-	fi
-
-	declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
-	declare -r DEVICE_TEXT="SD-Card"
-	declare STATUS=""
-
-	if [ -e /dev/disk2 ]; then
-		declare DEVICE=/dev/disk2
-		declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
-	else
-		declare DEVICE=/dev/disk3
-		declare SIZE_WHOLE=$(diskutil info /dev/disk3 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
-	fi
-
-	variable
-
-	detect_device
-
-	checked_device_and_filesize
-
-	filesize
-
-	copy
-
-	copy_back
-
-	compare_hash_values
-
-	info_trace "Delete the returned File"
-
-	delete_returned_file
-
-	correct_trace "You can remove the Sd-Card"
-	;;
-*)
-	error_trace "Wrong answer"
+if [ $? -gt 1 ]; then
+	error_trace "The Device is not available"
 	help_trace "Please try it again"
 	exit
-	;;
-esac
+fi
+
+set -e
+
+declare DEVICE=$ANSWER 2>/dev/null
+declare DEVICE_GREP=$(basename $DEVICE)
+declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
+declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
+declare -r DEVICE_TEXT="Device"
+declare STATUS=""
+
+variable
+
+detect_device
+
+checked_device_and_filesize
+
+filesize
+
+copy
+
+copy_back
+
+compare_hash_values
+
+info_trace "Delete the returned File"
+
+delete_returned_file
+
+correct_trace "You can remove the Device"
