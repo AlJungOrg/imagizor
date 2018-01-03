@@ -464,7 +464,7 @@ copy() { #copy the File on the DEVICE
 	done
     echo
 	is_device_read_only
-	sudo dd if=$FILENAME oflag=direct of=$DEVICE bs=$BLOCKS $STATUS conv=fdatasync
+	sudo dd if=$FILENAME oflag=direct of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS conv=fdatasync
 	not_available_device
 	set -e
 }
