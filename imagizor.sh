@@ -140,12 +140,14 @@ download_verifikation() {
 		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 		info_trace "Compare the check value from the Image-file and the real checkvalue with each other"
 
-		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-			declare -r SH_FILE=$(shasum -a 256 $FILENAME 2>/dev/null | cut -d" " -f1)
-		else
-			declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
-		fi
-
+		if [ $CHECKVALUESUM = 40 ]; then
+            declare -r SH_FILE=$(sha1sum $FILENAME 2>/dev/null | cut -d" " -f1)
+        elif [ $CHECKVALUESUM = 64 ]; then
+            declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
+        elif [ $CHECKVALUESUM = 128 ]; then
+            declare -r SH_FILE=$(sha512sum $FILENAME 2>/dev/null | cut -d" " -f1)
+        fi
+        
 		if [ $SH_FILE == $VALUE ]; then
 			download_verifikation_text
 		else
@@ -179,7 +181,11 @@ download_verifikation() {
 download_verifikation_p_text() {
 	if [ $CHECKVALUESUM = 32 ]; then
 		declare -g CHECK=m
+    elif [ $CHECKVALUESUM = 40 ]; then
+        declare -g CHECK=s
 	elif [ $CHECKVALUESUM = 64 ]; then
+		declare -g CHECK=s
+    elif [ $CHECKVALUESUM = 128 ]; then
 		declare -g CHECK=s
 	else
 		echo -e "Please enter a check value methodik"
@@ -202,6 +208,7 @@ download_checksum_p_text() {
 		echo
 	else
 		read -p "Now enter the Check value number:" VALUE
+		declare -g CHECKVALUESUM=$(expr length $VALUE)
 	fi
 }
 
@@ -458,8 +465,8 @@ copy() { #copy the File on the DEVICE
 	declare -r BLOCKS=4M
 	set +e
 	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
-	for i in {0..10}; do
-		echo -ne "$i /10"'\r' 
+	for i in {0..5}; do
+		echo -ne "$i /5"'\r' 
 		sleep 1
 	done
 	echo 
