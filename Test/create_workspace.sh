@@ -12,8 +12,6 @@ echo -e "Create the Workspace"
 
 sudo dd if=/dev/zero of=/virtualfs bs=1G count=2
 
-sudo losetup /dev/loop0
-
 sudo losetup /dev/loop0 /virtualfs
 
 cd ..
@@ -39,3 +37,5 @@ sudo rm -r test.iso
 cd Test
 
 sudo losetup -d /dev/loop0
+
+cd ..
