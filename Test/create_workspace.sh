@@ -16,7 +16,7 @@ sudo losetup /dev/loop0 /virtualfs
 
 cd ..
 
-sudo dd if=/dev/random of=test.iso bs=1024 count=2 iflag=fullblock
+sudo dd if=/dev/zero of=test.iso bs=1024 count=2 
 
 echo -e "Start Test 1"
 
@@ -34,8 +34,6 @@ echo -e "Delete the Workspace"
 
 sudo rm -r test.iso
 
-cd Test
-
 sudo losetup -d /dev/loop0
 
-cd ..
+sudo rm -r /virtualfs
