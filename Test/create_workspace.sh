@@ -107,9 +107,18 @@ echo ""
 
 echo "elapsed time:" $((AFTER_DOWNLOAD - $BEFORE_DOWNLOAD)) "seconds" 
 
-echo "") >> log1.file 2>&1 
+echo ""
+
+echo -e "last named commit:" ;git log --pretty=format:"%s"|head -n 1 
 
 echo -e ""
+
+echo -e "last hash commit:" ;git log --pretty=format:"%H"|head -n 1 
+
+echo "-------------------------------------------------------------------------------------------------------") >> log1.file 2>&1
+
+echo -e ""
+
 info_trace "Test finished" 
 
 (echo ""
@@ -136,7 +145,15 @@ echo ""
 
 echo "elapsed time:" $((AFTER_COPY - $BEFORE_COPY)) "seconds" 
 
-echo "") >> log2.file 2>&1
+echo ""
+
+echo -e "last named commit:" ;git log --pretty=format:"%s"|head -n 1 
+
+echo -e ""
+
+echo -e "last hash commit:" ;git log --pretty=format:"%H"|head -n 1
+
+echo "-------------------------------------------------------------------------------------------------------") >> log2.file 2>&1
 
 echo ""
 
