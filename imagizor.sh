@@ -804,9 +804,19 @@ set +e
 lsblk $ANSWER >/dev/null 2>/dev/null
 
 if [ $? -gt 1 ]; then
-	error_trace "The device is not available"
-	help_trace "Please try it again"
-	exit
+    error_trace "The device is not available"
+    help_trace "Please try it again"
+    while true; do
+    sleep 1
+    read_p_text
+    lsblk $ANSWER >/dev/null 2>/dev/null
+    if ! [ $? -gt 1 ]; then
+        break
+    elif [ $? == 1 ]; then
+        error_trace "The device is not available"
+        help_trace "Please try it again"
+    fi
+done
 fi
 
 set -e
