@@ -14,6 +14,9 @@ declare -r PUR_BEG="\\033[35m"
 declare -r GREEN_BEG="\\033[32m"
 declare -r BLUE_BEG="\\033[34m"
 declare -r TUERK_BEG="\\033[34m"
+declare -r BOLD="\\033[1m"
+declare -r BOLD_TP=`tput bold`
+declare -r TP_END=`tput sgr0`
 declare -r COL_END="\\033[0m"
 declare -r UNDERLINE="\\033[4m"
 
@@ -60,26 +63,6 @@ download() { #Download the Software and unpack them, if required
 	head_trace "download process and verifikation"
 	info_trace "Download the Software"
 
-	if ! [ $PASSWORD ]; then
-		echo -e "Do you need user data for the download"
-		read -p "Yes, No [Y, N]:" DATA
-	fi
-
-	case $DATA in
-	Y | y | Yes | yes | Ja | ja)
-		if [ $PASSWORD ]; then
-			echo -e ""
-		else
-			read -p "Please enter your username [ 'username' ]:" USER
-			read -r -p "Please enter your password [ 'password' ]:" PASSWORD
-		fi
-		;;
-	N | n | No | no | Nein | nein)
-		declare USER=a
-		declare PASSWORD=a
-		;;
-	esac
-
 	if ! wget -c --auth-no-challenge --http-user=$USER --http-password="$PASSWORD" $LINK; then
 		error_trace "Maybe the URL is not available or the URL is passed off "
 		help
@@ -120,7 +103,7 @@ download_verifikation() {
 		download_verifikation_p_text
 	else
 		echo -e "Please enter a check value methodik"
-		read -p "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
+		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
 	fi
 
 	case $CHECK in
@@ -190,7 +173,7 @@ download_verifikation_p_text() {
 		declare -g CHECK=s
 	else
 		echo -e "Please enter a check value methodik"
-		read -p "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
+		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
 	fi
 }
 
@@ -208,7 +191,7 @@ download_checksum_p_text() {
 	if [ $CHECKVALUESUM ]; then
 		echo
 	else
-		read -p "Now enter the Check value number:" VALUE
+		bold_trace_tp "Now enter the Check value number:" VALUE
 		declare -g CHECKVALUESUM=$(expr length $VALUE)
 	fi
 }
@@ -679,9 +662,13 @@ warning_trace() {
 	echo -e "\n${OR_BEG}WARNING: $1${COL_END}"
 }
 
+bold_trace_tp() {
+    read -r -p "${BOLD_TP}$1 ${TP_END}" $2
+}
+
 read_p_text() {
 	lsblk
-	read -p "Please choose your Device [ example: /dev/mmcblk0 ]:" ANSWER
+	read -p "${BOLD_TP}Please choose your Device [ example: /dev/mmcblk0 ]: ${TP_END}" ANSWER
 }
 
 #>>==========================================================================>>
