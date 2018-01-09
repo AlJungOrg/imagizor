@@ -8,7 +8,7 @@ set -e
 
 #echo -e "$0 Parameter: $*"
 
-gksudo
+declare TIME_START=$(date +%s)
 
 declare -r RED_BEG="\\033[31m"
 declare -r OR_BEG="\\033[33m"
@@ -832,8 +832,12 @@ copy_back
 
 compare_hash_values
 
+declare TIME_END=$(date +%s)
+
 echo -e "Delete the verify file"
 
 delete_returned_file
 
 echo -e "You can remove the device"
+
+echo "elapsed time:" $((TIME_END - $TIME_START)) "seconds"
