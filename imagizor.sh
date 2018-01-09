@@ -8,6 +8,8 @@ set -e
 
 #echo -e "$0 Parameter: $*"
 
+gksudo
+
 declare -r RED_BEG="\\033[31m"
 declare -r OR_BEG="\\033[33m"
 declare -r PUR_BEG="\\033[35m"
@@ -69,7 +71,7 @@ download() { #Download the Software and unpack them, if required
 		exit
 	fi
 	download_verifikation
-	info_trace "Try to unpack the downloaded Software"
+	echo -e "Try to unpack the downloaded Software"
 	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
 		unpack_text
 	fi
@@ -103,14 +105,14 @@ download_verifikation() {
 		download_verifikation_p_text
 	else
 		echo -e "Please enter a check value methodik"
-		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
+		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a] (a):" CHECK
 	fi
 
 	case $CHECK in
 	m | md | M | MD | md5sum | MD5SUM)
 		download_checksum_p_text
 		declare -r MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
-		info_trace "Compare the check value from the Image-file and the real checkvalue with each other"
+		echo -e "Compareing the check value from the Image-file and the real checkvalue"
 
 		if [ $MD_FILE == $VALUE ]; then
 			download_verifikation_text
@@ -122,7 +124,7 @@ download_verifikation() {
 	s | S | Sha | sha | SHA | sha256 | SHA256 | 256)
 		download_checksum_p_text
 		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
-		info_trace "Compare the check value from the Image-file and the real checkvalue with each other"
+		info_trace "Compareing the check value from the Image-file and the real checkvalue"
 
 		if [ $CHECKVALUESUM = 40 ]; then
             declare -r SH_FILE=$(sha1sum $FILENAME 2>/dev/null | cut -d" " -f1)
@@ -130,6 +132,9 @@ download_verifikation() {
             declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
         elif [ $CHECKVALUESUM = 128 ]; then
             declare -r SH_FILE=$(sha512sum $FILENAME 2>/dev/null | cut -d" " -f1)
+        else 
+            error_trace "no valid check sum"
+            exit
         fi
         
 		if [ $SH_FILE == $VALUE ]; then
@@ -140,7 +145,7 @@ download_verifikation() {
 
 		;;
 
-	a | A) ;;
+	a | A | "") ;;
 
 	*)
 
@@ -374,9 +379,10 @@ help_for_less_Parameter() { #Longer help text
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-detect_device() { #Checked if the USb-Stick or SD-Card available
-	head_trace "Find out the $DEVICE_TEXT"
-	info_trace "Checked if the $DEVICE_TEXT exists"
+detect_device() { #Checked if the USB-Stick or SD-Card available
+    head_trace "Detecting Device and copy process"
+	echo -e "Find out the $DEVICE_TEXT"
+	echo -e "Checked if the $DEVICE_TEXT exists"
 
 	if ! [ -b $DEVICE ]; then
 		error_trace "$DEVICE_TEXT is not available"
@@ -392,7 +398,7 @@ detect_device() { #Checked if the USb-Stick or SD-Card available
 		fi
 
 		if [ -b $DEVICE ]; then
-			size_trace "The $DEVICE_TEXT is $SIZE big"
+			echo -e "The $DEVICE_TEXT is $SIZE big"
 			break
 		fi
 	done
@@ -410,8 +416,8 @@ detect_device() { #Checked if the USb-Stick or SD-Card available
 # REVIEWER(S):  -
 #<<==========================================================================<<
 checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
-	head_trace "Checking Size"
-	info_trace "Checked the Size of the $DEVICE_TEXT and the Image-File"
+	echo -e "Checking Size"
+	echo -e "Checking the Size of the $DEVICE_TEXT and the Image-File"
 	if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
 		error_trace "$DEVICE_TEXT has less memory space"
 		help_trace "Please put a new $DEVICE_TEXT in"
@@ -427,7 +433,7 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 		fi
 
 		if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
-			correct_trace "$DEVICE_TEXT is bigger then the Image-File "
+			echo -e "$DEVICE_TEXT is bigger then the Image-File "
 			break
 		fi
 	done
@@ -444,10 +450,9 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 # REVIEWER(S):  -
 #<<==========================================================================<<
 copy() { #copy the File on the DEVICE
-	head_trace "Copy process"
-	info_trace "Copy the File on the $DEVICE_TEXT"
+	echo -e "Copy process"
+	echo -e "Copy the File on the $DEVICE_TEXT"
 	declare -r BLOCKS=4M
-	set +e
 	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
 	for i in {0..5}; do
 		echo -ne "$i /5"'\r' 
@@ -455,6 +460,7 @@ copy() { #copy the File on the DEVICE
 	done
 	echo 
 	is_device_read_only
+	set +e
 	sudo dd if=$FILENAME oflag=direct of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS conv=fdatasync
 	not_available_device
 	set -e
@@ -473,7 +479,7 @@ copy() { #copy the File on the DEVICE
 #<<==========================================================================<<
 copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
-	info_trace "Copy the File from the $DEVICE_TEXT back into an File"
+	echo -e "Copying the file back into an verify file"
 	declare -r BLOCKS_BACK=4000000
 	if [ $FILESIZE_WHOLE -lt $BLOCKS_BACK ]; then
 		COUNT=1
@@ -485,7 +491,7 @@ copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
 	sudo dd if=$DEVICE of=verify.img $DD_CONV bs=$BLOCKS_BACK count=$COUNT $STATUS conv=fdatasync
 	not_available_device
 	set -e
-	info_trace "Shortening the returned File in the Size from the original File"
+	echo -e "Shortening the verify file in the size from the original file"
 	sudo truncate -r $FILENAME verify.img
 }
 
@@ -509,9 +515,9 @@ is_device_read_only() {
 # REVIEWER(S):  -
 #<<==========================================================================<<
 filesize() { #Checked the Filesize
-	head_trace "Size checking"
-	info_trace "Checked the Filesize of the Image-File"
-	size_trace "Filesize of the Image-File: $FILESIZE"
+	echo -e "Size checking"
+	echo -e "Checked the Filesize of the Image-File"
+	echo -e "Filesize of the Image-File: $FILESIZE"
 }
 
 #>>==========================================================================>>
@@ -527,7 +533,7 @@ filesize() { #Checked the Filesize
 # REVIEWER(S):  -
 #<<==========================================================================<<
 compare_hash_values() { #Compares the hash values from the downloaded File and the returned File
-	info_trace "Compare the hash values from the downloaded File and the returned File"
+	echo -e "Compareing the hash values from the downloaded File and the verify File"
 	declare -r MD5SUM=$(md5sum $FILENAME | cut -d" " -f1)
 	declare -r MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
 	if [ $MD5SUM == $MD5SUM_BACK ]; then
@@ -668,7 +674,7 @@ bold_trace_tp() {
 
 read_p_text() {
 	lsblk
-	read -p "${BOLD_TP}Please choose your Device [ example: /dev/mmcblk0 ]: ${TP_END}" ANSWER
+	read -p "${BOLD_TP}Please choose your device [ example: /dev/mmcblk0 ]: ${TP_END}" ANSWER
 }
 
 #>>==========================================================================>>
@@ -798,7 +804,7 @@ set +e
 lsblk $ANSWER >/dev/null 2>/dev/null
 
 if [ $? -gt 1 ]; then
-	error_trace "The Device is not available"
+	error_trace "The device is not available"
 	help_trace "Please try it again"
 	exit
 fi
@@ -826,8 +832,8 @@ copy_back
 
 compare_hash_values
 
-info_trace "Delete the returned File"
+echo -e "Delete the verify file"
 
 delete_returned_file
 
-correct_trace "You can remove the Device"
+echo -e "You can remove the device"
