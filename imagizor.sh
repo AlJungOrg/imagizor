@@ -9,6 +9,7 @@ set -e
 #echo -e "$0 Parameter: $*"
 
 declare -r RED_BEG="\\033[31m"
+declare -r OR_BEG="\\033[33m"
 declare -r PUR_BEG="\\033[35m"
 declare -r GREEN_BEG="\\033[32m"
 declare -r BLUE_BEG="\\033[34m"
@@ -675,7 +676,7 @@ head_trace() { #create a underline and the text is purple
 }
 
 warning_trace() {
-	echo -e "\n${RED_BEG}WARNING: $1${COL_END}"
+	echo -e "\n${OR_BEG}WARNING: $1${COL_END}"
 }
 
 read_p_text() {
