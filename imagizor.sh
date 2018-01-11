@@ -294,24 +294,36 @@ unpack_text() { #Text for the unpack part
 }
 
 help_text_beg() {
-    echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: /dev/mmcblk0)]"
-	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
+    echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
+	echo -e "[(optional in download mode) -v, --value] [(optional in download mode) hashvalue (MD5SUM, SHA1, SHA256, SHA512)]"
 	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
 	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
 	echo -e ""
 	echo -e "./image_to_device.sh  -d  --download   'Downloadlink'  -t  --target  'Device'  -v  --value  'Checkvalue'  -u  --user  'USER'  -p  --password  'PASSWORD'"
 	echo -e "./image_to_device.sh  -c  --copy       'File to copy'  -t  --target  'Device'"
 	echo -e ""
+	echo -e "Compatible hashvalues methodik: MD5SUM, SHA1, SHA256, SHA512"
+    echo -e ""
+    echo -e "explaining of the parameters:"
+    echo -e '-d, --download       started the download mode'
+    echo -e '-c, --copy           started the copy mode'
+    echo -e '-t, --target         the device to be overwritten'
+    echo -e '-v, --value          the checkvalue of the file for the download mode'
+    echo -e '-u, --user           user data for the download mode for the authetifikation'
+    echo -e '-p, --password       the password for the download mode for the authetifikation'
+    echo -e ""
 }
 
 help_text_end() {
     echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
-	echo -e "-t 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	echo -e ""
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
-	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
+	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 "
 	echo -e ""
 	echo -e "Example: ./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
 }
