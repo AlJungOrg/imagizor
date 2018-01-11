@@ -22,7 +22,7 @@ declare DEVICE_ZERO=/dev/zero
 declare DOWNLOAD_TEXT="Starting the download mode test"
 declare DOWNLOAD_WITHOUT_PARAMETER_TEXT="Starting the download mode test without any parameter"
 declare DOWNLOAD_PARAMETER='imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/loop0 -u n -p n -v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18'
-declare COPY_WITHOUT_PARAMETER='test_d_mode_without_parameter.sh'
+declare DOWNLOAD_WITHOUT_PARAMETER='test_d_mode_without_parameter.sh'
 
 declare FILE_DEVICE=/virtualfs
 declare FILE=test.iso
@@ -51,8 +51,8 @@ download_script() {
 }
 
 download_script_without_parameter() {
-    bash -n $COPY_WITHOUT_PARAMETER
-    sudo ./$COPY_WITHOUT_PARAMETER
+    bash -n $DOWNLOAD_WITHOUT_PARAMETER
+    sudo ./$DOWNLOAD_WITHOUT_PARAMETER
 }
 
 copy_script() {
