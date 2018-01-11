@@ -19,8 +19,8 @@ declare -r GREEN_BEG="\\033[32m"
 declare -r BLUE_BEG="\\033[34m"
 declare -r TUERK_BEG="\\033[34m"
 declare -r BOLD="\\033[1m"
-declare -r BOLD_TP=`tput bold`
-declare -r TP_END=`tput sgr0`
+declare -r BOLD_TP=$(tput bold)
+declare -r TP_END=$(tput sgr0)
 declare -r COL_END="\\033[0m"
 declare -r UNDERLINE="\\033[4m"
 
@@ -127,16 +127,16 @@ download_verifikation() {
 		info_trace "Compareing the check value from the Image-file and the real checkvalue"
 
 		if [ $CHECKVALUESUM = 40 ]; then
-            declare -r SH_FILE=$(sha1sum $FILENAME 2>/dev/null | cut -d" " -f1)
-        elif [ $CHECKVALUESUM = 64 ]; then
-            declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
-        elif [ $CHECKVALUESUM = 128 ]; then
-            declare -r SH_FILE=$(sha512sum $FILENAME 2>/dev/null | cut -d" " -f1)
-        else 
-            error_trace "no valid check sum"
-            exit
-        fi
-        
+			declare -r SH_FILE=$(sha1sum $FILENAME 2>/dev/null | cut -d" " -f1)
+		elif [ $CHECKVALUESUM = 64 ]; then
+			declare -r SH_FILE=$(sha256sum $FILENAME 2>/dev/null | cut -d" " -f1)
+		elif [ $CHECKVALUESUM = 128 ]; then
+			declare -r SH_FILE=$(sha512sum $FILENAME 2>/dev/null | cut -d" " -f1)
+		else
+			error_trace "no valid check sum"
+			exit
+		fi
+
 		if [ $SH_FILE == $VALUE ]; then
 			download_verifikation_text
 		else
@@ -170,11 +170,11 @@ download_verifikation() {
 download_verifikation_p_text() {
 	if [ $CHECKVALUESUM = 32 ]; then
 		declare -g CHECK=m
-    elif [ $CHECKVALUESUM = 40 ]; then
-        declare -g CHECK=s
+	elif [ $CHECKVALUESUM = 40 ]; then
+		declare -g CHECK=s
 	elif [ $CHECKVALUESUM = 64 ]; then
 		declare -g CHECK=s
-    elif [ $CHECKVALUESUM = 128 ]; then
+	elif [ $CHECKVALUESUM = 128 ]; then
 		declare -g CHECK=s
 	else
 		echo -e "Please enter a check value methodik"
@@ -292,7 +292,7 @@ unpack_text() { #Text for the unpack part
 }
 
 help_text_beg() {
-    echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
+	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
 	echo -e "[(optional in download mode) -v, --value] [(optional in download mode) hashvalue (MD5SUM, SHA1, SHA256, SHA512)]"
 	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
 	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
@@ -301,19 +301,19 @@ help_text_beg() {
 	echo -e "./image_to_device.sh  -c  --copy       'File to copy'  -t  --target  'Device'"
 	echo -e ""
 	echo -e "Compatible hashvalues methodik: MD5SUM, SHA1, SHA256, SHA512"
-    echo -e ""
-    echo -e "explaining of the parameters:"
-    echo -e '-d, --download       started the download mode'
-    echo -e '-c, --copy           started the copy mode'
-    echo -e '-t, --target         the device to be overwritten'
-    echo -e '-v, --value          the checkvalue of the file for the download mode'
-    echo -e '-u, --user           user data for the download mode for the authetifikation'
-    echo -e '-p, --password       the password for the download mode for the authetifikation'
-    echo -e ""
+	echo -e ""
+	echo -e "explaining of the parameters:"
+	echo -e '-d, --download       started the download mode'
+	echo -e '-c, --copy           started the copy mode'
+	echo -e '-t, --target         the device to be overwritten'
+	echo -e '-v, --value          the checkvalue of the file for the download mode'
+	echo -e '-u, --user           user data for the download mode for the authetifikation'
+	echo -e '-p, --password       the password for the download mode for the authetifikation'
+	echo -e ""
 }
 
 help_text_end() {
-    echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
 	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
 	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
@@ -460,10 +460,10 @@ copy_to_device() { #copy the File on the DEVICE
 	declare -r BLOCKS=4M
 	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
 	for i in {0..5}; do
-		echo -ne "$i /5"'\r' 
+		echo -ne "$i /5"'\r'
 		sleep 1
 	done
-	echo 
+	echo
 	is_device_read_only
 	set +e
 	sudo dd if=$FILENAME oflag=direct of=$DEVICE $DD_CONV bs=$BLOCKS $STATUS conv=fdatasync
@@ -567,35 +567,35 @@ not_available_device() {
 }
 
 mode_beg() {
-    echo -e ""
-    if [ $ARG_OPTION = -d ]; then
-        echo -e "------------------------start-download-mode------------------------"
-    elif [ $ARG_OPTION = --download ]; then
-        echo -e "------------------------start-download-mode------------------------"
-    else
-        echo -e "------------------------start-copy-mode------------------------"
-    fi
-    echo -e ""
+	echo -e ""
+	if [ $ARG_OPTION = -d ]; then
+		echo -e "------------------------start-download-mode------------------------"
+	elif [ $ARG_OPTION = --download ]; then
+		echo -e "------------------------start-download-mode------------------------"
+	else
+		echo -e "------------------------start-copy-mode------------------------"
+	fi
+	echo -e ""
 }
 
 summary_download_text() {
-    echo -e "download process successful, download of the file was successful"
-    summary_both_text
+	echo -e "download process successful, download of the file was successful"
+	summary_both_text
 }
 
 summary_both_text() {
-    echo -e "copy process successful, copy the file to the device was successful"
-    echo -e "verifying process successful, the hash values are the same"
+	echo -e "copy process successful, copy the file to the device was successful"
+	echo -e "verifying process successful, the hash values are the same"
 }
 
 summary() {
-    if [ $ARG_OPTION = -d ]; then
-        summary_download_text
-    elif [ $ARG_OPTION = --download ]; then
-        summary_download_text
-    else
-        summary_both_text
-    fi
+	if [ $ARG_OPTION = -d ]; then
+		summary_download_text
+	elif [ $ARG_OPTION = --download ]; then
+		summary_download_text
+	else
+		summary_both_text
+	fi
 }
 
 #>>==========================================================================>>
@@ -673,7 +673,7 @@ warning_trace() {
 }
 
 bold_trace_tp() {
-    read -r -p "${BOLD_TP}$1 ${TP_END}" $2
+	read -r -p "${BOLD_TP}$1 ${TP_END}" $2
 }
 
 read_p_text() {
@@ -682,13 +682,13 @@ read_p_text() {
 }
 
 checkstep() {
-    echo -e "${PUR_BEG}$@ ...${COL_END}"
-    if $@; then
-        printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG}OK${COL_END}"
-    else
-        printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG}FAIL${COL_END}"
-        exit
-    fi
+	echo -e "${PUR_BEG}$@ ...${COL_END}"
+	if $@; then
+		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG}OK${COL_END}"
+	else
+		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG}FAIL${COL_END}"
+		exit
+	fi
 }
 
 #>>==========================================================================>>
@@ -780,7 +780,7 @@ done
 case $ARG_OPTION in
 "-d") ;&
 "--download")
-    head_trace "download process and verifikation"
+	head_trace "download process and verifikation"
 	checkstep download_the_software
 	echo ""
 	;;
@@ -822,26 +822,26 @@ set +e
 lsblk $ANSWER >/dev/null 2>/dev/null
 
 if [ $? -gt 1 ]; then
-    error_trace "The device is not available"
-    help_trace "Please try it again"
-    while true; do
-    sleep 1
-    read_p_text
-    lsblk $ANSWER >/dev/null 2>/dev/null
-    if ! [ $? -gt 1 ]; then
-        break
-    elif [ $? == 1 ]; then
-        error_trace "The device is not available"
-        help_trace "Please try it again"
-    fi
-done
+	error_trace "The device is not available"
+	help_trace "Please try it again"
+	while true; do
+		sleep 1
+		read_p_text
+		lsblk $ANSWER >/dev/null 2>/dev/null
+		if ! [ $? -gt 1 ]; then
+			break
+		elif [ $? == 1 ]; then
+			error_trace "The device is not available"
+			help_trace "Please try it again"
+		fi
+	done
 fi
 
 set -e
 
 declare DEVICE=$ANSWER 2>/dev/null
 declare DEVICE_GREP=$(basename $DEVICE)
-declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' |  cut -b 2-11)
+declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | cut -b 2-11)
 declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
 declare -r DEVICE_TEXT="Device"
 declare STATUS=""
@@ -866,6 +866,7 @@ checkstep copy_to_device
 
 echo ""
 
+
 head_trace "Verifying"
 
 checkstep copy_back_from_the_device
@@ -874,9 +875,13 @@ echo ""
 
 checkstep compare_hash_values
 
+head_trace_end
+
 echo ""
 
 correct_trace "SUCCESS"
+
+head_trace_end
 
 echo ""
 
