@@ -8,6 +8,8 @@ set -e
 
 #echo -e "$0 Parameter: $*"
 
+. lib/imagizor_common.sh
+
 declare TIME_START=$(date +%s)
 
 declare -r RED_BEG="\\033[31m"
@@ -178,7 +180,7 @@ download_verifikation_p_text() {
 		declare -g CHECK=s
 	else
 		echo -e "Please enter a check value methodik"
-		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a]:" CHECK
+		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a] (a):" CHECK
 	fi
 }
 
@@ -291,6 +293,29 @@ unpack_text() { #Text for the unpack part
 	echo -e "Unpack is not required"
 }
 
+help_text_beg() {
+    echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: /dev/mmcblk0)]"
+	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
+	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
+	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
+	echo -e ""
+	echo -e "./image_to_device.sh  -d  --download   'Downloadlink'  -t  --target  'Device'  -v  --value  'Checkvalue'  -u  --user  'USER'  -p  --password  'PASSWORD'"
+	echo -e "./image_to_device.sh  -c  --copy       'File to copy'  -t  --target  'Device'"
+	echo -e ""
+}
+
+help_text_end() {
+    echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e "-t 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
+	echo -e ""
+	echo -e "Example: ./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+}
+
 #>>==========================================================================>>
 # DESCRIPTION:  Help text for a invalid command
 #
@@ -303,21 +328,9 @@ unpack_text() { #Text for the unpack part
 #<<==========================================================================<<
 help() { #Is a help text
 	echo -e "invalid command"
-	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: /dev/mmcblk0)]"
-	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
-	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
-	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
+	help_text_beg
 	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
-	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
-	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
-	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
-	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
-	echo -e " -u 'USER' -p 'PASSWORD'"
+	help_text_end
 	exit
 }
 
@@ -348,23 +361,8 @@ parameter_show() { #Checked if more then 2 Parameter are given
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_for_less_Parameter() { #Longer help text
-	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-de, --device] [(optional)Device (example: mmcblk0)]"
-	echo -e "[(optional in download mode) -ch, --checkvalue] [(optional in download mode) hashvalue (md5sum, sha256sum)]"
-	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
-	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
-	echo -e "./image_to_device.sh      -d-     -download       Downloadlink        -de     Device      -ch     Checkvalue      -u      'USER'      -p      'PASSWORD'"
-	echo -e "./image_to_device.sh      -c-     -copy           File to copy        -de     Device      -ch     Checkvalue      -u      'USER'      -p      'PASSWORD'"
-	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
-	echo -e "-de 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
-	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
-	echo -e "-ch 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
-	echo -e ""
-	echo -e "Example: ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -de /dev/mmcblk0"
-	echo -e "-u 'USER' -p 'PASSWORD'"
+	help_text_beg
+	help_text_end
 	exit
 }
 
@@ -579,20 +577,6 @@ delete_returned_file() { #Delete the returned File
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Marked the echo text purple
-#
-# PARAMETER 1:  Marked the echo text purple
-# RETURN:       -
-# USAGE:        info_trace "Text"
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-info_trace() { #marked purple
-	echo -e "${PUR_BEG}$1${COL_END}"
-}
-
-#>>==========================================================================>>
 # DESCRIPTION:  Marked the echo text red
 #
 # PARAMETER 1:  Marked the echo text red
@@ -646,22 +630,6 @@ correct_trace() { #marked Green
 #<<==========================================================================<<
 size_trace() { #marked Blue
 	echo -e "${BLUE_BEG}$1${COL_END}"
-}
-
-#>>==========================================================================>>
-# DESCRIPTION:  Marked the echo text purple and create a undeline
-#
-# PARAMETER 1:  Marked the echo text purple and create a undeline
-# RETURN:       -
-# USAGE:        head_trace "Text"
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-head_trace() { #create a underline and the text is purple
-	echo -e ______________________________________________________________________
-	echo -e "\n${UNDERLINE}${PUR_BEG}$1${COL_END}\n"
-	echo -e ----------------------------------------------------------------------
 }
 
 warning_trace() {
@@ -725,13 +693,13 @@ Parameter=($@)
 
 for ((i = 0; i < ${#Parameter[@]}; i = i + 2)); do
 	case ${Parameter[$i]} in
-	"-de") ;&
-	"--device")
+	"-t") ;&
+	"--target")
 		declare -g ANSWER=${Parameter[$i + 1]}
 		;;
 
-	"-ch") ;&
-	"--checkvalue")
+	"-v") ;&
+	"--value")
 		declare -g CHECKVALUE=${Parameter[$i + 1]}
 		declare -g CHECKVALUESUM="$(expr length ${Parameter[$i + 1]})"
 		declare -g VALUE=${Parameter[$i + 1]}
@@ -823,7 +791,7 @@ set -e
 
 declare DEVICE=$ANSWER 2>/dev/null
 declare DEVICE_GREP=$(basename $DEVICE)
-declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
+declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' |  cut -b 2-11)
 declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
 declare -r DEVICE_TEXT="Device"
 declare STATUS=""

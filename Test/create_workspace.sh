@@ -1,49 +1,42 @@
 #!/bin/bash
 
 test_successfull() {
-if [ $? -gt 1 ]; then
-    echo -e "Test gone Wrong"
-    exit
-else 
-    echo -e "Test successfull"
-fi
-} 
+	if [ $? -gt 1 ]; then
+		echo -e "Test gone Wrong"
+		exit
+	else
+		echo -e "Test successfull"
+	fi
+}
 
 create_file() {
-sudo dd if=$DEVICE_ZERO of=$FILE bs=$BLOCKS_BYTE count=$COUNT $STATUS
+	sudo dd if=$DEVICE_ZERO of=$FILE bs=$BLOCKS_BYTE count=$COUNT $STATUS
 }
 
 create_device() {
-sudo dd if=$DEVICE_ZERO of=$FILE_DEVICE bs=$BLOCKS count=$COUNT $STATUS
+	sudo dd if=$DEVICE_ZERO of=$FILE_DEVICE bs=$BLOCKS count=$COUNT $STATUS
 }
 
 download_script() {
-bash -n $DOWNLOAD_PARAMETER
-sudo ./$DOWNLOAD_PARAMETER
+	bash -n $DOWNLOAD_PARAMETER
+	sudo ./$DOWNLOAD_PARAMETER
 }
 
 copy_script() {
-bash -n $COPY_PARAMETER
-sudo ./$COPY_PARAMETER
+	bash -n $COPY_PARAMETER
+	sudo ./$COPY_PARAMETER
 }
 
 delete_file() {
-sudo rm -r $FILE
+	sudo rm -r $FILE
 }
 
 delete_file_device() {
-sudo rm -r $FILE_DEVICE
+	sudo rm -r $FILE_DEVICE
 }
 
-info_trace() { 
-	echo -e "${PUR_BEG}$1${COL_END}"
-}
-
-head_trace() { 
-	echo -e ______________________________________________________________________
-	echo -e "\n${UNDERLINE}${PUR_BEG}$1${COL_END}\n"
-	echo -e ----------------------------------------------------------------------
-}
+#source ../lib/imagizor_common.sh
+. ../lib/imagizor_common.sh
 
 declare -r PUR_BEG="\\033[35m"
 declare -r COL_END="\\033[0m"
@@ -83,11 +76,13 @@ cd ..
 
 create_file
 
-(echo "" 
+(
+	echo ""
 
-echo `$DATE` $DOWNLOAD_TEXT
+	echo $($DATE) $DOWNLOAD_TEXT
 
-echo "") >> log1.file
+	echo ""
+) >>log1.file
 
 echo -e ""
 
@@ -95,37 +90,45 @@ head_trace "$DOWNLOAD_TEXT"
 
 declare BEFORE_DOWNLOAD=$(date +%s)
 
-(download_script 
+(
+	download_script
 
-declare AFTER_DOWNLOAD=$(date +%s)
+	declare AFTER_DOWNLOAD=$(date +%s)
 
-test_successfull 
+	echo ""
 
-echo `$DATE` 
+	test_successfull
 
-echo "" 
+	echo $($DATE)
 
-echo "elapsed time:" $((AFTER_DOWNLOAD - $BEFORE_DOWNLOAD)) "seconds" 
+	echo ""
 
-echo ""
+	echo "elapsed time:" $((AFTER_DOWNLOAD - $BEFORE_DOWNLOAD)) "seconds"
 
-echo -e "last named commit:" ;git log --pretty=format:"%s"|head -n 1 
+	echo ""
+
+	echo -e "last named commit:"
+	git log --pretty=format:"%s" | head -n 1
+
+	echo -e ""
+
+	echo -e "last hash commit:"
+	git log --pretty=format:"%H" | head -n 1
+
+	echo "-------------------------------------------------------------------------------------------------------"
+) >>log1.file 2>&1
 
 echo -e ""
 
-echo -e "last hash commit:" ;git log --pretty=format:"%H"|head -n 1 
+info_trace "Test finished"
 
-echo "-------------------------------------------------------------------------------------------------------") >> log1.file 2>&1
+(
+	echo ""
 
-echo -e ""
+	echo $($DATE) $COPY_TEXT
 
-info_trace "Test finished" 
-
-(echo ""
-
-echo `$DATE` $COPY_TEXT
-
-echo "") >> log2.file
+	echo ""
+) >>log2.file
 
 echo ""
 
@@ -133,27 +136,33 @@ head_trace "$COPY_TEXT"
 
 declare BEFORE_COPY=$(date +%s)
 
-(copy_script 
+(
+	copy_script
 
-declare AFTER_COPY=$(date +%s)
+	declare AFTER_COPY=$(date +%s)
 
-test_successfull 
+	echo ""
 
-echo `$DATE` 
+	test_successfull
 
-echo "" 
+	echo $($DATE)
 
-echo "elapsed time:" $((AFTER_COPY - $BEFORE_COPY)) "seconds" 
+	echo ""
 
-echo ""
+	echo "elapsed time:" $((AFTER_COPY - $BEFORE_COPY)) "seconds"
 
-echo -e "last named commit:" ;git log --pretty=format:"%s"|head -n 1 
+	echo ""
 
-echo -e ""
+	echo -e "last named commit:"
+	git log --pretty=format:"%s" | head -n 1
 
-echo -e "last hash commit:" ;git log --pretty=format:"%H"|head -n 1
+	echo -e ""
 
-echo "-------------------------------------------------------------------------------------------------------") >> log2.file 2>&1
+	echo -e "last hash commit:"
+	git log --pretty=format:"%H" | head -n 1
+
+	echo "-------------------------------------------------------------------------------------------------------"
+) >>log2.file 2>&1
 
 echo ""
 
