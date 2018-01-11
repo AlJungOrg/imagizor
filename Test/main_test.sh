@@ -160,7 +160,9 @@ start_download_test_without_parameter() {
 
 	declare BEFORE=$(date +%s)
 	(
+        pwd
 		cd Test
+		pwd
 		
 		download_script_without_parameter
 		
