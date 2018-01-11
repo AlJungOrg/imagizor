@@ -6,19 +6,19 @@ spawn ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/o
 
 set timeout 5
 
-expect "Yes, No [Y, N]:"
+expect "md5sum, sha256, I dont have a check value \[m,s,a\] (a):"
 
-send "n\r"
+send "s\r"
 
-expect "mdsum, sha256, I dont have a checkvalue \[m,s,a\]:"
+expect "Now enter the Check value number:"
 
-send "a\r"
+send "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18\r"
 
 expect "Please choose your Device \[ example: /dev/mmcblk0 \]:"
 
-send "/dev/mmcblk0\r"
+send "/dev/loop0\r"
 
-set timeout 25
+set timeout 30
 
 expect "copy_back"
 
@@ -26,4 +26,3 @@ wait
 
 expect eof
 
-wait

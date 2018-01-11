@@ -2,13 +2,13 @@
 
 cd ..
 
-spawn ./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256
+spawn ./imagizor.sh -c test.iso
 
 set timeout 5
 
 expect "Please choose your Device \[ example: /dev/mmcblk0 \]:"
 
-send "/dev/mmcblk0\r"
+send "/dev/loop0\r"
 
 set timeout 30
 
@@ -18,4 +18,4 @@ wait
 
 expect eof
 
-wait
+

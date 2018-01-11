@@ -12,13 +12,18 @@ declare -r UNDERLINE="\\033[4m"
 declare BLOCKS=500M
 declare BLOCKS_BYTE=512
 declare COPY_TEXT="Starting the copy mode test"
+declare COPY_WITHOUT_PARAMETER_TEXT="Starting the copy mode test without any parameter"
 declare COPY_PARAMETER='imagizor.sh -c test.iso -t /dev/loop0'
+declare COPY_WITHOUT_PARAMETER='test_c_mode_without_parameter.sh'
 declare COUNT=4
 declare DATE='date +%Y:%m:%d:%H:%M:%S'
 declare DEVICE=/dev/loop0
 declare DEVICE_ZERO=/dev/zero
 declare DOWNLOAD_TEXT="Starting the download mode test"
+declare DOWNLOAD_WITHOUT_PARAMETER_TEXT="Starting the download mode test without any parameter"
 declare DOWNLOAD_PARAMETER='imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/loop0 -u n -p n -v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18'
+declare COPY_WITHOUT_PARAMETER='test_d_mode_without_parameter.sh'
+
 declare FILE_DEVICE=/virtualfs
 declare FILE=test.iso
 declare STATUS="status=progress"
@@ -45,9 +50,45 @@ download_script() {
 	sudo ./$DOWNLOAD_PARAMETER
 }
 
+download_script_without_parameter() {
+    bash -n $COPY_WITHOUT_PARAMETER
+    sudo ./$COPY_WITHOUT_PARAMETER
+}
+
 copy_script() {
 	bash -n $COPY_PARAMETER
 	sudo ./$COPY_PARAMETER
+}
+
+copy_script_without_parameter() {
+	bash -n $COPY_WITHOUT_PARAMETER
+	sudo ./$COPY_WITHOUT_PARAMETER
+}
+
+function_end_script_text() {
+	declare -g AFTER=$(date +%s)
+
+	echo ""
+
+	test_successfull
+
+	echo $($DATE)
+
+	echo ""
+
+	echo "elapsed time:" $((AFTER - $BEFORE)) "seconds"
+
+	echo ""
+
+	echo -e "last named commit:"
+	git log --pretty=format:"%s" | head -n 1
+
+	echo -e ""
+
+	echo -e "last hash commit:"
+	git log --pretty=format:"%H" | head -n 1
+
+	echo "-------------------------------------------------------------------------------------------------------"
 }
 
 delete_file() {
@@ -78,6 +119,10 @@ create_the_workspace() {
 
 	create_file
 
+}
+
+start_download_test() {
+
 	(
 		echo ""
 
@@ -87,84 +132,66 @@ create_the_workspace() {
 	) >>log1.file
 
 	echo -e ""
-}
 
-start_download_test() {
+	declare -g BEFORE=$(date +%s)
 
-	declare -g BEFORE_DOWNLOAD=$(date +%s)
+	(
+		download_script
 
-	   (download_script
+		function_end_script_text
 
-		declare -g AFTER_DOWNLOAD=$(date +%s)
-
-		echo ""
-
-		test_successfull
-
-		echo $($DATE)
-
-		echo ""
-
-		echo "elapsed time:" $((AFTER_DOWNLOAD - $BEFORE_DOWNLOAD)) "seconds"
-
-		echo ""
-
-		echo -e "last named commit:"
-		git log --pretty=format:"%s" | head -n 1
-
-		echo -e ""
-
-		echo -e "last hash commit:"
-		git log --pretty=format:"%H" | head -n 1
-
-		echo "-------------------------------------------------------------------------------------------------------"
 	) >>log1.file 2>&1
 
 	echo -e ""
 
 	echo -e "Test finished"
+}
 
-		(echo ""
+start_download_test_without_parameter() {
+(
+		echo ""
 
-		echo $($DATE) $COPY_TEXT
+		echo $($DATE) $DOWNLOAD_WITHOUT_PARAMETER_TEXT
 
 		echo ""
 	) >>log2.file
 
 	echo ""
+
+	declare BEFORE=$(date +%s)
+	(
+		cd Test
+		
+		download_script_without_parameter
+		
+		function_end_script_text
+
+		echo ""
+
+		echo -e "Test finished"
+
+		echo ""
+	) >>log2.file
 }
 
 start_copy_test() {
+	(
+		echo ""
 
-	declare -g BEFORE_COPY=$(date +%s)
+		echo $($DATE) $COPY_TEXT
+
+		echo ""
+	) >>log3.file
+
+	echo ""
+
+	declare -g BEFORE=$(date +%s)
 
 	(
 		copy_script
 
-		declare -g AFTER_COPY=$(date +%s)
-
-		echo ""
-
-		test_successfull
-
-		echo $($DATE)
-
-		echo ""
-
-		echo "elapsed time:" $((AFTER_COPY - $BEFORE_COPY)) "seconds"
-
-		echo ""
-
-		echo -e "last named commit:"
-		git log --pretty=format:"%s" | head -n 1
-
-		echo -e ""
-
-		echo -e "last hash commit:"
-		git log --pretty=format:"%H" | head -n 1
-
-		echo "-------------------------------------------------------------------------------------------------------"
-	) >>log2.file 2>&1
+		function_end_script_text
+	) >>log3.file 2>&1
 
 	echo ""
 
@@ -173,7 +200,33 @@ start_copy_test() {
 	echo ""
 }
 
+start_copy_test_without_parameter() {
 
+	(
+		echo ""
+
+		echo $($DATE) $COPY_WITHOUT_PARAMETER_TEXT
+
+		echo ""
+	) >>log4.file
+
+	echo ""
+
+	declare BEFORE=$(date +%s)
+	(
+		cd Test
+		
+		copy_script_without_parameter
+		
+		function_end_script_text
+
+		echo ""
+
+		echo -e "Test finished"
+
+		echo ""
+	) >>log4.file
+}
 
 delete_the_workspace() {
 
@@ -194,9 +247,17 @@ head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
 
+head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
+
+checkstep start_download_test_without_parameter
+
 head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
+
+head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
+
+checkstep start_copy_test_without_parameter
 
 head_trace "Delete the Workspace"
 
