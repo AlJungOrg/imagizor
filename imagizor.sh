@@ -384,12 +384,12 @@ help_for_less_Parameter() { #Longer help text
 # PARAMETER 1:  Checked if the USB-Stick or the SD-Card is available
 # PARAMETER 2:  Is the device not available, the script searched until the device is available
 # RETURN:       -
-# USAGE:        detect_device
+# USAGE:        find_out_device
 #
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-detect_device() { #Checked if the USB-Stick or SD-Card available
+find_out_device() { #Checked if the USB-Stick or SD-Card available
     head_trace "Detecting Device and copy process"
 	echo -e "Find out the $DEVICE_TEXT"
 	echo -e "Checked if the $DEVICE_TEXT exists"
@@ -425,7 +425,7 @@ detect_device() { #Checked if the USB-Stick or SD-Card available
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
+checking_devicesize_and_filesize() { #Checked the Sd-Card Size and the filesize
 	echo -e "Checking Size"
 	echo -e "Checking the Size of the $DEVICE_TEXT and the Image-File"
 	if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
@@ -459,7 +459,7 @@ checked_device_and_filesize() { #Checked the Sd-Card Size and the filesize
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-copy() { #copy the File on the DEVICE
+copy_to_device() { #copy the File on the DEVICE
 	echo -e "Copy process"
 	echo -e "Copy the File on the $DEVICE_TEXT"
 	declare -r BLOCKS=4M
@@ -487,7 +487,7 @@ copy() { #copy the File on the DEVICE
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-copy_back() { #Copy the File from the SD-Card or USB-STick back into an File
+copy_back_from_the_device() { #Copy the File from the SD-Card or USB-STick back into an File
 	head_trace "Verifying"
 	echo -e "Copying the file back into an verify file"
 	declare -r BLOCKS_BACK=4000000
@@ -524,7 +524,7 @@ is_device_read_only() {
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-filesize() { #Checked the Filesize
+checking_filesize() { #Checked the Filesize
 	echo -e "Size checking"
 	echo -e "Checked the Filesize of the Image-File"
 	echo -e "Filesize of the Image-File: $FILESIZE"
@@ -548,7 +548,6 @@ compare_hash_values() { #Compares the hash values from the downloaded File and t
 	declare -r MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
 	if [ $MD5SUM == $MD5SUM_BACK ]; then
 		correct_trace "The hash values are right"
-		correct_trace "Successfully Verifying "
 	else
 		error_trace "The hash values are not right, please try it again"
 		error_trace "Unsuccessfully verifying"
@@ -572,6 +571,38 @@ not_available_device() {
 		help_trace "Please try it again"
 		exit
 	fi
+}
+
+mode_beg() {
+    echo -e ""
+    if [ $ARG_OPTION = -d ]; then
+        echo -e "------------------------start-download-mode------------------------"
+    elif [ $ARG_OPTION = --download ]; then
+        echo -e "------------------------start-download-mode------------------------"
+    else
+        echo -e "------------------------start-copy-mode------------------------"
+    fi
+    echo -e ""
+}
+
+summary_download_text() {
+    echo -e "download process successful, download of the file was successful"
+    summary_both_text
+}
+
+summary_both_text() {
+    echo -e "copy process successful, copy the file to the device was successful"
+    echo -e "verifying process successful, the hash values are the same"
+}
+
+summary() {
+    if [ $ARG_OPTION = -d ]; then
+        summary_download_text
+    elif [ $ARG_OPTION = --download ]; then
+        summary_download_text
+    else
+        summary_both_text
+    fi
 }
 
 #>>==========================================================================>>
@@ -657,6 +688,16 @@ read_p_text() {
 	read -p "${BOLD_TP}Please choose your device [ example: /dev/mmcblk0 ]: ${TP_END}" ANSWER
 }
 
+checkstep() {
+    echo -e "${PUR_BEG}$@ ...${COL_END}"
+    if $@; then
+        printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG}OK${COL_END}"
+    else
+        printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG}FAIL${COL_END}"
+        exit
+    fi
+}
+
 #>>==========================================================================>>
 # DESCRIPTION:  Declare important variables for the script
 #
@@ -691,6 +732,7 @@ declare FILENAME="$(basename $2)"
 
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
+mode_beg
 needed_tools
 
 if [ $ARG_OPTION = -d ]; then
@@ -810,24 +852,42 @@ declare STATUS=""
 
 variable
 
-detect_device
+find_out_device
 
-checked_device_and_filesize
+echo -e ""
 
-filesize
+checking_filesize
 
-copy
+echo -e ""
 
-copy_back
+checking_devicesize_and_filesize
+
+echo -e ""
+
+copy_to_device
+
+echo -e ""
+
+copy_back_from_the_device
+
+echo -e ""
 
 compare_hash_values
 
-declare TIME_END=$(date +%s)
+echo -e ""
 
-echo -e "Delete the verify file"
+correct_trace "SUCCESS"
+
+echo ""
+
+declare TIME_END=$(date +%s)
 
 delete_returned_file
 
-echo -e "You can remove the device"
+summary
 
-echo "elapsed time:" $((TIME_END - $TIME_START)) "seconds"
+echo ""
+
+echo "elapsed time for the whole Script:" $((TIME_END - $TIME_START)) "seconds"
+
+echo -e "You can remove the device"
