@@ -63,9 +63,7 @@ needed_tools() { #Validate if the needed tool are on the shell
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-download() { #Download the Software and unpack them, if required
-	head_trace "download process and verifikation"
-	info_trace "Download the Software"
+download_the_software() { #Download the Software and unpack them, if required
 
 	if ! wget -c --auth-no-challenge --http-user=$USER --http-password="$PASSWORD" $LINK; then
 		error_trace "Maybe the URL is not available or the URL is passed off "
@@ -390,7 +388,6 @@ help_for_less_Parameter() { #Longer help text
 # REVIEWER(S):  -
 #<<==========================================================================<<
 find_out_device() { #Checked if the USB-Stick or SD-Card available
-    head_trace "Detecting Device and copy process"
 	echo -e "Find out the $DEVICE_TEXT"
 	echo -e "Checked if the $DEVICE_TEXT exists"
 
@@ -426,7 +423,6 @@ find_out_device() { #Checked if the USB-Stick or SD-Card available
 # REVIEWER(S):  -
 #<<==========================================================================<<
 checking_devicesize_and_filesize() { #Checked the Sd-Card Size and the filesize
-	echo -e "Checking Size"
 	echo -e "Checking the Size of the $DEVICE_TEXT and the Image-File"
 	if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
 		error_trace "$DEVICE_TEXT has less memory space"
@@ -460,7 +456,6 @@ checking_devicesize_and_filesize() { #Checked the Sd-Card Size and the filesize
 # REVIEWER(S):  -
 #<<==========================================================================<<
 copy_to_device() { #copy the File on the DEVICE
-	echo -e "Copy process"
 	echo -e "Copy the File on the $DEVICE_TEXT"
 	declare -r BLOCKS=4M
 	warning_trace "All data on $DEVICE will be overwritten! Press Strg+C to abort"
@@ -488,7 +483,6 @@ copy_to_device() { #copy the File on the DEVICE
 # REVIEWER(S):  -
 #<<==========================================================================<<
 copy_back_from_the_device() { #Copy the File from the SD-Card or USB-STick back into an File
-	head_trace "Verifying"
 	echo -e "Copying the file back into an verify file"
 	declare -r BLOCKS_BACK=4000000
 	if [ $FILESIZE_WHOLE -lt $BLOCKS_BACK ]; then
@@ -525,7 +519,6 @@ is_device_read_only() {
 # REVIEWER(S):  -
 #<<==========================================================================<<
 checking_filesize() { #Checked the Filesize
-	echo -e "Size checking"
 	echo -e "Checked the Filesize of the Image-File"
 	echo -e "Filesize of the Image-File: $FILESIZE"
 }
@@ -733,6 +726,7 @@ declare FILENAME="$(basename $2)"
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 
 mode_beg
+
 needed_tools
 
 if [ $ARG_OPTION = -d ]; then
@@ -786,7 +780,9 @@ done
 case $ARG_OPTION in
 "-d") ;&
 "--download")
-	download
+    head_trace "download process and verifikation"
+	checkstep download_the_software
+	echo ""
 	;;
 
 "-c") ;&
@@ -852,29 +848,33 @@ declare STATUS=""
 
 variable
 
-find_out_device
+head_trace "Detecting Device and copy process"
 
-echo -e ""
+checkstep find_out_device
 
-checking_filesize
+echo ""
 
-echo -e ""
+checkstep checking_filesize
 
-checking_devicesize_and_filesize
+echo ""
 
-echo -e ""
+checkstep checking_devicesize_and_filesize
 
-copy_to_device
+echo ""
 
-echo -e ""
+checkstep copy_to_device
 
-copy_back_from_the_device
+echo ""
 
-echo -e ""
+head_trace "Verifying"
 
-compare_hash_values
+checkstep copy_back_from_the_device
 
-echo -e ""
+echo ""
+
+checkstep compare_hash_values
+
+echo ""
 
 correct_trace "SUCCESS"
 
