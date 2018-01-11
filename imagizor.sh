@@ -2,6 +2,7 @@
 
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
+sudo ls >/dev/null 2>/dev/null
 set +u
 set -e
 #set -x
