@@ -259,23 +259,11 @@ head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
 
-declare LOGFILE=log2.file
-
-head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
-
-checkstep start_download_test_without_parameter
-
 declare LOGFILE=log3.file
 
 head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
-
-declare LOGFILE=log4.file
-
-head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
-
-checkstep start_copy_test_without_parameter
 
 head_trace "Delete the Workspace"
 
