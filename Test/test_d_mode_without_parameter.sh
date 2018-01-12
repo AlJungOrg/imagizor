@@ -1,6 +1,5 @@
 #!/usr/bin/expect
 
-cd ..
 
 spawn ./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256
 
