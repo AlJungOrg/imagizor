@@ -4,6 +4,8 @@
 
 . ../lib/imagizor_common.sh
 
+sudo ls >/dev/null 2>/dev/null
+
 declare -r PUR_BEG="\\033[35m"
 declare -r GREEN_BEG="\\033[32m"
 declare -r COL_END="\\033[0m"
