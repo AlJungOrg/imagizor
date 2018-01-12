@@ -61,17 +61,17 @@ download_script() {
 
 download_script_without_parameter() {
      bash -n test_d_mode_without_parameter.sh
-    sudo ./test_d_mode_without_parameter.sh
+     ./test_d_mode_without_parameter.sh
 }
 
 copy_script() {
 	bash -n $COPY_PARAMETER
-	sudo ./$COPY_PARAMETER
+	test_c_mode_without_parameter.sh ./$COPY_PARAMETER
 }
 
 copy_script_without_parameter() {
 	bash -n test_c_mode_without_parameter.sh
-	sudo ./test_c_mode_without_parameter.sh
+	 ./test_c_mode_without_parameter.sh
 }
 
 function_end_script_text() {
@@ -171,10 +171,6 @@ start_download_test_without_parameter() {
 	declare BEFORE=$(date +%s)
 	(
 		cd Test
-		
-		ls -la
-		
-		pwd
 		
 		download_script_without_parameter
 		
