@@ -40,7 +40,6 @@ test_successfull() {
 	if [ $? -gt 1 ]; then
 		echo -e "Test gone Wrong"
 		cat $DIR/$LOGFILE
-		exit
 	else
 		echo -e "Test successfull"
 	fi
@@ -247,6 +246,16 @@ delete_the_workspace() {
 	delete_file_device
 }
 
+checkstep() {
+	echo -e "${PUR_BEG}$@ ...${COL_END}"
+	if $@; then
+		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
+	else
+		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
+		NOF_FAILED_COMMANDS=$NOF_FAILED_COMMANDS+1
+	fi
+}
+
 #source ../lib/imagizor_common.sh
 
 head_trace "Create the Workspace"
@@ -280,5 +289,11 @@ checkstep start_copy_test_without_parameter
 head_trace "Delete the Workspace"
 
 checkstep delete_the_workspace
+
+echo ""
+
+if [ $NOF_FAILED_COMMANDS -gt 0 ]; then
+    info_trace "Failed script count: $NOF_FAILED_COMMANDS"
+fi
 
 head_trace_end
