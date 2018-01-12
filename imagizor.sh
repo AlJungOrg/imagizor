@@ -679,18 +679,32 @@ bold_trace_tp() {
 
 read_p_text() {
 	lsblk
-	
+
 	echo -e ""
 
 	array=($(lsblk | grep disk | awk '{print $1}'))
-
+	
 	for ((i = 0; i < ${#array[@]}; i = i + 1)); do
 		echo "$i /dev/${array[$i + 0]}"
 	done
 
 	echo ""
-	
-	read -p "${BOLD_TP}Please choose your device [ Enter the number for the device ]: ${TP_END}" ANSWER
+
+	if [ -b /dev/mmcblk0 ]; then
+		declare AUTOMATIC=/dev/mmcblk0
+	elif [ -b /dev/sdb ]; then
+		declare AUTOMATIC=/dev/sdb
+	else
+		declare AUTOMATIC=/dev/${array[$ANSWER + 0]}
+	fi
+
+	read -p "${BOLD_TP}Please choose your device [ Enter the number for the device ] ("$AUTOMATIC"): ${TP_END}" ANSWER
+
+	case $ANSWER in
+	"")
+		declare -g ANSWER=$AUTOMATIC
+		;;
+	esac
 
 	re='^[0-9]+$'
 	if [[ $ANSWER =~ $re ]]; then
