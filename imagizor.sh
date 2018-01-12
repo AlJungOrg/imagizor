@@ -679,16 +679,22 @@ bold_trace_tp() {
 
 read_p_text() {
 	lsblk
-	read -p "${BOLD_TP}Please choose your device [ example: /dev/mmcblk0 ]: ${TP_END}" ANSWER
-}
+	
+	echo -e ""
 
-checkstep() {
-	echo -e "${PUR_BEG}$@ ...${COL_END}"
-	if $@; then
-		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG}OK${COL_END}"
-	else
-		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG}FAIL${COL_END}"
-		exit
+	array=($(lsblk | grep disk | awk '{print $1}'))
+
+	for ((i = 0; i < ${#array[@]}; i = i + 1)); do
+		echo "$i /dev/${array[$i + 0]}"
+	done
+
+	echo ""
+	
+	read -p "${BOLD_TP}Please choose your device [ Enter the number for the device ]: ${TP_END}" ANSWER
+
+	re='^[0-9]+$'
+	if [[ $ANSWER =~ $re ]]; then
+		declare -g ANSWER="/dev/${array[$ANSWER + 0]}"
 	fi
 }
 
@@ -866,7 +872,6 @@ echo ""
 checkstep copy_to_device
 
 echo ""
-
 
 head_trace "Verifying"
 
