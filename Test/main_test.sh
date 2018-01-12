@@ -6,6 +6,12 @@
 
 sudo ls >/dev/null 2>/dev/null
 
+if [ whoami = jenkins ]; then 
+    declare DIR=/var/lib/jenkins/workspace/Imagizor
+else
+    declare DIR=~/imagizor
+fi
+
 declare -r PUR_BEG="\\033[35m"
 declare -r GREEN_BEG="\\033[32m"
 declare -r COL_END="\\033[0m"
@@ -33,7 +39,7 @@ declare STATUS="status=progress"
 test_successfull() {
 	if [ $? -gt 1 ]; then
 		echo -e "Test gone Wrong"
-		cat $LOGFILE
+		cat $DIR/$LOGFILE
 		exit
 	else
 		echo -e "Test successfull"
