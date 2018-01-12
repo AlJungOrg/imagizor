@@ -14,7 +14,7 @@ expect "Now enter the Check value number:"
 
 send "1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18\r"
 
-expect "Please choose your Device \[ example: /dev/mmcblk0 \]:"
+expect "Please choose your Device \[ Enter the number for the device \]:"
 
 send "/dev/loop0\r"
 

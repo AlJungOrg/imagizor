@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+#set -x
 
 . ../lib/imagizor_common.sh
 
@@ -60,8 +60,8 @@ download_script() {
 }
 
 download_script_without_parameter() {
-    bash -n $DOWNLOAD_WITHOUT_PARAMETER
-    sudo ./$DOWNLOAD_WITHOUT_PARAMETER
+     bash -n test_d_mode_without_parameter.sh
+    sudo ./test_d_mode_without_parameter.sh
 }
 
 copy_script() {
@@ -70,8 +70,8 @@ copy_script() {
 }
 
 copy_script_without_parameter() {
-	bash -n $COPY_WITHOUT_PARAMETER
-	sudo ./$COPY_WITHOUT_PARAMETER
+	bash -n test_c_mode_without_parameter.sh
+	sudo ./test_c_mode_without_parameter.sh
 }
 
 function_end_script_text() {

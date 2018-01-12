@@ -6,7 +6,7 @@ spawn ./imagizor.sh -c test.iso
 
 set timeout 5
 
-expect "Please choose your Device \[ example: /dev/mmcblk0 \]:"
+expect "Please choose your Device \[ Enter the number for the device \]:"
 
 send "/dev/loop0\r"
 

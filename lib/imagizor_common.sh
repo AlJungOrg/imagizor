@@ -38,9 +38,9 @@ info_trace() { #marked purple
 checkstep() {
 	echo -e "${PUR_BEG}$@ ...${COL_END}"
 	if $@; then
-		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG}OK${COL_END}"
+		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
 	else
-		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG}FAIL${COL_END}"
+		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
 		exit
 	fi
 }
