@@ -172,6 +172,10 @@ start_download_test_without_parameter() {
 	(
 		cd Test
 		
+		ls -la
+		
+		pwd
+		
 		download_script_without_parameter
 		
 		function_end_script_text
