@@ -31,6 +31,7 @@ declare STATUS="status=progress"
 test_successfull() {
 	if [ $? -gt 1 ]; then
 		echo -e "Test gone Wrong"
+		cat $LOGFILE
 		exit
 	else
 		echo -e "Test successfull"
@@ -66,11 +67,12 @@ copy_script_without_parameter() {
 }
 
 function_end_script_text() {
+    
+    test_successfull
+    
 	declare -g AFTER=$(date +%s)
 
 	echo ""
-
-	test_successfull
 
 	echo $($DATE)
 
@@ -243,17 +245,25 @@ head_trace "Create the Workspace"
 
 checkstep create_the_workspace
 
+declare LOGFILE=log1.file
+
 head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
+
+declare LOGFILE=log2.file
 
 head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_download_test_without_parameter
 
+declare LOGFILE=log3.file
+
 head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
+
+declare LOGFILE=log4.file
 
 head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
 
