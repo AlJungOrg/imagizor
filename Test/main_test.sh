@@ -14,6 +14,7 @@ fi
 
 declare -r PUR_BEG="\\033[35m"
 declare -r GREEN_BEG="\\033[32m"
+declare -r RED_BEG="\\033[31m"
 declare -r COL_END="\\033[0m"
 declare -r UNDERLINE="\\033[4m"
 
@@ -37,7 +38,7 @@ declare FILE=test.iso
 declare STATUS="status=progress"
 
 test_successfull() {
-	if [ $? -gt 1 ]; then
+	if [ $? -gt 0 ]; then
 		echo -e "Test gone Wrong"
 	else
 		echo -e "Test successfull"
@@ -253,9 +254,8 @@ checkstep() {
 	if $@; then
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
 	else
-		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
-		declare -g NOF_FAILED_COMMANDS=$NOF_FAILED_COMMANDS+1
-		cat $DIR/$LOGFILE
+		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
+		declare -g NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
 	fi
 }
 
