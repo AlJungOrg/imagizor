@@ -686,6 +686,8 @@ bold_trace_tp() {
 }
 
 read_p_text() {
+    set +u
+    
 	lsblk
 
 	echo -e ""
@@ -713,10 +715,10 @@ read_p_text() {
 		declare -g ANSWER=$AUTOMATIC
 		;;
 	esac
-    
+
 	re='^[0-9]+$'
 	if [[ $ANSWER =~ $re ]]; then
- 		declare -g ANSWER="/dev/${array[$ANSWER + 0]}"
+		declare -g ANSWER=/dev/${array[$ANSWER + 0]}
 	fi
 	
 }
