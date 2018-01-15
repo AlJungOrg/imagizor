@@ -7,9 +7,9 @@
 sudo ls >/dev/null 2>/dev/null
 
 if [ whoami = jenkins ]; then
-	declare DIR=/var/lib/jenkins/workspace/Imagizor
+	declare DIR=/var/lib/jenkins/workspace/Imagizor/Test
 else
-	declare DIR=~/imagizor
+	declare DIR=~/imagizor/Test
 fi
 
 declare -r PUR_BEG="\\033[35m"
@@ -259,6 +259,10 @@ checkstep() {
 	fi
 }
 
+html_function() {
+cat $LOGFILE|$DIR/ansi2html.sh > $DIR/$HTMLFILE
+}
+
 #source ../lib/imagizor_common.sh
 
 head_trace "Create the Workspace"
@@ -266,28 +270,40 @@ head_trace "Create the Workspace"
 checkstep create_the_workspace
 
 declare LOGFILE=download.file
+declare HTMLFILE=download_html.file
 
 head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
 
+html_function
+
 declare LOGFILE=download_without_parameter.file
+declare HTMLFILE=download_without_parameter_html.file
 
 head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_download_test_without_parameter
 
+html_function
+
 declare LOGFILE=copy.file
+declare HTMLFILE=copy_html.file
 
 head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
 
+html_function
+
 declare LOGFILE=copy_without_parameter.file
+declare HTMLFILE=copy_without_parameter_html.file
 
 head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_copy_test_without_parameter
+
+html_function
 
 head_trace "Delete the Workspace"
 
