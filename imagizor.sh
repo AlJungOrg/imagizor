@@ -324,6 +324,8 @@ help_text_end() {
 	echo -e "Example: ./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 "
 	echo -e ""
 	echo -e "Example: ./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e ""
+	echo -e "Link to the GitHub Project: https://github.com/AlJungOrg/imagizor/tree/master"
 }
 
 #>>==========================================================================>>
@@ -704,11 +706,12 @@ read_p_text() {
 		declare -g ANSWER=$AUTOMATIC
 		;;
 	esac
-
+    
 	re='^[0-9]+$'
 	if [[ $ANSWER =~ $re ]]; then
-		declare -g ANSWER="/dev/${array[$ANSWER + 0]}"
+ 		declare -g ANSWER="/dev/${array[$ANSWER + 0]}"
 	fi
+	
 }
 
 checkstep() {
