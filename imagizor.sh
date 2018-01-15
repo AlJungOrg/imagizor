@@ -2,7 +2,6 @@
 
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
-sudo ls >/dev/null 2>/dev/null
 set +u
 set -e
 #set -x
@@ -746,6 +745,10 @@ variable() {
 if [ $# -lt 2 ]; then #in the case they are less then 2 Parameter are given, then spend a text
 	help_for_less_Parameter
 	exit
+fi
+
+if ! [ $ARG_OPTION = --help ]; then
+    sudo ls >/dev/null 2>/dev/null
 fi
 
 trap delete_returned_file exit
