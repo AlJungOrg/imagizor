@@ -118,7 +118,7 @@ help_for_less_Parameter() { #Longer help text
 #<<==========================================================================<<
 needed_tools() { #Validate if the needed tool are on the shell
 
-	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2)
+	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk)
 
 	for X in ${TOOLS[*]}; do
 		if ! which $X >/dev/null 2>/dev/null; then
