@@ -260,7 +260,7 @@ checkstep() {
 }
 
 html_function() {
-cat $LOGFILE|$DIR/ansi2html.sh > $DIR/$HTMLFILE
+cat $LOGFILE|$DIR/ansi2html.sh > $DIR/$LOGFILE
 }
 
 #source ../lib/imagizor_common.sh
