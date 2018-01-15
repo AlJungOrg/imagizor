@@ -8,8 +8,10 @@ sudo ls >/dev/null 2>/dev/null
 
 if [ whoami = jenkins ]; then
 	declare DIR=/var/lib/jenkins/workspace/Imagizor/Test
+	declare DIR_IM=/var/lib/jenkins/workspace/Imagizor
 else
 	declare DIR=~/imagizor/Test
+    declare DIR_IM=~/imagizor
 fi
 
 declare -r PUR_BEG="\\033[35m"
@@ -260,7 +262,7 @@ checkstep() {
 }
 
 html_function() {
-cat $LOGFILE|$DIR/ansi2html.sh > $DIR/$LOGFILE
+cat $DIR_IM/$LOGFILE|$DIR/ansi2html.sh > $DIR_IM/$LOGFILE
 }
 
 #source ../lib/imagizor_common.sh
