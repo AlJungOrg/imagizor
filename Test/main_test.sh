@@ -6,10 +6,10 @@
 
 sudo ls >/dev/null 2>/dev/null
 
-if [ whoami = jenkins ]; then 
-    declare DIR=/var/lib/jenkins/workspace/Imagizor
+if [ whoami = jenkins ]; then
+	declare DIR=/var/lib/jenkins/workspace/Imagizor
 else
-    declare DIR=~/imagizor
+	declare DIR=~/imagizor
 fi
 
 declare -r PUR_BEG="\\033[35m"
@@ -39,7 +39,6 @@ declare STATUS="status=progress"
 test_successfull() {
 	if [ $? -gt 1 ]; then
 		echo -e "Test gone Wrong"
-		cat $DIR/$LOGFILE
 	else
 		echo -e "Test successfull"
 	fi
@@ -59,8 +58,8 @@ download_script() {
 }
 
 download_script_without_parameter() {
-     bash -n test_d_mode_without_parameter.sh
-    sudo ./test_d_mode_without_parameter.sh
+	bash -n test_d_mode_without_parameter.sh
+	sudo ./test_d_mode_without_parameter.sh
 }
 
 copy_script() {
@@ -74,9 +73,9 @@ copy_script_without_parameter() {
 }
 
 function_end_script_text() {
-    
-    test_successfull
-    
+
+	test_successfull
+
 	declare -g AFTER=$(date +%s)
 
 	echo ""
@@ -157,7 +156,7 @@ start_download_test() {
 }
 
 start_download_test_without_parameter() {
-(
+	(
 		echo ""
 
 		echo $($DATE) $DOWNLOAD_WITHOUT_PARAMETER_TEXT
@@ -170,17 +169,19 @@ start_download_test_without_parameter() {
 	declare BEFORE=$(date +%s)
 	(
 		cd Test
-		
+
 		download_script_without_parameter
-		
+
 		function_end_script_text
 
-		echo ""
+	) \
+		>>log2.file 2>&1
 
-		echo -e "Test finished"
+	echo ""
 
-		echo ""
-	) >>log2.file
+	echo -e "Test finished"
+
+	echo ""
 }
 
 start_copy_test() {
@@ -224,17 +225,18 @@ start_copy_test_without_parameter() {
 	declare BEFORE=$(date +%s)
 	(
 		cd Test
-		
+
 		copy_script_without_parameter
-		
+
 		function_end_script_text
 
-		echo ""
-
-		echo -e "Test finished"
-
-		echo ""
 	) >>log4.file
+
+	echo ""
+
+	echo -e "Test finished"
+
+	echo ""
 }
 
 delete_the_workspace() {
@@ -252,7 +254,8 @@ checkstep() {
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
 	else
 		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
-		NOF_FAILED_COMMANDS=$NOF_FAILED_COMMANDS+1
+		declare -g NOF_FAILED_COMMANDS=$NOF_FAILED_COMMANDS+1
+		cat $DIR/$LOGFILE
 	fi
 }
 
@@ -292,8 +295,8 @@ checkstep delete_the_workspace
 
 echo ""
 
-if [ $NOF_FAILED_COMMANDS -gt 0 ]; then
-    info_trace "Failed script count: $NOF_FAILED_COMMANDS"
+if [ $NOF_FAILED_COMMANDS ]; then
+	info_trace "Failed script count: $NOF_FAILED_COMMANDS"
 fi
 
 head_trace_end
