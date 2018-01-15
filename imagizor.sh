@@ -29,6 +29,84 @@ declare ARG_OPTION=$1
 set -u
 
 #>>==========================================================================>>
+# DESCRIPTION:  Help text for a invalid command
+#
+# PARAMETER 1:  Show a help text for a invalid command
+# RETURN:       -
+# USAGE:        help
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
+help() { #Is a help text
+	echo -e "invalid command"
+	help_text_beg
+	echo -e ""
+	help_text_end
+	exit
+}
+
+help_text_beg() {
+	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
+	echo -e "[(optional in download mode) -v, --value] [(optional in download mode) hashvalue (MD5SUM, SHA1, SHA256, SHA512)]"
+	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
+	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
+	echo -e ""
+	echo -e "./image_to_device.sh  -d  --download   'Downloadlink'  -t  --target  'Device'  -v  --value  'Checkvalue'  -u  --user  'USER'  -p  --password  'PASSWORD'"
+	echo -e "./image_to_device.sh  -c  --copy       'File to copy'  -t  --target  'Device'"
+	echo -e ""
+	echo -e "Compatible hashvalues methodik: MD5SUM, SHA1, SHA256, SHA512"
+	echo -e ""
+	echo -e "explaining of the parameters:"
+	echo -e '-d, --download       started the download mode'
+	echo -e '-c, --copy           started the copy mode'
+	echo -e '-t, --target         the device to be overwritten'
+	echo -e '-v, --value          the checkvalue of the file for the download mode'
+	echo -e '-u, --user           user data for the download mode for the authetifikation'
+	echo -e '-p, --password       the password for the download mode for the authetifikation'
+	echo -e ""
+}
+
+help_text_end() {
+	echo -e "Example 1) to download a image file and write this image file to a target device (enquired during runtime), use the following command: "
+	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e ""
+	echo -e "Example 2)to verify the download process with a checkvalue and write this image file to a target device (specified with the -t option)," 
+	echo -e "use the following command:"
+	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e ""
+	echo -e "Example 3)to download a file for which user data are needed and write this image file to a target device (specified with the -t option)" 
+	echo -e "verify the download process with a checkvalue, use the following command:"
+	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
+	echo -e ""
+	echo -e "Example 4) to write a locally stored image file to a target device (enquired during runtime), use the following command:"
+	echo -e "./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 "
+	echo -e ""
+	echo -e "Example 5) to write a locally stored image file to a target device (specified with the -t option), use the following command:"
+	echo -e "./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e ""
+	echo -e "Link to the GitHub Project: https://github.com/AlJungOrg/imagizor/tree/master"
+}
+
+#>>==========================================================================>>
+# DESCRIPTION:  Help text for the parameter_show function
+#
+# PARAMETER 1:  Help text for the parameter_show function
+# RETURN:       -
+# USAGE:        parameter_show
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
+help_for_less_Parameter() { #Longer help text
+	help_text_beg
+	help_text_end
+	exit
+}
+
+#>>==========================================================================>>
 # DESCRIPTION:  Checked if the needed tools are on the console
 #
 # PARAMETER 1:  Checked if the needed tools are on the console
@@ -50,6 +128,18 @@ needed_tools() { #Validate if the needed tool are on the shell
 		fi
 	done
 
+}
+
+mode_beg() {
+	echo -e ""
+	if [ $ARG_OPTION = -d ]; then
+		echo -e "------------------------start-download-mode------------------------"
+	elif [ $ARG_OPTION = --download ]; then
+		echo -e "------------------------start-download-mode------------------------"
+	else
+		echo -e "------------------------start-copy-mode------------------------"
+	fi
+	echo -e ""
 }
 
 #>>==========================================================================>>
@@ -236,6 +326,20 @@ download_verifikation_text2() {
 }
 
 #>>==========================================================================>>
+# DESCRIPTION:  Is the text for the unpack or download function
+#
+# PARAMETER 1:  Is the text for the unpack or download function
+# RETURN:       -
+# USAGE:        unpack, download
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
+unpack_text() { #Text for the unpack part
+	echo -e "Unpack is not required"
+}
+
+#>>==========================================================================>>
 # DESCRIPTION:  Copy doesen't gone with all function
 #
 # PARAMETER 1:  Doesn't exist the file, the script breaks off
@@ -277,112 +381,63 @@ copy_specification() {
 	fi
 }
 
-#>>==========================================================================>>
-# DESCRIPTION:  Is the text for the unpack or download function
-#
-# PARAMETER 1:  Is the text for the unpack or download function
-# RETURN:       -
-# USAGE:        unpack, download
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-unpack_text() { #Text for the unpack part
-	echo -e "Unpack is not required"
-}
+read_p_text() {
+    set +u
+    
+	lsblk
 
-help_text_beg() {
-	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
-	echo -e "[(optional in download mode) -v, --value] [(optional in download mode) hashvalue (MD5SUM, SHA1, SHA256, SHA512)]"
-	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
-	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
 	echo -e ""
-	echo -e "./image_to_device.sh  -d  --download   'Downloadlink'  -t  --target  'Device'  -v  --value  'Checkvalue'  -u  --user  'USER'  -p  --password  'PASSWORD'"
-	echo -e "./image_to_device.sh  -c  --copy       'File to copy'  -t  --target  'Device'"
-	echo -e ""
-	echo -e "Compatible hashvalues methodik: MD5SUM, SHA1, SHA256, SHA512"
-	echo -e ""
-	echo -e "explaining of the parameters:"
-	echo -e '-d, --download       started the download mode'
-	echo -e '-c, --copy           started the copy mode'
-	echo -e '-t, --target         the device to be overwritten'
-	echo -e '-v, --value          the checkvalue of the file for the download mode'
-	echo -e '-u, --user           user data for the download mode for the authetifikation'
-	echo -e '-p, --password       the password for the download mode for the authetifikation'
-	echo -e ""
-}
 
-help_text_end() {
-	echo -e "Example 1) to download a image file and write this image file to a target device (enquired during runtime), use the following command: "
-	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
-	echo -e ""
-	echo -e "Example 2)to verify the download process with a checkvalue and write this image file to a target device (specified with the -t option)," 
-	echo -e "use the following command:"
-	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
-	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
-	echo -e ""
-	echo -e "Example 3)to download a file for which user data are needed and write this image file to a target device (specified with the -t option)" 
-	echo -e "verify the download process with a checkvalue, use the following command:"
-	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
-	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
-	echo -e ""
-	echo -e "Example 4) to write a locally stored image file to a target device (enquired during runtime), use the following command:"
-	echo -e "./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 "
-	echo -e ""
-	echo -e "Example 5) to write a locally stored image file to a target device (specified with the -t option), use the following command:"
-	echo -e "./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
-	echo -e ""
-	echo -e "Link to the GitHub Project: https://github.com/AlJungOrg/imagizor/tree/master"
-}
+	array=($(lsblk | grep disk | awk '{print $1}'))
+	
+	for ((i = 0; i < ${#array[@]}; i = i + 1)); do
+		echo "$i /dev/${array[$i + 0]}"
+	done
 
-#>>==========================================================================>>
-# DESCRIPTION:  Help text for a invalid command
-#
-# PARAMETER 1:  Show a help text for a invalid command
-# RETURN:       -
-# USAGE:        help
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-help() { #Is a help text
-	echo -e "invalid command"
-	help_text_beg
-	echo -e ""
-	help_text_end
-	exit
-}
+	echo ""
 
-#>>==========================================================================>>
-# DESCRIPTION:  When less then 2 parameter are given, the script show a help text
-#
-# PARAMETER 1:  When less then 2 parameter are given, the script show a help text
-# RETURN:       -
-# USAGE:        parameter_show
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-parameter_show() { #Checked if more then 2 Parameter are given
-	if [ $# -lt 2 ]; then
-		help_for_less_Parameter
+	if [ -b /dev/mmcblk0 ]; then
+		declare AUTOMATIC=/dev/mmcblk0
+	elif [ -b /dev/sdb ]; then
+		declare AUTOMATIC=/dev/sdb
+	else
+		declare AUTOMATIC=/dev/${array[$ANSWER + 0]}
 	fi
+
+	read -p "${BOLD_TP}Please choose your device [ Enter the number for the device ] ("$AUTOMATIC"): ${TP_END}" ANSWER
+
+	case $ANSWER in
+	"")
+		declare -g ANSWER=$AUTOMATIC
+		;;
+	esac
+
+	re='^[0-9]+$'
+	if [[ $ANSWER =~ $re ]]; then
+		declare -g ANSWER=/dev/${array[$ANSWER + 0]}
+	fi
+	
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Help text for the parameter_show function
+# DESCRIPTION:  Declare important variables for the script
 #
-# PARAMETER 1:  Help text for the parameter_show function
+# PARAMETER 1:  Declare variables fo the Script
 # RETURN:       -
-# USAGE:        parameter_show
+# USAGE:        variable
 #
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-help_for_less_Parameter() { #Longer help text
-	help_text_beg
-	help_text_end
-	exit
+variable() {
+	if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
+		declare DEVICE=""
+	else
+		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
+		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
+		declare -g STATUS="status=progress"
+		declare -g DD_CONV="conv=fsync"
+	fi
 }
 
 #>>==========================================================================>>
@@ -418,6 +473,21 @@ find_out_device() { #Checked if the USB-Stick or SD-Card available
 			break
 		fi
 	done
+}
+
+#>>==========================================================================>>
+# DESCRIPTION:  Checked the Size of the Image-file
+#
+# PARAMETER 1:  Checked the Size of the Image-file
+# RETURN:       -
+# USAGE:        filesize
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
+checking_filesize() { #Checked the Filesize
+	echo -e "Checked the Filesize of the Image-File"
+	echo -e "Filesize of the Image-File: $FILESIZE"
 }
 
 #>>==========================================================================>>
@@ -480,6 +550,7 @@ copy_to_device() { #copy the File on the DEVICE
 	set -e
 }
 
+
 #>>==========================================================================>>
 # DESCRIPTION:  Copy the File from a USB-Stick or SD-Card to a File
 #
@@ -518,18 +589,21 @@ is_device_read_only() {
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Checked the Size of the Image-file
+# DESCRIPTION:  Checked if the Device during the copy process present
 #
-# PARAMETER 1:  Checked the Size of the Image-file
+# PARAMETER 1:  Checked if the Device during the copy process present
 # RETURN:       -
-# USAGE:        filesize
+# USAGE:        copy, copy_back
 #
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-checking_filesize() { #Checked the Filesize
-	echo -e "Checked the Filesize of the Image-File"
-	echo -e "Filesize of the Image-File: $FILESIZE"
+not_available_device() {
+	if ! [ -e $DEVICE ]; then
+		error_trace "$DEVICE_TEXT is not available"
+		help_trace "Please try it again"
+		exit
+	fi
 }
 
 #>>==========================================================================>>
@@ -557,34 +631,14 @@ compare_hash_values() { #Compares the hash values from the downloaded File and t
 	fi
 }
 
-#>>==========================================================================>>
-# DESCRIPTION:  Checked if the Device during the copy process present
-#
-# PARAMETER 1:  Checked if the Device during the copy process present
-# RETURN:       -
-# USAGE:        copy, copy_back
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-not_available_device() {
-	if ! [ -e $DEVICE ]; then
-		error_trace "$DEVICE_TEXT is not available"
-		help_trace "Please try it again"
-		exit
-	fi
-}
-
-mode_beg() {
-	echo -e ""
+summary() {
 	if [ $ARG_OPTION = -d ]; then
-		echo -e "------------------------start-download-mode------------------------"
+		summary_download_text
 	elif [ $ARG_OPTION = --download ]; then
-		echo -e "------------------------start-download-mode------------------------"
+		summary_download_text
 	else
-		echo -e "------------------------start-copy-mode------------------------"
+		summary_both_text
 	fi
-	echo -e ""
 }
 
 summary_download_text() {
@@ -595,16 +649,6 @@ summary_download_text() {
 summary_both_text() {
 	echo -e "copy process successful, copy the file to the device was successful"
 	echo -e "verifying process successful, the hash values are the same"
-}
-
-summary() {
-	if [ $ARG_OPTION = -d ]; then
-		summary_download_text
-	elif [ $ARG_OPTION = --download ]; then
-		summary_download_text
-	else
-		summary_both_text
-	fi
 }
 
 #>>==========================================================================>>
@@ -685,43 +729,6 @@ bold_trace_tp() {
 	read -r -p "${BOLD_TP}$1 ${TP_END}" $2
 }
 
-read_p_text() {
-    set +u
-    
-	lsblk
-
-	echo -e ""
-
-	array=($(lsblk | grep disk | awk '{print $1}'))
-	
-	for ((i = 0; i < ${#array[@]}; i = i + 1)); do
-		echo "$i /dev/${array[$i + 0]}"
-	done
-
-	echo ""
-
-	if [ -b /dev/mmcblk0 ]; then
-		declare AUTOMATIC=/dev/mmcblk0
-	elif [ -b /dev/sdb ]; then
-		declare AUTOMATIC=/dev/sdb
-	else
-		declare AUTOMATIC=/dev/${array[$ANSWER + 0]}
-	fi
-
-	read -p "${BOLD_TP}Please choose your device [ Enter the number for the device ] ("$AUTOMATIC"): ${TP_END}" ANSWER
-
-	case $ANSWER in
-	"")
-		declare -g ANSWER=$AUTOMATIC
-		;;
-	esac
-
-	re='^[0-9]+$'
-	if [[ $ANSWER =~ $re ]]; then
-		declare -g ANSWER=/dev/${array[$ANSWER + 0]}
-	fi
-	
-}
 
 checkstep() {
 	echo -e "${PUR_BEG}$@ ...${COL_END}"
@@ -733,26 +740,6 @@ checkstep() {
 	fi
 }
 
-#>>==========================================================================>>
-# DESCRIPTION:  Declare important variables for the script
-#
-# PARAMETER 1:  Declare variables fo the Script
-# RETURN:       -
-# USAGE:        variable
-#
-# AUTHOR:       TT
-# REVIEWER(S):  -
-#<<==========================================================================<<
-variable() {
-	if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
-		declare DEVICE=""
-	else
-		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
-		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
-		declare -g STATUS="status=progress"
-		declare -g DD_CONV="conv=fsync"
-	fi
-}
 
 if [ $# -lt 2 ]; then #in the case they are less then 2 Parameter are given, then spend a text
 	help_for_less_Parameter
