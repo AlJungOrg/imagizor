@@ -137,7 +137,7 @@ start_download_test() {
 		echo $($DATE) $DOWNLOAD_TEXT
 
 		echo ""
-	) >>log1.file
+	) >>download.file
 
 	echo -e ""
 
@@ -148,7 +148,7 @@ start_download_test() {
 
 		function_end_script_text
 
-	) >>log1.file 2>&1
+	) >>download.file 2>&1
 
 	echo -e ""
 
@@ -162,7 +162,7 @@ start_download_test_without_parameter() {
 		echo $($DATE) $DOWNLOAD_WITHOUT_PARAMETER_TEXT
 
 		echo ""
-	) >>log2.file
+	) >>download_without_parameter.file
 
 	echo ""
 
@@ -175,7 +175,7 @@ start_download_test_without_parameter() {
 		function_end_script_text
 
 	) \
-		>>log2.file 2>&1
+		>>download_without_parameter.file 2>&1
 
 	echo ""
 
@@ -191,7 +191,7 @@ start_copy_test() {
 		echo $($DATE) $COPY_TEXT
 
 		echo ""
-	) >>log3.file
+	) >>copy.file
 
 	echo ""
 
@@ -201,7 +201,7 @@ start_copy_test() {
 		copy_script
 
 		function_end_script_text
-	) >>log3.file 2>&1
+	) >>copy.file 2>&1
 
 	echo ""
 
@@ -218,7 +218,7 @@ start_copy_test_without_parameter() {
 		echo $($DATE) $COPY_WITHOUT_PARAMETER_TEXT
 
 		echo ""
-	) >>log4.file
+	) >>copy_without_parameter.file
 
 	echo ""
 
@@ -230,7 +230,7 @@ start_copy_test_without_parameter() {
 
 		function_end_script_text
 
-	) >>log4.file
+	) >>copy_without_parameter.file
 
 	echo ""
 
@@ -265,25 +265,25 @@ head_trace "Create the Workspace"
 
 checkstep create_the_workspace
 
-declare LOGFILE=log1.file
+declare LOGFILE=download.file
 
 head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
 
-declare LOGFILE=log2.file
+declare LOGFILE=download_without_parameter.file
 
 head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_download_test_without_parameter
 
-declare LOGFILE=log3.file
+declare LOGFILE=copy.file
 
 head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
 
-declare LOGFILE=log4.file
+declare LOGFILE=copy_without_parameter.file
 
 head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
 
