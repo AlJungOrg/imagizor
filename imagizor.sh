@@ -493,6 +493,7 @@ variable() {
 		declare DEVICE=""
 	else
 		declare -g SIZE=$(lsblk $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
+		declare -g SIZE_WHOLE=$(lsblk -b $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}')
 		declare -g FILESIZE_WHOLE=$(stat -c %s $FILENAME 2>/dev/null)
 		declare -g STATUS="status=progress"
 		declare -g DD_CONV="conv=fsync"
@@ -563,9 +564,9 @@ checking_filesize() { #Checked the Filesize
 checking_devicesize_and_filesize() { #Checked the Sd-Card Size and the filesize
 	echo -e "Checking the Size of the $DEVICE_TEXT and the Image-File"
 	if [ $SIZE_WHOLE -lt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
-		error_trace "$DEVICE_TEXT has less memory space"
-		help_trace "Please put a new $DEVICE_TEXT in"
-		help_trace "Or provide more memory Space"
+		error_trace "The target Device has less memory space"
+		help_trace "Please insert a new device"
+		help_trace "Or get more memory Space"
 		help_trace "At least $FILESIZE are needed"
 	fi
 	while true; do
@@ -573,7 +574,7 @@ checking_devicesize_and_filesize() { #Checked the Sd-Card Size and the filesize
 		if [ $MAC_SUPPORT = Mac ] 2>/dev/null; then
 			declare SIZE_WHOLE=$(diskutil info $DEVICE 2>/dev/null | grep 'Disk Size' | awk '{print $5}' | cut -b 2-11)
 		else
-			declare SIZE_WHOLE=$(lsblk -b $DEVICE | grep "$DEVICE_GREP " | awk '{print $4}')
+			declare SIZE_WHOLE=$(lsblk -b $DEVICE 2>/dev/null | grep "$DEVICE_GREP " | awk '{print $4}') 
 		fi
 
 		if [ $SIZE_WHOLE -gt $FILESIZE_WHOLE ] >/dev/null 2>/dev/null; then
