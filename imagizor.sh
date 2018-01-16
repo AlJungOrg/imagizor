@@ -172,6 +172,8 @@ download_the_software() { #Download the Software and unpack them, if required
 		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
     elif [[ "$FILENAME" =~ ".zip" ]]; then
         declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    elif [[ "$FILENAME" =~ ".7z" ]]; then
+        declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	fi
 }
 
@@ -369,6 +371,8 @@ copy_specification() {
 		gunzip $FILENAME
     elif [[ "$FILENAME" =~ ".zip" ]]; then
         unzip $FILENAME
+	elif [[ "$FILENAME" =~ ".7z" ]]; then
+        7z e $FILENAME
 	fi
 
 }
@@ -832,6 +836,8 @@ elif [[ "$FILENAME" =~ ".gz" ]]; then
 	declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 elif [[ "$FILENAME" =~ ".zip" ]]; then
     declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+elif [[ "$FILENAME" =~ ".7z" ]]; then
+    declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 fi
 
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}')
