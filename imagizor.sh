@@ -368,17 +368,6 @@ copy_specification() {
 
 	fi
 
-	if [[ "$FILENAME" =~ ".iso" ]]; then
-		echo
-	elif [[ "$FILENAME" =~ ".img" ]]; then
-		echo
-	elif [[ "$FILENAME" =~ ".sha256" ]]; then
-		echo
-	else
-		error_trace "You can only copy a image file"
-		help_trace "Image files ends with .iso or .img"
-		exit
-	fi
 }
 
 read_p_text() {
