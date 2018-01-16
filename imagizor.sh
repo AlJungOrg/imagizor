@@ -46,6 +46,16 @@ help() { #Is a help text
 	exit
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  The first lines of the help text for a invalid command
+#
+# PARAMETER 1:  The first lines of the help text for a invalid command
+# RETURN:       -
+# USAGE:        help
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 help_text_beg() {
 	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
 	echo -e "[(optional in download mode) -v, --value] [(optional in download mode) hashvalue (MD5SUM, SHA1, SHA256, SHA512)]"
@@ -67,6 +77,16 @@ help_text_beg() {
 	echo -e ""
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  The last lines of the help text for a invalid command
+#
+# PARAMETER 1:  The last lines of the help text for a invalid command
+# RETURN:       -
+# USAGE:        help
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 help_text_end() {
 	echo -e "Example 1) to download a image file and write this image file to a target device (enquired during runtime), use the following command: "
 	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
@@ -118,7 +138,7 @@ help_for_less_Parameter() { #Longer help text
 #<<==========================================================================<<
 needed_tools() { #Validate if the needed tool are on the shell
 
-	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk unzip)
+	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk unzip 7z)
     declare -ra BZIP=(pbzip2)
 	
 	for X in ${TOOLS[*]}; do
@@ -139,6 +159,16 @@ needed_tools() { #Validate if the needed tool are on the shell
     
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Specified which mode is starting
+#
+# PARAMETER 1:  Specified which mode is starting
+# RETURN:       -
+# USAGE:        mode_beg
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 mode_beg() {
 	echo -e ""
 	if [ $ARG_OPTION = -d ]; then
@@ -152,10 +182,10 @@ mode_beg() {
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Download the Image File from the Internet
+# DESCRIPTION:  Download the Image file from the Internet
 #
-# PARAMETER 1:  Download the Image File from the Internet
-# PARAMETER 2:  If the Image file a .gz file, the script try to unpack the file
+# PARAMETER 1:  Download the Image file from the Internet
+# PARAMETER 2:  Try to unpack the file
 # RETURN:       -
 # USAGE:        download
 #
@@ -369,7 +399,7 @@ unpack_text() { #Text for the unpack part
 # DESCRIPTION:  Copy doesen't gone with all function
 #
 # PARAMETER 1:  Doesn't exist the file, the script breaks off
-# PARAMETER 2:  When the file is adirectory, the script breaks off
+# PARAMETER 2:  When the file is a directory, the script breaks off
 # RETURN:       -
 # USAGE:        copy_specification
 #
@@ -399,6 +429,17 @@ copy_specification() {
 
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  For the case the target device is not specified, the function ask for the target device
+#
+# PARAMETER 1:  Shows the available devices
+# PARAMETER 2:  Specify the target device
+# RETURN:       -
+# USAGE:        copy_specification
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 read_p_text() {
     set +u
     
@@ -459,9 +500,9 @@ variable() {
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Checked if the USB-Stick or the SD-Card is available
+# DESCRIPTION:  Checked if the target device is available
 #
-# PARAMETER 1:  Checked if the USB-Stick or the SD-Card is available
+# PARAMETER 1:  Checked if the target device is available
 # PARAMETER 2:  Is the device not available, the script searched until the device is available
 # RETURN:       -
 # USAGE:        find_out_device
@@ -512,7 +553,7 @@ checking_filesize() { #Checked the Filesize
 # DESCRIPTION:  Checked if the Size of the Device is bigger then the Size of the Image file
 #
 # PARAMETER 1:  Checked if the Size of the Device is bigger then the Size of the Image file
-# PARAMETER 2:  Is the Size of the Device smaller, trhe Script wait until more memory on the Device is
+# PARAMETER 2:  Has the Image file mor memory space then the device, the script wait until more memory space is on the device
 # RETURN:       -
 # USAGE:        checked_device_and_filesize
 #
@@ -597,6 +638,16 @@ copy_back_from_the_device() { #Copy the File from the SD-Card or USB-STick back 
 	sudo truncate -r $FILENAME verify.img
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Checks if the target device is in the read only mode 
+#
+# PARAMETER 1:  Marks the text bold
+# RETURN:       -
+# USAGE:        is_device_read_only
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 is_device_read_only() {
 	sudo dd if=/dev/null of=$DEVICE 2>/dev/null
 	if [ $? = 1 ]; then
@@ -649,6 +700,16 @@ compare_hash_values() { #Compares the hash values from the downloaded File and t
 	fi
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  At the end of the script, the script shows a little summary
+#
+# PARAMETER 1:  At the end of the script, the script shows a little summary
+# RETURN:       -
+# USAGE:        summary
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 summary() {
 	if [ $ARG_OPTION = -d ]; then
 		summary_download_text
@@ -659,10 +720,31 @@ summary() {
 	fi
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  A successfully text for the summary function, for the download function
+#
+# PARAMETER 1:  A successfully text for the summary function, for the download function
+# RETURN:       -
+# USAGE:        summary
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 summary_download_text() {
 	echo -e "download process successful, download of the file was successful"
 	summary_both_text
 }
+
+#>>==========================================================================>>
+# DESCRIPTION:  In case the script was successful, shows a little summary
+#
+# PARAMETER 1:  In case the script was successful, shows a little summary
+# RETURN:       -
+# USAGE:        summary
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 
 summary_both_text() {
 	echo -e "copy process successful, copy the file to the device was successful"
@@ -739,15 +821,44 @@ size_trace() { #marked Blue
 	echo -e "${BLUE_BEG}$1${COL_END}"
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Marked the echo text orange and added an #WARNING at the begining
+#
+# PARAMETER 1:  Marked the echo text orange and added an #WARNING at the begining
+# RETURN:       -
+# USAGE:        warning_trace "Text"
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 warning_trace() {
 	echo -e "\n${OR_BEG}WARNING: $1${COL_END}"
 }
 
+#>>==========================================================================>>
+# DESCRIPTION:  Marks the text bold 
+#
+# PARAMETER 1:  Marks the text bold
+# RETURN:       -
+# USAGE:        bold_trace_tp "Text"
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 bold_trace_tp() {
 	read -r -p "${BOLD_TP}$1 ${TP_END}" $2
 }
 
-
+#>>==========================================================================>>
+# DESCRIPTION:  Checked if the function was successful 
+#
+# PARAMETER 1:  Checked if the function was successful
+# RETURN:       -
+# USAGE:        checkstep "Function"
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
 checkstep() {
 	echo -e "${PUR_BEG}$@ ...${COL_END}"
 	if $@; then
