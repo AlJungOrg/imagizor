@@ -443,9 +443,18 @@ copy_specification() {
 read_p_text() {
     set +u
     
-	lsblk
+    echo "Here is a list about all available block devices"
+    echo "Please select your device in the NAME column "
+    echo "Use only devices that are included in the column TYPE with diks or loop"
+    echo "If you want to check the size of the device, look in the SIZE column"
+    
+    echo ""
+    
+	lsblk -p
 
 	echo -e ""
+	
+	echo -e "Preselection of recommended devices:"
 
 	array=($(lsblk | grep disk | awk '{print $1}'))
 	
@@ -885,8 +894,13 @@ trap delete_returned_file term
 
 declare -r LINK=$2
 declare FILENAME="$(basename $2)"
-
 declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
+declare -g CHECKVALUE=""
+declare -g CHECKVALUESUM=""
+declare -g VALUE=""
+declare -g USER=""
+declare -g PASSWORD=""
+declare -g ANSWER=""
 
 mode_beg
 
@@ -927,16 +941,6 @@ for ((i = 0; i < ${#Parameter[@]}; i = i + 2)); do
 		declare -g PASSWORD=${Parameter[$i + 1]}
 		declare -g DATA=Y
 		;;
-
-	*)
-		declare -g CHECKVALUE=""
-		declare -g CHECKVALUESUM=""
-		declare -g VALUE=""
-		declare -g USER=""
-		declare -g PASSWORD=""
-		declare -g ANSWER=""
-		;;
-
 	esac
 done
 
