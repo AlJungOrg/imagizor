@@ -118,7 +118,7 @@ help_for_less_Parameter() { #Longer help text
 #<<==========================================================================<<
 needed_tools() { #Validate if the needed tool are on the shell
 
-	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk)
+	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk unzip)
 
 	for X in ${TOOLS[*]}; do
 		if ! which $X >/dev/null 2>/dev/null; then
@@ -170,6 +170,8 @@ download_the_software() { #Download the Software and unpack them, if required
 		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
 		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    elif [[ "$FILENAME" =~ ".zip" ]]; then
+        declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	fi
 }
 
@@ -365,7 +367,8 @@ copy_specification() {
 		bzip2 -d $FILENAME
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
 		gunzip $FILENAME
-
+    elif [[ "$FILENAME" =~ ".zip" ]]; then
+        unzip $FILENAME
 	fi
 
 }
@@ -827,6 +830,8 @@ if [[ "$FILENAME" =~ ".bz2" ]]; then
 	declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 elif [[ "$FILENAME" =~ ".gz" ]]; then
 	declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+elif [[ "$FILENAME" =~ ".zip" ]]; then
+    declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 fi
 
 declare FILESIZE=$(du -h $FILENAME | awk '{print $1}')
