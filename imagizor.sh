@@ -71,12 +71,12 @@ help_text_end() {
 	echo -e "Example 1) to download a image file and write this image file to a target device (enquired during runtime), use the following command: "
 	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
-	echo -e "Example 2)to verify the download process with a checkvalue and write this image file to a target device (specified with the -t option)," 
+	echo -e "Example 2) to verify the download process with a checkvalue and write this image file to a target device (specified with the -t option)," 
 	echo -e "use the following command:"
 	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
 	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	echo -e ""
-	echo -e "Example 3)to download a file for which user data are needed and write this image file to a target device (specified with the -t option)" 
+	echo -e "Example 3) to download a file for which user data are needed and write this image file to a target device (specified with the -t option)" 
 	echo -e "verify the download process with a checkvalue, use the following command:"
 	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
 	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
@@ -119,7 +119,8 @@ help_for_less_Parameter() { #Longer help text
 needed_tools() { #Validate if the needed tool are on the shell
 
 	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk unzip)
-
+    declare -ra BZIP=(pbzip2)
+	
 	for X in ${TOOLS[*]}; do
 		if ! which $X >/dev/null 2>/dev/null; then
 			error_trace "$X is not on your device"
@@ -127,7 +128,15 @@ needed_tools() { #Validate if the needed tool are on the shell
 			exit
 		fi
 	done
-
+    
+    for X in ${TOOLS[*]}; do
+        if ! which $X >/dev/null 2>/dev/null; then
+            declare -g BZIPTYPE="bzip2 -d"
+        else
+            declare -g BZIPTYPE="pbzip2 -d"
+        fi
+    done
+    
 }
 
 mode_beg() {
@@ -161,8 +170,21 @@ download_the_software() { #Download the Software and unpack them, if required
 		exit
 	fi
 	download_verifikation
+	
+	if [[ "$FILENAME" =~ ".bz2" ]]; then
+		declare -g UNPACK=$BZIPTYPE 
+	elif [[ "$FILENAME" =~ ".gz" ]]; then
+		declare -g UNPACK=gunzip 
+    elif [[ "$FILENAME" =~ ".zip" ]]; then
+        declare -g UNPACK=unzip
+	elif [[ "$FILENAME" =~ ".7z" ]]; then
+        declare -g UNPACK="7z e"
+    else 
+        declare -g UNPACK=gunzip
+	fi
+	
 	echo -e "Try to unpack the downloaded Software"
-	if ! gunzip $FILENAME >/dev/null 2>/dev/null; then
+	if ! $UNPACK $FILENAME >/dev/null 2>/dev/null; then
 		unpack_text
 	fi
 
@@ -366,7 +388,7 @@ copy_specification() {
 	fi
 
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		bzip2 -d $FILENAME
+		$BZIPTYPE $FILENAME
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
 		gunzip $FILENAME
     elif [[ "$FILENAME" =~ ".zip" ]]; then
