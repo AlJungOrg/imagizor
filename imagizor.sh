@@ -702,9 +702,9 @@ compare_hash_values() { #Compares the hash values from the downloaded File and t
 	declare -r MD5SUM=$(md5sum $FILENAME | cut -d" " -f1)
 	declare -r MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
 	if [ $MD5SUM == $MD5SUM_BACK ]; then
-		correct_trace "The hash values are right"
+		correct_trace "The hash values are the same"
 	else
-		error_trace "The hash values are not right, please try it again"
+		error_trace "The hash values are not the same, please try it again"
 		error_trace "Unsuccessfully verifying"
 		exit
 	fi
@@ -875,10 +875,94 @@ checkstep() {
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
 	else
 		printf "%-90b %10\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
-		exit
+        exit
 	fi
 }
 
+main() {
+(if ! [ $ANSWER ]; then
+	read_p_text
+fi
+
+set +e
+
+lsblk $ANSWER >/dev/null 2>/dev/null
+
+if [ $? -gt 1 ]; then
+	error_trace "The device is not available"
+	help_trace "Please try it again"
+	while true; do
+		sleep 1
+		read_p_text
+		lsblk $ANSWER >/dev/null 2>/dev/null
+		if ! [ $? -gt 1 ]; then
+			break
+		elif [ $? == 1 ]; then
+			error_trace "The device is not available"
+			help_trace "Please try it again"
+		fi
+	done
+fi
+
+set -e
+
+declare -g DEVICE=$ANSWER 2>/dev/null
+declare -g DEVICE_GREP=$(basename $DEVICE)
+declare -g SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | cut -b 2-11)
+declare -g FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
+declare -r DEVICE_TEXT="Device"
+declare -g STATUS=""
+
+variable
+
+head_trace "Detecting Device and copy process"
+
+checkstep find_out_device
+
+echo ""
+
+checkstep checking_filesize
+
+echo ""
+
+checkstep checking_devicesize_and_filesize
+
+echo ""
+
+checkstep copy_to_device
+
+echo ""
+
+head_trace "Verifying"
+
+checkstep copy_back_from_the_device
+
+echo ""
+
+checkstep compare_hash_values
+
+head_trace_end
+
+echo ""
+
+correct_trace "SUCCESS"
+
+head_trace_end
+
+echo ""
+
+declare TIME_END=$(date +%s)
+
+delete_returned_file
+
+summary
+
+echo ""
+
+echo "elapsed time for the whole Script:" $((TIME_END - $TIME_START)) "seconds"
+
+echo -e "You can remove the device")
+}
 
 if [ $# -lt 2 ]; then #in the case they are less then 2 Parameter are given, then spend a text
 	help_for_less_Parameter
@@ -915,11 +999,17 @@ else
 fi
 
 Parameter=($@)
+declare -a TARGET=()
 
-for ((i = 0; i < ${#Parameter[@]}; i = i + 2)); do
+for ((i = 0; i < ${#Parameter[@]}; i = i + 1)); do
 	case ${Parameter[$i]} in
 	"-t") ;&
 	"--target")
+        for X in ${Parameter[*]}; do
+            if [[ "$X" =~ "/dev/" ]] >/dev/null 2>/dev/null; then
+                TARGET+=($X)
+            fi
+        done
 		declare -g ANSWER=${Parameter[$i + 1]}
 		;;
 
@@ -978,91 +1068,21 @@ elif [[ "$FILENAME" =~ ".7z" ]]; then
     declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 fi
 
-declare FILESIZE=$(du -h $FILENAME | awk '{print $1}')
-declare SIZE=""
-declare SIZE_WHOLE=""
-declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
-declare DD_CONV=""
+declare -g FILESIZE=$(du -h $FILENAME | awk '{print $1}')
+declare -g SIZE=""
+declare -g SIZE_WHOLE=""
+declare -g MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
+declare -g DD_CONV=""
+  
+set +u
+  
+if [ $TARGET ]; then
+    for ((i = 0; i < ${#TARGET[@]}; i = i + 1)); do
+    declare -g ANSWER=${TARGET[$i]}
 
-if ! [ $ANSWER ]; then
-	read_p_text
+    main
+
+    done
+else
+    main
 fi
-
-set +e
-
-lsblk $ANSWER >/dev/null 2>/dev/null
-
-if [ $? -gt 1 ]; then
-	error_trace "The device is not available"
-	help_trace "Please try it again"
-	while true; do
-		sleep 1
-		read_p_text
-		lsblk $ANSWER >/dev/null 2>/dev/null
-		if ! [ $? -gt 1 ]; then
-			break
-		elif [ $? == 1 ]; then
-			error_trace "The device is not available"
-			help_trace "Please try it again"
-		fi
-	done
-fi
-
-set -e
-
-declare DEVICE=$ANSWER 2>/dev/null
-declare DEVICE_GREP=$(basename $DEVICE)
-declare SIZE_WHOLE=$(diskutil info /dev/disk2 2>/dev/null | grep 'Disk Size' | cut -b 2-11)
-declare FILESIZE_WHOLE=$(stat -l $FILENAME 2>/dev/null | awk '{print $5}')
-declare -r DEVICE_TEXT="Device"
-declare STATUS=""
-
-variable
-
-head_trace "Detecting Device and copy process"
-
-checkstep find_out_device
-
-echo ""
-
-checkstep checking_filesize
-
-echo ""
-
-checkstep checking_devicesize_and_filesize
-
-echo ""
-
-checkstep copy_to_device
-
-echo ""
-
-head_trace "Verifying"
-
-checkstep copy_back_from_the_device
-
-echo ""
-
-checkstep compare_hash_values
-
-head_trace_end
-
-echo ""
-
-correct_trace "SUCCESS"
-
-head_trace_end
-
-echo ""
-
-declare TIME_END=$(date +%s)
-
-delete_returned_file
-
-summary
-
-echo ""
-
-echo "elapsed time for the whole Script:" $((TIME_END - $TIME_START)) "seconds"
-
-echo -e "You can remove the device"
