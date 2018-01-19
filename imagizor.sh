@@ -879,8 +879,15 @@ checkstep() {
 	fi
 }
 
+begin_copy() {
+    COUNT=$(( $COUNT + 1 ))
+    echo -e "------------------------start-$COUNT-copy-pass-through------------------------"
+}
+
 main() {
-(if ! [ $ANSWER ]; then
+declare -g COPY_START=$(date +%s)
+(
+if ! [ $ANSWER ]; then
 	read_p_text
 fi
 
@@ -951,17 +958,17 @@ head_trace_end
 
 echo ""
 
-declare TIME_END=$(date +%s)
-
 delete_returned_file
 
 summary
 
+head_trace_end
+
 echo ""
 
-echo "elapsed time for the whole Script:" $((TIME_END - $TIME_START)) "seconds"
-
-echo -e "You can remove the device")
+)
+declare -g COPY_END=$(date +%s)
+declare -g COPY_TIME+="$((COPY_END - $COPY_START)) "
 }
 
 if [ $# -lt 2 ]; then #in the case they are less then 2 Parameter are given, then spend a text
@@ -1073,11 +1080,15 @@ declare -g SIZE=""
 declare -g SIZE_WHOLE=""
 declare -g MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
 declare -g DD_CONV=""
+declare -g COPY_TIME=""
+declare -g COPY_COUNT=0
+declare -g COUNT=0
   
 set +u
   
 if [ $TARGET ]; then
     for ((i = 0; i < ${#TARGET[@]}; i = i + 1)); do
+    begin_copy
     declare -g ANSWER=${TARGET[$i]}
 
     main
@@ -1086,3 +1097,22 @@ if [ $TARGET ]; then
 else
     main
 fi
+
+set +u
+
+
+for ((y = 0; y < ${#TARGET[@]}; y = y + 1)); do
+    COPY_COUNT=$(( $COPY_COUNT + 1 ))
+    echo "Result of Test $COPY_COUNT:"
+    declare -g COPY_TIME_COUNT=$(echo $COPY_TIME | awk '{print $'"$COPY_COUNT"'}')
+    declare -g COPY_DEVICE_COUNT=$(echo ${TARGET[*]} | awk '{print $'"$COPY_COUNT"'}')
+    echo "Elapsed time for the script $COPY_COUNT:" $COPY_TIME_COUNT "seconds"
+    echo "Copy $FILENAME to $COPY_DEVICE_COUNT"
+    echo ""
+done
+
+declare TIME_END=$(date +%s)
+
+echo "elapsed time for the whole Script:" $((TIME_END - $TIME_START)) "seconds"
+
+echo -e "You can remove the device"
