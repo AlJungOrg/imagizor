@@ -8,7 +8,7 @@ set timeout 5
 
 expect "Please choose your Device \[ Enter the number for the device \]:"
 
-send "/dev/mmcblk0\r"
+send "/dev/loop0\r"
 
 set timeout 30
 
