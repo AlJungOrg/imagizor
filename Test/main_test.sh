@@ -47,6 +47,12 @@ test_successfull() {
 	fi
 }
 
+file_successfull() {
+    if [ $? -gt 0 ]; then
+		cat $DIR_IM/$LOGFILE
+	fi
+}
+
 create_file() {
 	sudo dd if=$DEVICE_ZERO of=$FILE bs=$BLOCKS_BYTE count=$COUNT $STATUS
 }
@@ -152,6 +158,8 @@ start_download_test() {
 		function_end_script_text
 
 	) >>download.file 2>&1
+	
+	file_successfull
 
 	echo -e ""
 
@@ -177,9 +185,10 @@ start_download_test_without_parameter() {
 
 		function_end_script_text
 
-	) \
-		>>download_without_parameter.file 2>&1
+	) >>download_without_parameter.file 2>&1
 
+	file_successfull
+	
 	echo ""
 
 	echo -e "Test finished"
@@ -206,6 +215,8 @@ start_copy_test() {
 		function_end_script_text
 	) >>copy.file 2>&1
 
+	file_successfull
+	
 	echo ""
 
 	echo -e "Test finished"
@@ -234,6 +245,8 @@ start_copy_test_without_parameter() {
 		function_end_script_text
 
 	) >>copy_without_parameter.file
+	
+	file_successfull
 
 	echo ""
 
@@ -271,14 +284,12 @@ head_trace "Create the Workspace"
 
 checkstep create_the_workspace
 
-declare LOGFILE=download.file
-declare HTMLFILE=download_html.file
+declare -g LOGFILE=download.file
+declare -g HTMLFILE=download_html.file
 
 head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
-
-html_function
 
 declare LOGFILE=download_without_parameter.file
 declare HTMLFILE=download_without_parameter_html.file
@@ -287,8 +298,6 @@ head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_download_test_without_parameter
 
-html_function
-
 declare LOGFILE=copy.file
 declare HTMLFILE=copy_html.file
 
@@ -296,16 +305,12 @@ head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
 
-html_function
-
 declare LOGFILE=copy_without_parameter.file
 declare HTMLFILE=copy_without_parameter_html.file
 
 head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_copy_test_without_parameter
-
-html_function
 
 head_trace "Delete the Workspace"
 

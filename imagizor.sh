@@ -138,7 +138,7 @@ help_for_less_Parameter() { #Longer help text
 #<<==========================================================================<<
 needed_tools() { #Validate if the needed tool are on the shell
 
-	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk unzip 7z)
+	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk unzip )
     declare -ra BZIP=(pbzip2)
 	
 	for X in ${TOOLS[*]}; do
