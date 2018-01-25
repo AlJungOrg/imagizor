@@ -42,7 +42,6 @@ declare STATUS="status=progress"
 test_successfull() {
 	if [ $? -gt 0 ]; then
 		echo -e "Test gone Wrong"
-		cat $DIR_IM/$LOGFILE
 	else
 		echo -e "Test successfull"
 	fi
@@ -78,7 +77,6 @@ copy_script_without_parameter() {
 
 function_end_script_text() {
 
-	test_successfull
 
 	declare -g AFTER=$(date +%s)
 
@@ -149,8 +147,12 @@ start_download_test() {
 
 	(
 		download_script
-
-		function_end_script_text
+    
+	) >>download.file 2>&1
+	
+	test_successfull
+    
+	(	function_end_script_text
 
 	) >>download.file 2>&1
 
@@ -176,6 +178,12 @@ start_download_test_without_parameter() {
 
 		download_script_without_parameter
 
+		) >>download_without_parameter.file 2>&1
+	
+	test_successfull
+    
+	(
+		
 		function_end_script_text
 
 	) >>download_without_parameter.file 2>&1
@@ -203,6 +211,12 @@ start_copy_test() {
 	(
 		copy_script
 
+    ) >>copy.file 2>&1
+	
+	test_successfull
+    
+	(
+		
 		function_end_script_text
 	) >>copy.file 2>&1
 	
@@ -231,6 +245,12 @@ start_copy_test_without_parameter() {
 
 		copy_script_without_parameter
 
+    ) >>copy_without_parameter.file
+	 
+	test_successfull
+    
+	(
+		
 		function_end_script_text
 
 	) >>copy_without_parameter.file
