@@ -194,7 +194,7 @@ mode_beg() {
 #<<==========================================================================<<
 download_the_software() { #Download the Software and unpack them, if required
 
-	if ! wget -c --auth-no-challenge --http-user=$USER --http-password="$PASSWORD" $LINK; then
+	if ! wget -c --auth-no-challenge --http-user=$USER --http-password=$PASSWORD $LINK; then
 		error_trace "Maybe the URL is not available or the URL is passed off "
 		help
 		exit
@@ -219,13 +219,13 @@ download_the_software() { #Download the Software and unpack them, if required
 	fi
 
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
-		declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
     elif [[ "$FILENAME" =~ ".zip" ]]; then
-        declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
     elif [[ "$FILENAME" =~ ".7z" ]]; then
-        declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	fi
 }
 
