@@ -401,12 +401,12 @@ unpack_text() { #Text for the unpack part
 # PARAMETER 1:  Doesn't exist the file, the script breaks off
 # PARAMETER 2:  When the file is a directory, the script breaks off
 # RETURN:       -
-# USAGE:        copy_specification
+# USAGE:        extract_compressed_file
 #
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-copy_specification() {
+extract_compressed_file() {
 	if ! [ -e $FILENAME ]; then
 		error_trace "File doesn't exist"
 		exit
@@ -418,13 +418,30 @@ copy_specification() {
 	fi
 
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		$BZIPTYPE $FILENAME
+		declare -g UNPACK=$BZIPTYPE 
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
-		gunzip $FILENAME
+		declare -g UNPACK=gunzip 
     elif [[ "$FILENAME" =~ ".zip" ]]; then
-        unzip $FILENAME
+        declare -g UNPACK=unzip
 	elif [[ "$FILENAME" =~ ".7z" ]]; then
-        7z e $FILENAME
+        declare -g UNPACK="7z e"
+    else 
+        declare -g UNPACK=gunzip
+	fi
+	
+	echo -e "Try to unpack the downloaded Software"
+	if ! $UNPACK $FILENAME >/dev/null 2>/dev/null; then
+		unpack_text
+	fi
+
+	if [[ "$FILENAME" =~ ".bz2" ]]; then
+		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	elif [[ "$FILENAME" =~ ".gz" ]]; then
+		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    elif [[ "$FILENAME" =~ ".zip" ]]; then
+        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    elif [[ "$FILENAME" =~ ".7z" ]]; then
+        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	fi
 
 }
@@ -435,7 +452,7 @@ copy_specification() {
 # PARAMETER 1:  Shows the available devices
 # PARAMETER 2:  Specify the target device
 # RETURN:       -
-# USAGE:        copy_specification
+# USAGE:        extract_compressed_file
 #
 # AUTHOR:       TT
 # REVIEWER(S):  -
@@ -1052,7 +1069,9 @@ case $ARG_OPTION in
 
 "-c") ;&
 "--copy")
-	copy_specification
+    head_trace "extract a compressed file"
+	checkstep extract_compressed_file
+	echo ""
 	;;
 
 "--help")
