@@ -57,23 +57,23 @@ help() { #Is a help text
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_text_beg() {
-	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
+# 	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
 	echo -e "[(optional in download mode) -v, --value] [(optional in download mode) hashvalue (MD5SUM, SHA1, SHA256, SHA512)]"
 	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
 	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
 	echo -e ""
-	echo -e "./image_to_device.sh  -d  --download   'Downloadlink'  -t  --target  'Device'  -v  --value  'Checkvalue'  -u  --user  'USER'  -p  --password  'PASSWORD'"
+	echo -e "./image_to_device.sh  -d  --download   'Download link'  -t  --target  'Device'  -v  --value  'Check value'  -u  --user  'USER'  -p  --password  'PASSWORD'"
 	echo -e "./image_to_device.sh  -c  --copy       'File to copy'  -t  --target  'Device'"
 	echo -e ""
-	echo -e "Compatible hashvalues methodik: MD5SUM, SHA1, SHA256, SHA512"
+	echo -e "Compatible hash values methodik: MD5SUM, SHA1, SHA256, SHA512"
 	echo -e ""
 	echo -e "explaining of the parameters:"
 	echo -e '-d, --download       started the download mode'
 	echo -e '-c, --copy           started the copy mode'
 	echo -e '-t, --target         the device to be overwritten'
-	echo -e '-v, --value          the checkvalue of the file for the download mode'
-	echo -e '-u, --user           user data for the download mode for the authetifikation'
-	echo -e '-p, --password       the password for the download mode for the authetifikation'
+	echo -e '-v, --value          the check value of the file for the download mode'
+	echo -e '-u, --user           user data for the download mode for the authentication'
+	echo -e '-p, --password       the password for the download mode for the authentication'
 	echo -e ""
 }
 
@@ -88,20 +88,20 @@ help_text_beg() {
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_text_end() {
-	echo -e "Example 1) to download a image file and write this image file to a target device (enquired during runtime), use the following command: "
+	echo -e "Example 1) to download a image file and write this image file to a target device (enquired during run time), use the following command: "
 	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
 	echo -e ""
-	echo -e "Example 2) to verify the download process with a checkvalue and write this image file to a target device (specified with the -t option)," 
+	echo -e "Example 2) to verify the download process with a check value and write this image file to a target device (specified with the -t option)," 
 	echo -e "use the following command:"
 	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
 	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
 	echo -e ""
 	echo -e "Example 3) to download a file for which user data are needed and write this image file to a target device (specified with the -t option)" 
-	echo -e "verify the download process with a checkvalue, use the following command:"
+	echo -e "verify the download process with a check value, use the following command:"
 	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
 	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
 	echo -e ""
-	echo -e "Example 4) to write a locally stored image file to a target device (enquired during runtime), use the following command:"
+	echo -e "Example 4) to write a locally stored image file to a target device (enquired during run time), use the following command:"
 	echo -e "./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 "
 	echo -e ""
 	echo -e "Example 5) to write a locally stored image file to a target device (specified with the -t option), use the following command:"
@@ -230,11 +230,11 @@ download_the_software() { #Download the Software and unpack them, if required
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Checked the checkvalue from the Image-file and the real checkvalue with each other
+# DESCRIPTION:  Checked the check value from the Image-file and the real check value with each other
 #
-# PARAMETER 1:  Checked the checkvalue from the Image-file and the real checkvalue with each other
-# PARAMETER 2:  Are the checkvalues the same, the script continues working
-# PARAMETER 3:  Are the checkvalues different, the script stop
+# PARAMETER 1:  Checked the check value from the Image-file and the real check value with each other
+# PARAMETER 2:  Are the check values the same, the script continues working
+# PARAMETER 3:  Are the check values different, the script stop
 # RETURN:       -
 # USAGE:        download_verifikation
 #
@@ -250,15 +250,15 @@ download_verifikation() {
 	if [ $CHECKVALUE ]; then
 		download_verifikation_p_text
 	else
-		echo -e "Please enter a check value methodik"
-		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a] (a):" CHECK
+		echo -e "Please enter a check value method"
+		bold_trace_tp "md5sum, sha256, I don't have a check value [m,s,a] (a):" CHECK
 	fi
 
 	case $CHECK in
 	m | md | M | MD | md5sum | MD5SUM)
 		download_checksum_p_text
 		declare -r MD_FILE=$(md5sum $FILENAME | cut -d" " -f1)
-		echo -e "Compareing the check value from the Image-file and the real checkvalue"
+		echo -e "Comparing the check value from the Image-file and the real check value"
 
 		if [ $MD_FILE == $VALUE ]; then
 			download_verifikation_text
@@ -270,7 +270,7 @@ download_verifikation() {
 	s | S | Sha | sha | SHA | sha256 | SHA256 | 256)
 		download_checksum_p_text
 		declare MAC_SUPPORT=$(sw_vers 2>/dev/null | grep ProductName | awk '{print $2}')
-		info_trace "Compareing the check value from the Image-file and the real checkvalue"
+		info_trace "Comparing the check value from the Image-file and the real check value"
 
 		if [ $CHECKVALUESUM = 40 ]; then
 			declare -r SH_FILE=$(sha1sum $FILENAME 2>/dev/null | cut -d" " -f1)
@@ -323,15 +323,15 @@ download_verifikation_p_text() {
 	elif [ $CHECKVALUESUM = 128 ]; then
 		declare -g CHECK=s
 	else
-		echo -e "Please enter a check value methodik"
-		bold_trace_tp "md5sum, sha256, I dont have a check value [m,s,a] (a):" CHECK
+		echo -e "Please enter a check value method"
+		bold_trace_tp "md5sum, sha256, I don't have a check value [m,s,a] (a):" CHECK
 	fi
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Doesn't exist the variable, the script ask for the checkvalue
+# DESCRIPTION:  Doesn't exist the variable, the script ask for the check value
 #
-# PARAMETER 1:  Doesn't exist the variable, the script ask for the checkvalue
+# PARAMETER 1:  Doesn't exist the variable, the script ask for the check value
 # RETURN:       -
 # USAGE:        download_verifikation
 #
@@ -348,9 +348,9 @@ download_checksum_p_text() {
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Text for the download_verifikation function, if the hashvalues are rigth
+# DESCRIPTION:  Text for the download_verifikation function, if the hash values are right
 #
-# PARAMETER 1:  Text, if the hashvalues are correct by the download_verifikation function
+# PARAMETER 1:  Text, if the hash values are correct by the download_verifikation function
 # RETURN:       -
 # USAGE:        download_verifikation
 #
@@ -365,7 +365,7 @@ download_verifikation_text() {
 #>>==========================================================================>>
 # DESCRIPTION:  Error Text for the download_verifikation function
 #
-# PARAMETER 1:  Text, if the hashvalues are correct by the download_verifikation function
+# PARAMETER 1:  Text, if the hash values are correct by the download_verifikation function
 # RETURN:       -
 # USAGE:        download_verifikation
 #
@@ -376,7 +376,7 @@ download_verifikation_text2() {
 	error_trace "Hash values are not the same"
 	help_trace "Faulty image file"
 	help_trace "Please start a new Download"
-	help_trace "Verifikation Unsuccessfully"
+	help_trace "Verification Unsuccessfully"
 	rm $FILENAME
 	exit
 }
@@ -396,7 +396,7 @@ unpack_text() { #Text for the unpack part
 }
 
 #>>==========================================================================>>
-# DESCRIPTION:  Copy doesen't gone with all function
+# DESCRIPTION:  Copy doesn't gone with all function
 #
 # PARAMETER 1:  Doesn't exist the file, the script breaks off
 # PARAMETER 2:  When the file is a directory, the script breaks off
@@ -445,7 +445,7 @@ read_p_text() {
     
     echo "Here is a list about all available block devices"
     echo "Please select your device in the NAME column "
-    echo "Use only devices that are included in the column TYPE with diks or loop"
+    echo "Use only devices that are included in the column TYPE with disk or loop"
     echo "If you want to check the size of the device, look in the SIZE column"
     
     echo ""
@@ -555,8 +555,8 @@ find_out_device() { #Checked if the USB-Stick or SD-Card available
 # REVIEWER(S):  -
 #<<==========================================================================<<
 checking_filesize() { #Checked the Filesize
-	echo -e "Checked the Filesize of the Image-File"
-	echo -e "Filesize of the Image-File: $FILESIZE"
+	echo -e "Checked the File size of the Image-File"
+	echo -e "File size of the Image-File: $FILESIZE"
 }
 
 #>>==========================================================================>>
@@ -698,7 +698,7 @@ not_available_device() {
 # REVIEWER(S):  -
 #<<==========================================================================<<
 compare_hash_values() { #Compares the hash values from the downloaded File and the returned File
-	echo -e "Compareing the hash values from the downloaded File and the verify File"
+	echo -e "Comparing the hash values from the downloaded File and the verify File"
 	declare -r MD5SUM=$(md5sum $FILENAME | cut -d" " -f1)
 	declare -r MD5SUM_BACK=$(md5sum verify.img | cut -d" " -f1)
 	if [ $MD5SUM == $MD5SUM_BACK ]; then
