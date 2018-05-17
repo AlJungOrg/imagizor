@@ -58,22 +58,22 @@ help() { #Is a help text
 #<<==========================================================================<<
 help_text_beg() {
 # 	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
-	echo -e "[(optional in download mode) -v, --value] [(optional in download mode) hashvalue (MD5SUM, SHA1, SHA256, SHA512)]"
-	echo -e "[(For Authentication in download mode) -u, --user] [(For Authentication in download mode) 'USER' ('' Are needed)]"
-	echo -e "[(For Authentication in download mode) -p, --password] [(For Authentication in download mode) 'PASSWORD' ('' Are needed)]"
+	echo -e "[(optional in download mode) ${BOLD}-v, --value${COL_END}] [(optional in download mode) ${BOLD}hashvalue${COL_END} (${BOLD}MD5SUM, SHA1, SHA256, SHA512${COL_END})]"
+	echo -e "[(For Authentication in download mode)${BOLD} -u, --user${COL_END}] [(For Authentication in download mode) ${BOLD}'USER'${COL_END} ('' Are needed)]"
+	echo -e "[(For Authentication in download mode) ${BOLD}-p, --password${COL_END}] [(For Authentication in download mode) ${BOLD}'PASSWORD'${COL_END} ('' Are needed)]"
 	echo -e ""
-	echo -e "./image_to_device.sh  -d  --download   'Download link'  -t  --target  'Device'  -v  --value  'Check value'  -u  --user  'USER'  -p  --password  'PASSWORD'"
-	echo -e "./image_to_device.sh  -c  --copy       'File to copy'  -t  --target  'Device'"
+	echo -e "${BOLD}./imagizor.sh  -d  --download   'Download link'  -t  --target  'Device'  -v  --value  'Check value'  -u  --user  'USER'  -p  --password  'PASSWORD'${COL_END}"
+	echo -e "${BOLD}./imagizor.sh  -c  --copy       'File to copy'  -t  --target  'Device'${COL_END}"
 	echo -e ""
-	echo -e "Compatible hash values methodik: MD5SUM, SHA1, SHA256, SHA512"
+	echo -e "${BOLD}Compatible hash values methodik: MD5SUM, SHA1, SHA256, SHA512${COL_END}"
 	echo -e ""
-	echo -e "explaining of the parameters:"
-	echo -e '-d, --download       started the download mode'
-	echo -e '-c, --copy           started the copy mode'
-	echo -e '-t, --target         the device to be overwritten'
-	echo -e '-v, --value          the check value of the file for the download mode'
-	echo -e '-u, --user           user data for the download mode for the authentication'
-	echo -e '-p, --password       the password for the download mode for the authentication'
+	echo -e "${BOLD}explaining of the parameters:${COL_END}"
+	echo -e "${BOLD}-d, --download ${COL_END}       started the download mode"
+	echo -e "${BOLD}-c, --copy ${COL_END}         started the copy mode"
+	echo -e "${BOLD}-t, --target ${COL_END}         the device to be overwritten"
+	echo -e "${BOLD}-v, --value ${COL_END}        the check value of the file for the download mode"
+	echo -e "${BOLD}-u, --user ${COL_END}        user data for the download mode for the authentication"
+	echo -e "${BOLD}-p, --passwordn${COL_END}      the password for the download mode for the authentication"
 	echo -e ""
 }
 
@@ -88,24 +88,24 @@ help_text_beg() {
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_text_end() {
-	echo -e "Example 1) to download a image file and write this image file to a target device (enquired during run time), use the following command: "
-	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256"
+	echo -e "${PUR_BEG}Example 1) ${COL_END} to download a image file and write this image file to a target device (enquired during run time), use the following command: "
+	echo -e "${BOLD}./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256${COL_END}"
 	echo -e ""
-	echo -e "Example 2) to verify the download process with a check value and write this image file to a target device (specified with the -t option)," 
+	echo -e "${PUR_BEG}Example 2) ${COL_END} to verify the download process with a check value and write this image file to a target device (specified with the -t option)," 
 	echo -e "use the following command:"
-	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
-	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18"
+	echo -e "${BOLD}./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c1${COL_END}8"
 	echo -e ""
-	echo -e "Example 3) to download a file for which user data are needed and write this image file to a target device (specified with the -t option)" 
+	echo -e "${PUR_BEG}Example 3) ${COL_END} to download a file for which user data are needed and write this image file to a target device (specified with the -t option)" 
 	echo -e "verify the download process with a check value, use the following command:"
-	echo -e "./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
-	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'"
+	echo -e "${BOLD}./imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e "-v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -u 'USER' -p 'PASSWORD'${COL_END}"
 	echo -e ""
-	echo -e "Example 4) to write a locally stored image file to a target device (enquired during run time), use the following command:"
-	echo -e "./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 "
+	echo -e "${PUR_BEG}Example 4) ${COL_END}to write a locally stored image file to a target device (enquired during run time), use the following command:"
+	echo -e "${BOLD}./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 ${COL_END}"
 	echo -e ""
-	echo -e "Example 5) to write a locally stored image file to a target device (specified with the -t option), use the following command:"
-	echo -e "./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0"
+	echo -e "${PUR_BEG}Example 5)${COL_END} to write a locally stored image file to a target device (specified with the -t option), use the following command:"
+	echo -e "${BOLD}./imagizor.sh -c openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/mmcblk0${COL_END}"
 	echo -e ""
 	echo -e "Link to the GitHub Project: https://github.com/AlJungOrg/imagizor/tree/master"
 }
@@ -359,7 +359,7 @@ download_checksum_p_text() {
 #<<==========================================================================<<
 download_verifikation_text() {
 	correct_trace "Hash values are the same"
-	correct_trace "Verifikation successfull"
+	correct_trace "Verification successful"
 }
 
 #>>==========================================================================>>
@@ -977,6 +977,7 @@ if [ $# -lt 2 ]; then #in the case they are less then 2 Parameter are given, the
 fi
 
 if ! [ $ARG_OPTION = --help ]; then
+    echo -e "Please enter the PASSWORD, to copy the image-file to the target device"
     sudo ls >/dev/null 2>/dev/null
 fi
 
@@ -1044,7 +1045,7 @@ done
 case $ARG_OPTION in
 "-d") ;&
 "--download")
-	head_trace "download process and verifikation"
+	head_trace "download process and verification"
 	checkstep download_the_software
 	echo ""
 	;;
