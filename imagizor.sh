@@ -151,7 +151,7 @@ needed_tools() { #Validate if the needed tool are on the shell
     
     for X in ${TOOLS[*]}; do
         if ! which $X >/dev/null 2>/dev/null; then
-            declare -g BZIPTYPE="bzip2 -d"
+            declare -g BZIPTYPE="bzip2 -df"
         else
             declare -g BZIPTYPE="pbzip2 -d"
         fi
@@ -204,9 +204,9 @@ download_the_software() { #Download the Software and unpack them, if required
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
 		declare -g UNPACK=$BZIPTYPE 
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
-		declare -g UNPACK=gunzip 
+		declare -g UNPACK="gunzip -f" 
     elif [[ "$FILENAME" =~ ".zip" ]]; then
-        declare -g UNPACK=unzip
+        declare -g UNPACK="unzip -o"
 	elif [[ "$FILENAME" =~ ".7z" ]]; then
         declare -g UNPACK="7z e"
     else 
@@ -1020,7 +1020,7 @@ if [ $ARG_OPTION = -d ]; then
 elif [ $ARG_OPTION = --download ]; then
 	declare FILENAME="$(basename $2)"
 else
-	declare FILENAME=$2
+	declare FILENAME="$(basename $2)"
 fi
 
 Parameter=($@)
