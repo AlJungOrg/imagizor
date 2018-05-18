@@ -1020,7 +1020,7 @@ if [ $ARG_OPTION = -d ]; then
 elif [ $ARG_OPTION = --download ]; then
 	declare FILENAME="$(basename $2)"
 else
-	declare FILENAME="$(basename $2)"
+	declare FILENAME=$2
 fi
 
 Parameter=($@)
@@ -1086,13 +1086,13 @@ case $ARG_OPTION in
 esac
 
 if [[ "$FILENAME" =~ ".bz2" ]]; then
-	declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 elif [[ "$FILENAME" =~ ".gz" ]]; then
-	declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 elif [[ "$FILENAME" =~ ".zip" ]]; then
-    declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 elif [[ "$FILENAME" =~ ".7z" ]]; then
-    declare -g FILENAME=$(echo $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    declare -g FILENAME=$(basename $2 | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 fi
 
 declare -g FILESIZE=$(du -h $FILENAME | awk '{print $1}')
