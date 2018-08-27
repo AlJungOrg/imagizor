@@ -447,6 +447,7 @@ extract_compressed_file() {
 }
 
 
+
 #>>==========================================================================>>
 # DESCRIPTION:  For the case the target device is not specified, the function ask for the target device
 #
