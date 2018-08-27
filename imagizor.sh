@@ -194,7 +194,7 @@ mode_beg() {
 #<<==========================================================================<<
 download_the_software() { #Download the Software and unpack them, if required
 
-	if ! wget -c --auth-no-challenge --http-user=$USER --http-password=$PASSWORD $LINK; then
+	if ! wget -c --auth-no-challenge --http-user=$USER --http-password=$PASSWORD "$LINK"; then
 		error_trace "Maybe the URL is not available or the URL is passed off "
 		help
 		exit
@@ -204,7 +204,7 @@ download_the_software() { #Download the Software and unpack them, if required
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
 		declare -g UNPACK=$BZIPTYPE 
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
-		declare -g UNPACK="gunzip -f" 
+		declare -g UNPACK="gunzip -fk" 
     elif [[ "$FILENAME" =~ ".zip" ]]; then
         declare -g UNPACK="unzip -o"
 	elif [[ "$FILENAME" =~ ".7z" ]]; then
@@ -1136,3 +1136,4 @@ declare TIME_END=$(date +%s)
 echo "elapsed time for the whole Script:" $((TIME_END - $TIME_START)) "seconds"
 
 echo -e "You can remove the device"
+
