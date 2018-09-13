@@ -435,18 +435,16 @@ extract_compressed_file() {
 	fi
 
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+		declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
-		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+		declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
     elif [[ "$FILENAME" =~ ".zip" ]]; then
-        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+        declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
     elif [[ "$FILENAME" =~ ".7z" ]]; then
-        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+        declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
 	fi
 
 }
-
-
 
 #>>==========================================================================>>
 # DESCRIPTION:  For the case the target device is not specified, the function ask for the target device
