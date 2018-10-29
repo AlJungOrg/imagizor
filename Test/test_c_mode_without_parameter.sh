@@ -1,6 +1,6 @@
 #!/usr/bin/expect
 
-cd ..
+cd ../imagizor
 
 spawn ./imagizor.sh -c test.iso
 
