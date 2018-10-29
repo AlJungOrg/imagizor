@@ -8,8 +8,6 @@ set -e
 
 #echo -e "$0 Parameter: $*"
 
-
-
 . ../lib//imagizor_common.sh
 
 declare TIME_START=$(date +%s)
