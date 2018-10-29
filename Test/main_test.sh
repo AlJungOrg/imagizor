@@ -195,37 +195,6 @@ start_download_test_without_parameter() {
 	echo ""
 }
 
-start_copy_test() {
-	(
-		echo ""
-
-		echo $($DATE) $COPY_TEXT
-
-		echo ""
-	) >>copy.file
-
-	echo ""
-
-	declare -g BEFORE=$(date +%s)
-
-	(
-		copy_script
-
-    ) >>copy.file 2>&1
-	
-	test_successfull
-    
-	(
-		
-		function_end_script_text
-	) >>copy.file 2>&1
-	
-	echo ""
-
-	echo -e "Test finished"
-
-	echo ""
-}
 
 start_copy_test_without_parameter() {
 
