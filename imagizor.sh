@@ -138,7 +138,7 @@ help_for_less_Parameter() { #Longer help text
 #<<==========================================================================<<
 needed_tools() { #Validate if the needed tool are on the shell
 
-	declare -ra TOOLS=(wget gunzip dd md5sum truncate bzip2 lsblk unzip )
+	declare -ra TOOLS=(wget gunzip dd md5sum truncate bunzip2 lsblk unzip pv)
     declare -ra BZIP=(pbzip2)
 	
 	for X in ${TOOLS[*]}; do
@@ -182,6 +182,60 @@ mode_beg() {
 }
 
 #>>==========================================================================>>
+# DESCRIPTION:  
+#
+# PARAMETER 1:  Specified which mode is starting
+# RETURN:       -
+# USAGE:        mode_beg
+#
+# AUTHOR:       TT
+# REVIEWER(S):  -
+#<<==========================================================================<<
+compress_initialize(){
+    if [[ "$FILENAME" =~ ".bz2" ]]; then
+        
+        declare -g TEMP_FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+		
+		if ! pv  $FILENAME | $UNPACK > $TEMP_FILENAME ; then
+            unpack_text
+        fi
+		declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	
+	elif [[ "$FILENAME" =~ ".gz" ]]; then
+        
+        declare -g TEMP_FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+		
+		if ! pv $FILENAME | $UNPACK > $TEMP_FILENAME; then
+            unpack_text
+        fi
+		declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    
+    elif [[ "$FILENAME" =~ ".zip" ]]; then
+    
+        declare -g TEMP_FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    
+        if ! pv $FILENAME | $UNPACK > $TEMP_FILENAME; then
+            unpack_text
+        fi
+        declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+    
+    elif [[ "$FILENAME" =~ ".7z" ]]; then
+        
+        declare -g TEMP_FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' )
+        
+        if ! pv $FILENAME | $UNPACK > $TEMP_FILENAME ; then
+            unpack_text
+        fi
+        declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
+	
+	else 
+        unpack_text
+	fi
+}
+
+
+
+#>>==========================================================================>>
 # DESCRIPTION:  Download the Image file from the Internet
 #
 # PARAMETER 1:  Download the Image file from the Internet
@@ -202,7 +256,7 @@ download_the_software() { #Download the Software and unpack them, if required
 	download_verifikation
 	
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g UNPACK=$BZIPTYPE 
+		declare -g UNPACK="bunzip2"
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
 		declare -g UNPACK="gunzip -fk" 
     elif [[ "$FILENAME" =~ ".zip" ]]; then
@@ -214,19 +268,8 @@ download_the_software() { #Download the Software and unpack them, if required
 	fi
 	
 	echo -e "Try to unpack the downloaded Software"
-	if ! $UNPACK $FILENAME >/dev/null 2>/dev/null; then
-		unpack_text
-	fi
-
-	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-	elif [[ "$FILENAME" =~ ".gz" ]]; then
-		declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-    elif [[ "$FILENAME" =~ ".zip" ]]; then
-        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-    elif [[ "$FILENAME" =~ ".7z" ]]; then
-        declare -g FILENAME=$(basename $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-	fi
+	compress_initialize
+	
 }
 
 #>>==========================================================================>>
@@ -418,7 +461,7 @@ extract_compressed_file() {
 	fi
 
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g UNPACK=$BZIPTYPE 
+		declare -g UNPACK="bunzip2"
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
 		declare -g UNPACK=gunzip 
     elif [[ "$FILENAME" =~ ".zip" ]]; then
@@ -430,19 +473,8 @@ extract_compressed_file() {
 	fi
 	
 	echo -e "Try to unpack the downloaded Software"
-	if ! $UNPACK $FILENAME >/dev/null 2>/dev/null; then
-		unpack_text
-	fi
-
-	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-	elif [[ "$FILENAME" =~ ".gz" ]]; then
-		declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-    elif [[ "$FILENAME" =~ ".zip" ]]; then
-        declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-    elif [[ "$FILENAME" =~ ".7z" ]]; then
-        declare -g FILENAME=$(echo $FILENAME | sed 's/.$//' | sed 's/.$//' | sed 's/.$//')
-	fi
+	
+	 compress_initialize
 
 }
 
@@ -1108,7 +1140,6 @@ set +u
   
 if [ $TARGET ]; then
     for ((i = 0; i < ${#TARGET[@]}; i = i + 1)); do
-    begin_copy
     declare -g ANSWER=${TARGET[$i]}
 
     main
@@ -1136,4 +1167,3 @@ declare TIME_END=$(date +%s)
 echo "elapsed time for the whole Script:" $((TIME_END - $TIME_START)) "seconds"
 
 echo -e "You can remove the device"
-
