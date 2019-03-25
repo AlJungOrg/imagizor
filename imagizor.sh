@@ -959,7 +959,7 @@ if [ $? -gt 1 ]; then
 		fi
 	done
 fi
-
+declare DEVICE=$ANSWER
 is_device_read_only
 
 set -e
