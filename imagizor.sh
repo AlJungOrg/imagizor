@@ -960,6 +960,8 @@ if [ $? -gt 1 ]; then
 	done
 fi
 
+is_device_read_only
+
 set -e
 
 declare -g DEVICE=$ANSWER 2>/dev/null
