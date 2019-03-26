@@ -74,7 +74,7 @@ help_text_beg() {
 	echo -e "${BOLD}-u, --user ${COL_END}          user data for the download mode for the authentication"
 	echo -e "${BOLD}-p, --password${COL_END}       the password for the download mode for the authentication"
 	echo -e "${BOLD}-s, --skip ${COL_END}          skips the verification process, during the copy"
-	echo -e "${BOLD} ${COL_END}"
+	echo -e "${BOLD}-r, --remove ${COL_END}        delete the compressed file"
 	echo -e ""
 }
 
@@ -1101,8 +1101,8 @@ for ((i = 0; i < ${#Parameter[@]}; i = i + 1)); do
     "--skip")
         declare -g SKIP="True"
         ;;
-    "-d") ;&
-    "--delete")
+    "-r") ;&
+    "--remove")
         declare -g DELETE="True"
         ;;
 	esac
