@@ -38,7 +38,7 @@ set -u
 # AUTHOR:       TT
 # REVIEWER(S):  -
 #<<==========================================================================<<
-help() { #Is a help text
+help() {
 	echo -e "invalid command"
 	help_text_beg
 	echo -e ""
@@ -57,7 +57,6 @@ help() { #Is a help text
 # REVIEWER(S):  -
 #<<==========================================================================<<
 help_text_beg() {
-# 	echo -e "Call: ./image_to_device.sh [-d, --download, -c, --copy ] [Downloadlink, File to copy ] [(optional)-t, --target] [(optional)Device (example: /dev/mmcblk0)]"
 	echo -e "[(optional in download mode) ${BOLD}-v, --value${COL_END}] [(optional in download mode) ${BOLD}hashvalue${COL_END} (${BOLD}MD5SUM, SHA1, SHA256, SHA512${COL_END})]"
 	echo -e "[(For Authentication in download mode)${BOLD} -u, --user${COL_END}] [(For Authentication in download mode) ${BOLD}'USER'${COL_END} ('' Are needed)]"
 	echo -e "[(For Authentication in download mode) ${BOLD}-p, --password${COL_END}] [(For Authentication in download mode) ${BOLD}'PASSWORD'${COL_END} ('' Are needed)]"
@@ -68,12 +67,13 @@ help_text_beg() {
 	echo -e "${BOLD}Compatible hash values methodik: MD5SUM, SHA1, SHA256, SHA512${COL_END}"
 	echo -e ""
 	echo -e "${BOLD}explaining of the parameters:${COL_END}"
-	echo -e "${BOLD}-d, --download ${COL_END}       started the download mode"
-	echo -e "${BOLD}-c, --copy ${COL_END}         started the copy mode"
-	echo -e "${BOLD}-t, --target ${COL_END}         the device to be overwritten"
-	echo -e "${BOLD}-v, --value ${COL_END}        the check value of the file for the download mode"
-	echo -e "${BOLD}-u, --user ${COL_END}        user data for the download mode for the authentication"
-	echo -e "${BOLD}-p, --passwordn${COL_END}      the password for the download mode for the authentication"
+	echo -e "${BOLD}-d, --download ${COL_END}      started the download mode"
+	echo -e "${BOLD}-c, --copy ${COL_END}          started the copy mode"
+	echo -e "${BOLD}-t, --target ${COL_END}        the device to be overwritten"
+	echo -e "${BOLD}-v, --value ${COL_END}         the check value of the file for the download mode"
+	echo -e "${BOLD}-u, --user ${COL_END}          user data for the download mode for the authentication"
+	echo -e "${BOLD}-p, --password${COL_END}       the password for the download mode for the authentication"
+	echo -e "${BOLD}-s, --skip ${COL_END}          skips the verification process, during the copy"
 	echo -e ""
 }
 
@@ -959,6 +959,8 @@ if [ $? -gt 1 ]; then
 		fi
 	done
 fi
+declare DEVICE=$ANSWER
+is_device_read_only
 
 set -e
 
@@ -987,17 +989,21 @@ echo ""
 
 checkstep copy_to_device
 
-echo ""
+if [ -z "$SKIP" ]; then
 
-head_trace "Verifying"
+    echo ""
 
-checkstep copy_back_from_the_device
+    head_trace "Verifying"
 
-echo ""
+    checkstep copy_back_from_the_device
 
-checkstep compare_hash_values
+    echo ""
 
-head_trace_end
+    checkstep compare_hash_values
+
+    head_trace_end
+
+fi
 
 echo ""
 
@@ -1042,6 +1048,7 @@ declare -g VALUE=""
 declare -g USER=""
 declare -g PASSWORD=""
 declare -g ANSWER=""
+declare -g SKIP=""
 
 mode_beg
 
@@ -1088,6 +1095,9 @@ for ((i = 0; i < ${#Parameter[@]}; i = i + 1)); do
 		declare -g PASSWORD=${Parameter[$i + 1]}
 		declare -g DATA=Y
 		;;
+	"-s") ;&	
+    "--skip")
+        declare -g SKIP="True"
 	esac
 done
 
@@ -1110,7 +1120,7 @@ case $ARG_OPTION in
 	help_for_less_Parameter
 	;;
 
-"*")
+*)
 	help
 	exit
 	;;
