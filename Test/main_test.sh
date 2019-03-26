@@ -1,6 +1,10 @@
 #!/bin/bash
 
-#set -x
+# set -x
+
+set -u
+set -e
+set -o pipefail
 
 . ../lib/imagizor_common.sh
 
@@ -24,7 +28,7 @@ declare BLOCKS=500M
 declare BLOCKS_BYTE=512
 declare COPY_TEXT="Starting the copy mode test"
 declare COPY_WITHOUT_PARAMETER_TEXT="Starting the copy mode test without any parameter"
-declare COPY_PARAMETER='imagizor.sh -c test.iso -t /dev/loop0'
+declare COPY_PARAMETER='imagizor.sh -c test.iso -t /dev/loop0 -r'
 declare COPY_WITHOUT_PARAMETER='test_c_mode_without_parameter.sh'
 declare COUNT=4
 declare DATE='date +%Y:%m:%d:%H:%M:%S'
@@ -32,7 +36,7 @@ declare DEVICE=/dev/loop0
 declare DEVICE_ZERO=/dev/zero
 declare DOWNLOAD_TEXT="Starting the download mode test"
 declare DOWNLOAD_WITHOUT_PARAMETER_TEXT="Starting the download mode test without any parameter"
-declare DOWNLOAD_PARAMETER='imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/loop0 -u n -p n -v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18'
+declare DOWNLOAD_PARAMETER='imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/loop0 -u n -p n -v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -r'
 declare DOWNLOAD_WITHOUT_PARAMETER='test_d_mode_without_parameter.sh'
 
 declare FILE_DEVICE=/virtualfs
@@ -42,7 +46,7 @@ declare STATUS="status=progress"
 test_successfull() {
 	if [ $? -gt 0 ]; then
 		echo -e "Test gone Wrong"
-		declare -g CORRECT=1
+        CORRECT=1
 	else
 		echo -e "Test successfull"
 	fi
@@ -77,8 +81,6 @@ copy_script_without_parameter() {
 }
 
 function_end_script_text() {
-
-
 	declare -g AFTER=$(date +%s)
 
 	echo ""
@@ -160,8 +162,7 @@ start_download_test() {
 	echo -e ""
 
 	echo -e "Test finished"
-	
-	declare -g CORRECT=0
+
 }
 
 start_download_test_without_parameter() {
@@ -196,8 +197,7 @@ start_download_test_without_parameter() {
 	echo -e "Test finished"
 
 	echo ""
-	
-	declare -g CORRECT=0
+
 }
 
 start_copy_test() {
@@ -231,7 +231,6 @@ start_copy_test() {
 
 	echo ""
 	
-	declare -g CORRECT=0
 }
 
 start_copy_test_without_parameter() {
@@ -268,12 +267,11 @@ start_copy_test_without_parameter() {
 
 	echo ""
 	
-	declare -g CORRECT=0
+	check_return
+	
 }
 
 delete_the_workspace() {
-
-	delete_file
 
 	sudo losetup -d $DEVICE
 
@@ -284,13 +282,21 @@ checkstep() {
 	echo -e "${PUR_BEG}$@ ...${COL_END}"
 	if $@; then
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
-	elif [ $CORRECT==1 ]; then
+	elif [ $? -gt 0 ]; then
         printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
-		declare -g NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
+		NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
 	else
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
-		declare -g NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
+        NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
 	fi
+}
+
+check_return()  {
+    if [ $CORRECT == 1 ]; then
+        return 1
+    else 
+        return 0
+    fi
 }
 
 html_function() {
@@ -298,6 +304,7 @@ cat $DIR_IM/$LOGFILE|$DIR/ansi2html.sh > $DIR_IM/$LOGFILE
 }
 
 declare -g CORRECT=0
+declare -g NOF_FAILED_COMMANDS=0
 
 #source ../lib/imagizor_common.sh
 
@@ -312,12 +319,16 @@ head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
 
+CORRECT=0
+
 declare LOGFILE=download_without_parameter.file
 declare HTMLFILE=download_without_parameter_html.file
 
 head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_download_test_without_parameter
+
+CORRECT=0
 
 declare LOGFILE=copy.file
 declare HTMLFILE=copy_html.file
@@ -326,6 +337,8 @@ head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
 
+CORRECT=0
+
 declare LOGFILE=copy_without_parameter.file
 declare HTMLFILE=copy_without_parameter_html.file
 
@@ -333,14 +346,21 @@ head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_copy_test_without_parameter
 
+CORRECT=0
+
 head_trace "Delete the Workspace"
 
 checkstep delete_the_workspace
 
 echo ""
 
+declare RETURN=0
+
 if [ $NOF_FAILED_COMMANDS ]; then
 	info_trace "Failed script count: $NOF_FAILED_COMMANDS"
+	RETURN=1
 fi
 
 head_trace_end
+
+return $RETURN
