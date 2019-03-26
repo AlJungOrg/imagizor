@@ -74,6 +74,7 @@ help_text_beg() {
 	echo -e "${BOLD}-u, --user ${COL_END}          user data for the download mode for the authentication"
 	echo -e "${BOLD}-p, --password${COL_END}       the password for the download mode for the authentication"
 	echo -e "${BOLD}-s, --skip ${COL_END}          skips the verification process, during the copy"
+	echo -e "${BOLD} ${COL_END}"
 	echo -e ""
 }
 
@@ -1049,6 +1050,7 @@ declare -g USER=""
 declare -g PASSWORD=""
 declare -g ANSWER=""
 declare -g SKIP=""
+declare -g DELETE=""
 
 mode_beg
 
@@ -1098,6 +1100,11 @@ for ((i = 0; i < ${#Parameter[@]}; i = i + 1)); do
 	"-s") ;&	
     "--skip")
         declare -g SKIP="True"
+        ;;
+    "-d") ;&
+    "--delete")
+        declare -g DELETE="True"
+        ;;
 	esac
 done
 
@@ -1161,6 +1168,32 @@ fi
 
 set +u
 
+if [ ! -z "$DELETE" ]; then
+    rm -r $FILENAME
+else
+    read -p "${BOLD_TP}Do you want to delete the compressed File? ("y"): ${TP_END}" ANSWER2
+    
+    case $ANSWER2 in
+    "");&
+    "y");&
+    "yes");&
+    "Yes");&
+    "ja");&
+    "Ja");&
+    "j")
+        rm -r $FILENAME
+        ;;
+    "n");&
+    "no");&
+    "No");&
+    "nein");&
+    "Nein");&
+    "n");&
+    *)
+        ;;
+    esac
+    
+fi
 
 for ((y = 0; y < ${#TARGET[@]}; y = y + 1)); do
     COPY_COUNT=$(( $COPY_COUNT + 1 ))
