@@ -42,6 +42,7 @@ declare STATUS="status=progress"
 test_successfull() {
 	if [ $? -gt 0 ]; then
 		echo -e "Test gone Wrong"
+		declare -g CORRECT=1
 	else
 		echo -e "Test successfull"
 	fi
@@ -132,7 +133,7 @@ create_the_workspace() {
 }
 
 start_download_test() {
-
+    
 	(
 		echo ""
 
@@ -159,6 +160,8 @@ start_download_test() {
 	echo -e ""
 
 	echo -e "Test finished"
+	
+	declare -g CORRECT=0
 }
 
 start_download_test_without_parameter() {
@@ -193,6 +196,8 @@ start_download_test_without_parameter() {
 	echo -e "Test finished"
 
 	echo ""
+	
+	declare -g CORRECT=0
 }
 
 start_copy_test() {
@@ -225,6 +230,8 @@ start_copy_test() {
 	echo -e "Test finished"
 
 	echo ""
+	
+	declare -g CORRECT=0
 }
 
 start_copy_test_without_parameter() {
@@ -260,6 +267,8 @@ start_copy_test_without_parameter() {
 	echo -e "Test finished"
 
 	echo ""
+	
+	declare -g CORRECT=0
 }
 
 delete_the_workspace() {
@@ -275,6 +284,9 @@ checkstep() {
 	echo -e "${PUR_BEG}$@ ...${COL_END}"
 	if $@; then
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
+	elif [ $CORRECT==1 ]; then
+        printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
+		declare -g NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
 	else
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
 		declare -g NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
@@ -284,6 +296,8 @@ checkstep() {
 html_function() {
 cat $DIR_IM/$LOGFILE|$DIR/ansi2html.sh > $DIR_IM/$LOGFILE
 }
+
+declare -g CORRECT=0
 
 #source ../lib/imagizor_common.sh
 

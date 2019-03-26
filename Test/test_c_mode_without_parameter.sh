@@ -14,6 +14,10 @@ set timeout 30
 
 expect "copy_back"
 
+expect "Do you want to delete the compressed File? (y):"
+
+send "y\r"
+
 wait
 
 expect eof
