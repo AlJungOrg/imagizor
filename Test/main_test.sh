@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# set -x
+
+set -u
+set -e
+set -o pipefail
 #set -x
 
 . ../lib/imagizor_common.sh
@@ -42,6 +47,7 @@ declare STATUS="status=progress"
 test_successfull() {
 	if [ $? -gt 0 ]; then
 		echo -e "Test gone Wrong"
+        CORRECT=1
 	else
 		echo -e "Test successfull"
 	fi
@@ -56,8 +62,8 @@ create_device() {
 }
 
 download_script() {
-	bash -n $DOWNLOAD_PARAMETER
-	sudo ./$DOWNLOAD_PARAMETER
+	bash -n test_d_mode_with_parameter.sh
+	sudo ./test_d_mode_with_parameter.sh
 }
 
 download_script_without_parameter() {
@@ -66,8 +72,8 @@ download_script_without_parameter() {
 }
 
 copy_script() {
-	bash -n $COPY_PARAMETER
-	sudo ./$COPY_PARAMETER
+	bash -n test_c_mode_with_parameter.sh
+	sudo ./test_c_mode_with_parameter.sh
 }
 
 copy_script_without_parameter() {
@@ -76,8 +82,6 @@ copy_script_without_parameter() {
 }
 
 function_end_script_text() {
-
-
 	declare -g AFTER=$(date +%s)
 
 	echo ""
@@ -132,7 +136,7 @@ create_the_workspace() {
 }
 
 start_download_test() {
-
+    
 	(
 		echo ""
 
@@ -146,6 +150,8 @@ start_download_test() {
 	declare -g BEFORE=$(date +%s)
 
 	(
+        cd Test
+	
 		download_script
     
 	) >>download.file 2>&1
@@ -159,6 +165,9 @@ start_download_test() {
 	echo -e ""
 
 	echo -e "Test finished"
+	
+	check_return
+
 }
 
 start_download_test_without_parameter() {
@@ -193,6 +202,8 @@ start_download_test_without_parameter() {
 	echo -e "Test finished"
 
 	echo ""
+
+	check_return
 }
 
 start_copy_test() {
@@ -209,6 +220,8 @@ start_copy_test() {
 	declare -g BEFORE=$(date +%s)
 
 	(
+        cd Test
+	
 		copy_script
 
     ) >>copy.file 2>&1
@@ -225,6 +238,9 @@ start_copy_test() {
 	echo -e "Test finished"
 
 	echo ""
+	
+	check_return
+	
 }
 
 start_copy_test_without_parameter() {
@@ -260,11 +276,12 @@ start_copy_test_without_parameter() {
 	echo -e "Test finished"
 
 	echo ""
+	
+	check_return
+	
 }
 
 delete_the_workspace() {
-
-	delete_file
 
 	sudo losetup -d $DEVICE
 
@@ -275,15 +292,37 @@ checkstep() {
 	echo -e "${PUR_BEG}$@ ...${COL_END}"
 	if $@; then
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
+		ARRAY+=($1)
+		ARRAY2+=("${GREEN_BEG} OK ${COL_END}")
+	elif [ $? -gt 0 ]; then
+        printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
+		NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
+		ARRAY+=($1)
+		ARRAY2+=("${RED_BEG} FAIL ${COL_END}")
 	else
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
-		declare -g NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
+        NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
+        ARRAY+=($1)
+        ARRAY2+=("${RED_BEG} FAIL ${COL_END}")
 	fi
+}
+
+check_return()  {
+    if [ $CORRECT == 1 ]; then
+        return 1
+    else 
+        return 0
+    fi
 }
 
 html_function() {
 cat $DIR_IM/$LOGFILE|$DIR/ansi2html.sh > $DIR_IM/$LOGFILE
 }
+
+declare -g CORRECT=0
+declare -g NOF_FAILED_COMMANDS=0
+declare -ag ARRAY=()
+declare -ag ARRAY2=()
 
 #source ../lib/imagizor_common.sh
 
@@ -298,12 +337,16 @@ head_trace "$DOWNLOAD_TEXT"
 
 checkstep start_download_test
 
+CORRECT=0
+
 declare LOGFILE=download_without_parameter.file
 declare HTMLFILE=download_without_parameter_html.file
 
 head_trace "$DOWNLOAD_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_download_test_without_parameter
+
+CORRECT=0
 
 declare LOGFILE=copy.file
 declare HTMLFILE=copy_html.file
@@ -312,6 +355,8 @@ head_trace "$COPY_TEXT"
 
 checkstep start_copy_test
 
+CORRECT=0
+
 declare LOGFILE=copy_without_parameter.file
 declare HTMLFILE=copy_without_parameter_html.file
 
@@ -319,14 +364,32 @@ head_trace "$COPY_WITHOUT_PARAMETER_TEXT"
 
 checkstep start_copy_test_without_parameter
 
+CORRECT=0
+
 head_trace "Delete the Workspace"
 
 checkstep delete_the_workspace
 
 echo ""
 
-if [ $NOF_FAILED_COMMANDS ]; then
+declare RETURN=0
+
+if [ $NOF_FAILED_COMMANDS -gt 0 ]; then
 	info_trace "Failed script count: $NOF_FAILED_COMMANDS"
+	RETURN=1
 fi
 
 head_trace_end
+
+info_trace "Results of the tests: "
+    echo ""
+    declare i=0
+	for X in ${ARRAY[*]}; do
+	    printf "%-90b %10b\n" "${PUR_BEG}$X${COL_END}" "${ARRAY2[$i]}"
+	    i=$i+1
+    done
+    
+
+head_trace_end
+
+exit $RETURN
