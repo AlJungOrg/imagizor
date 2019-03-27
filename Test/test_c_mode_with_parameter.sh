@@ -2,7 +2,7 @@
 
 cd ..
 
-spawn ./imagizor.sh -c test.iso -t /dev/mmcblk0
+spawn ./imagizor.sh -c test.iso -t /dev/loop0
 
 set timeout 10
 

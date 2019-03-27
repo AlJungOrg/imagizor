@@ -292,12 +292,18 @@ checkstep() {
 	echo -e "${PUR_BEG}$@ ...${COL_END}"
 	if $@; then
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${GREEN_BEG} OK ${COL_END}"
+		ARRAY+=($1)
+		ARRAY2+=("${GREEN_BEG} OK ${COL_END}")
 	elif [ $? -gt 0 ]; then
         printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
 		NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
+		ARRAY+=($1)
+		ARRAY2+=("${RED_BEG} FAIL ${COL_END}")
 	else
 		printf "%-90b %10b\n" "${PUR_BEG}$1${COL_END}" "${RED_BEG} FAIL ${COL_END}"
         NOF_FAILED_COMMANDS=$(( NOF_FAILED_COMMANDS + 1 ))
+        ARRAY+=($1)
+        ARRAY2+=("${RED_BEG} FAIL ${COL_END}")
 	fi
 }
 
@@ -315,6 +321,8 @@ cat $DIR_IM/$LOGFILE|$DIR/ansi2html.sh > $DIR_IM/$LOGFILE
 
 declare -g CORRECT=0
 declare -g NOF_FAILED_COMMANDS=0
+declare -ag ARRAY=()
+declare -ag ARRAY2=()
 
 #source ../lib/imagizor_common.sh
 
@@ -370,6 +378,17 @@ if [ $NOF_FAILED_COMMANDS -gt 0 ]; then
 	info_trace "Failed script count: $NOF_FAILED_COMMANDS"
 	RETURN=1
 fi
+
+head_trace_end
+
+info_trace "Results of the tests: "
+    echo ""
+    declare i=0
+	for X in ${ARRAY[*]}; do
+	    printf "%-90b %10b\n" "${PUR_BEG}$X${COL_END}" "${ARRAY2[$i]}"
+	    i=$i+1
+    done
+    
 
 head_trace_end
 
