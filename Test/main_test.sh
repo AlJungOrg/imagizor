@@ -5,6 +5,7 @@
 set -u
 set -e
 set -o pipefail
+#set -x
 
 . ../lib/imagizor_common.sh
 
@@ -28,7 +29,7 @@ declare BLOCKS=500M
 declare BLOCKS_BYTE=512
 declare COPY_TEXT="Starting the copy mode test"
 declare COPY_WITHOUT_PARAMETER_TEXT="Starting the copy mode test without any parameter"
-declare COPY_PARAMETER='imagizor.sh -c test.iso -t /dev/loop0 -r'
+declare COPY_PARAMETER='imagizor.sh -c test.iso -t /dev/loop0'
 declare COPY_WITHOUT_PARAMETER='test_c_mode_without_parameter.sh'
 declare COUNT=4
 declare DATE='date +%Y:%m:%d:%H:%M:%S'
@@ -36,7 +37,7 @@ declare DEVICE=/dev/loop0
 declare DEVICE_ZERO=/dev/zero
 declare DOWNLOAD_TEXT="Starting the download mode test"
 declare DOWNLOAD_WITHOUT_PARAMETER_TEXT="Starting the download mode test without any parameter"
-declare DOWNLOAD_PARAMETER='imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/loop0 -u n -p n -v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18 -r'
+declare DOWNLOAD_PARAMETER='imagizor.sh -d http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64.iso.sha256 -t /dev/loop0 -u n -p n -v 1ce040ce418c6009df6e169cff47898f31c54e359b8755177fa7910730556c18'
 declare DOWNLOAD_WITHOUT_PARAMETER='test_d_mode_without_parameter.sh'
 
 declare FILE_DEVICE=/virtualfs
@@ -61,8 +62,8 @@ create_device() {
 }
 
 download_script() {
-	bash -n $DOWNLOAD_PARAMETER
-	sudo ./$DOWNLOAD_PARAMETER
+	bash -n test_d_mode_with_parameter.sh
+	sudo ./test_d_mode_with_parameter.sh
 }
 
 download_script_without_parameter() {
@@ -71,8 +72,8 @@ download_script_without_parameter() {
 }
 
 copy_script() {
-	bash -n $COPY_PARAMETER
-	sudo ./$COPY_PARAMETER
+	bash -n test_c_mode_with_parameter.sh
+	sudo ./test_c_mode_with_parameter.sh
 }
 
 copy_script_without_parameter() {
@@ -149,6 +150,8 @@ start_download_test() {
 	declare -g BEFORE=$(date +%s)
 
 	(
+        cd Test
+	
 		download_script
     
 	) >>download.file 2>&1
@@ -162,6 +165,8 @@ start_download_test() {
 	echo -e ""
 
 	echo -e "Test finished"
+	
+	check_return
 
 }
 
@@ -198,6 +203,7 @@ start_download_test_without_parameter() {
 
 	echo ""
 
+	check_return
 }
 
 start_copy_test() {
@@ -214,6 +220,8 @@ start_copy_test() {
 	declare -g BEFORE=$(date +%s)
 
 	(
+        cd Test
+	
 		copy_script
 
     ) >>copy.file 2>&1
@@ -230,6 +238,8 @@ start_copy_test() {
 	echo -e "Test finished"
 
 	echo ""
+	
+	check_return
 	
 }
 
@@ -356,11 +366,11 @@ echo ""
 
 declare RETURN=0
 
-if [ $NOF_FAILED_COMMANDS ]; then
+if [ $NOF_FAILED_COMMANDS -gt 0 ]; then
 	info_trace "Failed script count: $NOF_FAILED_COMMANDS"
 	RETURN=1
 fi
 
 head_trace_end
 
-return $RETURN
+exit $RETURN
