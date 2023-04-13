@@ -6,6 +6,7 @@ pipeline{
             steps {
                 echo "Running Tests..."
                 sh "pwd"
+                sh "ls"
                 sh "./Tests/main_test.sh"
             }
         }
