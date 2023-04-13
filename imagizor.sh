@@ -74,7 +74,7 @@ help_text_beg() {
 	echo -e "${BOLD}-u, --user ${COL_END}          user data for the download mode for the authentication"
 	echo -e "${BOLD}-p, --password${COL_END}       the password for the download mode for the authentication"
 	echo -e "${BOLD}-s, --skip ${COL_END}          skips the verification process, during the copy"
-	echo -e "${BOLD}-r, --remove ${COL_END}        delete the compressed file"
+	echo -e "${BOLD}-r, --remove ${COL_END}        delete the decompressed file"
 	echo -e ""
 }
 
@@ -139,24 +139,28 @@ help_for_less_Parameter() { #Longer help text
 #<<==========================================================================<<
 needed_tools() { #Validate if the needed tool are on the shell
 
-	declare -ra TOOLS=(wget gunzip dd md5sum truncate bunzip2 lsblk unzip pv)
-    declare -ra BZIP=(pbzip2)
+	declare -ra TOOLS=(wget gunzip dd md5sum truncate pbunzip2 lsblk unzip pv)
+	declare -g UNZIP=pbunzip2
 	
 	for X in ${TOOLS[*]}; do
 		if ! which $X >/dev/null 2>/dev/null; then
-			error_trace "$X is not on your device"
-			help_trace "Please install $X"
-			exit
+			if [ $X = ${TOOLS[5]} ] ; then
+				if which bunzip2 >/dev/null 2>/dev/null; then
+					UNZIP=bunzip2
+				else
+					error_trace "$X is not on your device"
+					help_trace "Please install $X"
+					exit
+				fi
+			else	
+				error_trace "$X is not on your device"
+				help_trace "Please install $X"
+				exit
+			fi
 		fi
 	done
     
-    for X in ${TOOLS[*]}; do
-        if ! which $X >/dev/null 2>/dev/null; then
-            declare -g BZIPTYPE="bzip2 -df"
-        else
-            declare -g BZIPTYPE="pbzip2 -d"
-        fi
-    done
+    
     
 }
 
@@ -257,7 +261,7 @@ download_the_software() { #Download the Software and unpack them, if required
 	download_verifikation
 	
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g UNPACK="bunzip2"
+		declare -g UNPACK=$UNZIP
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
 		declare -g UNPACK="gunzip -fk" 
     elif [[ "$FILENAME" =~ ".zip" ]]; then
@@ -462,7 +466,7 @@ extract_compressed_file() {
 	fi
 
 	if [[ "$FILENAME" =~ ".bz2" ]]; then
-		declare -g UNPACK="bunzip2"
+		declare -g UNPACK=$UNZIP
 	elif [[ "$FILENAME" =~ ".gz" ]]; then
 		declare -g UNPACK=gunzip 
     elif [[ "$FILENAME" =~ ".zip" ]]; then
@@ -1171,7 +1175,7 @@ set +u
 if [ ! -z "$DELETE" ]; then
     rm -r $FILENAME
 else
-    read -p "${BOLD_TP}Do you want to delete the compressed File? ("y"): ${TP_END}" ANSWER2
+    read -p "${BOLD_TP}Do you want to delete the decompressed File? ("y"): ${TP_END}" ANSWER2
     
     case $ANSWER2 in
     "");&
