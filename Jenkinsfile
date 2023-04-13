@@ -14,5 +14,15 @@ pipeline{
             }
         }
 
+        stage("Build") {
+            steps {
+                script {
+                    currentBuild.displayName = "${BUILD_NUMBER}-${GIT_COMMIT}"
+                    currentBuild.description = "Built ${BUILD_NUMBER}-${GIT_COMMIT}" + 
+                                               "From Branch ${BRANCH_NAME} @ ${NODE_NAME}"
+                }
+            }
+        }
+
     }
 }
