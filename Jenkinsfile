@@ -10,7 +10,7 @@ pipeline{
         stage("Test") {
             steps {
                 echo "Running Tests..."
-                sh "(cd ${env.TEST_DIR}; ./${env.TEST_SCRIPT})"
+                sh "(cd ${env.TEST_DIR}; ${env.TEST_SCRIPT})"
             }
         }
 
