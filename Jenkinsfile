@@ -17,9 +17,10 @@ pipeline{
         stage("Build") {
             steps {
                 script {
-                    currentBuild.displayName = "${BUILD_NUMBER}-${GIT_COMMIT}"
-                    currentBuild.description = "Built ${BUILD_NUMBER}-${GIT_COMMIT}" + 
-                                               "From Branch ${BRANCH_NAME} @ ${NODE_NAME}"
+                    currentBuild.displayName = "#${BUILD_NUMBER}-${BRANCH_NAME}-${GIT_COMMIT}"
+                    currentBuild.description = "Built #${BUILD_NUMBER}" + 
+                                               "from branch '${BRANCH_NAME}' @ ${NODE_NAME}" + 
+                                               "with commit ${GIT_COMMIT}"
                 }
             }
         }
