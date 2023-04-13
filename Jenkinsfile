@@ -5,6 +5,7 @@ pipeline{
         stage("Test") {
             steps {
                 echo "Running Tests..."
+                sh "pwd"
                 sh "./Tests/main_test.sh"
             }
         }
