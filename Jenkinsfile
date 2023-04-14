@@ -6,11 +6,18 @@ pipeline{
         TEST_SCRIPT = "main_test.sh"
     }
 
+    options{
+        // enabling timestamps in console output of log
+        timestamps ()
+    }
+
     stages {
         stage("Test") {
             steps {
                 echo "Running Tests..."
-                sh "(cd ${env.TEST_DIR}; ./${env.TEST_SCRIPT})"
+                dir("${env.TEST_DIR}"){
+                    sh "./${env.TEST_SCRIPT}"
+                }
             }
         }
 
@@ -25,5 +32,24 @@ pipeline{
             }
         }
 
+    }
+
+       // post step
+    post {
+        success {
+            echo "Build #${BUILD_NUMBER} succeeded for branch ${BRANCH_NAME} and commit ${GIT_COMMIT}. Current build status: ${currentBuild.currentResult}."
+        }
+        unstable {
+            echo "Build #${BUILD_NUMBER} is unstable for branch ${BRANCH_NAME} and commit ${GIT_COMMIT}. Current build status: ${currentBuild.currentResult}."
+        }
+        failure {
+            echo "Build #${BUILD_NUMBER} failed for branch ${BRANCH_NAME} and commit ${GIT_COMMIT}. Current build status: ${currentBuild.currentResult}."
+        }
+        always {
+
+            echo "Cleaning workspace ..."
+            // clean workspace
+            cleanWs()
+        }
     }
 }
